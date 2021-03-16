@@ -5,192 +5,226 @@
       <artifact name="AndroidRipperNewDriver:jar" />
     </artifacts-to-build>
   </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:master" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="37e4f4bc-d44c-45f7-bc04-d272747cbe53" name="Default" comment="" />
-    <ignored path="$PROJECT_DIR$/bin/" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
+    <list default="true" id="5e843025-389e-4f95-bd9c-33d05a6f8369" name="Default Changelist" comment="杨日东大概看完了driver，加了一些注释，增减了一些TODO，修改了无法容忍的代码问题">
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle____app_libs_custom_gson_2_8_1_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle____app_libs_ripper_shared_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle____app_libs_robotium_5_6_3_custom_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__android_arch_core_common_1_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__android_arch_lifecycle_common_1_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__android_arch_lifecycle_runtime_1_0_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_animated_vector_drawable_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_appcompat_v7_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_annotations_26_1_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_compat_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_core_ui_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_core_utils_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_fragment_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_media_compat_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_v4_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_support_vector_drawable_26_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_test_espresso_espresso_core_3_0_1_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_test_espresso_espresso_idling_resource_3_0_1_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_test_rules_1_0_1_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_android_support_test_runner_1_0_1_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_google_code_findbugs_jsr305_2_0_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__com_squareup_javawriter_2_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__javax_inject_javax_inject_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__net_sf_kxml_kxml2_2_3_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__org_hamcrest_hamcrest_integration_1_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/libraries/Gradle__org_hamcrest_hamcrest_library_1_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/libraries/Gradle__com_android_support_support_annotations_21_0_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/libraries/Gradle__com_android_support_support_v4_21_0_3_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/libraries/Gradle__com_google_code_gson_gson_2_6_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.gradle/4.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.gradle/4.1/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.gradle/4.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.gradle/4.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.gradle/buildOutputCleanup/built.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.gradle/buildOutputCleanup/cache.properties.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipper/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipper/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/boundary/AndroidRipper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/boundary/AndroidRipper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/comparator/ActivityStructureComparator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/comparator/ActivityStructureComparator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AbstractDriver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AbstractDriver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AndroidRipperStarter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AndroidRipperStarter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/device/HardwareDevice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/device/HardwareDevice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/systematic/SystematicDriver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/driver/systematic/SystematicDriver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/net/RipperServiceSocket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/net/RipperServiceSocket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/ConfigurationBasedPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/ConfigurationBasedPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/HandlerBasedPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/HandlerBasedPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/widget_inputs/AutoCompleteTextViewInputPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/widget_inputs/AutoCompleteTextViewInputPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/widget_inputs/EditTextInputPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/planner/widget_inputs/EditTextInputPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/termination/EmptyActivityStateListTerminationCriterion.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/termination/EmptyActivityStateListTerminationCriterion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/actions/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/actions/Actions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/logcat/LogcatDumper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/logcat/LogcatDumper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/strace/AdbStraceDumper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/ripper/tools/strace/AdbStraceDumper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/it/unina/android/shared/ripper/output/XMLRipperOutput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/it/unina/android/shared/ripper/output/XMLRipperOutput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.gradle/4.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.gradle/4.1/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.gradle/4.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.gradle/4.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.gradle/buildOutputCleanup/built.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.gradle/buildOutputCleanup/cache.properties.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/aidl/debug/it/unina/android/ripper_service/IAndroidRipperService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/aidl/debug/it/unina/android/ripper_service/IAnrdoidRipperServiceCallback.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/buildConfig/androidTest/debug/it/unina/android/ripper_service/test/BuildConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/buildConfig/debug/it/unina/android/ripper_service/BuildConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/buildConfig/debug/it/unina/android/ripper_service/BuildConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/r/androidTest/debug/it/unina/android/ripper_service/test/R.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/r/debug/android/support/v4/R.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/generated/source/r/debug/it/unina/android/ripper_service/R.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/multi-v2/debug.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/multi-v2/values-sw720dp-land-v13.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/multi-v2/values-v11.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/multi-v2/values-v14.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/multi-v2/values.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/blame/res/debug/single/debug.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/compileDebugAidl/dependency.store" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/compileDebugAndroidTestAidl/dependency.store" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/merge-state" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/merge-state" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/zip-cache/fZJHh+8Dxw7WliHsd9RKD+QPBI8=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/zip-cache/nS87n2VWXqz32IyThU9y35GZ4lI=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/zip-cache/xCmcFshVCNF9Ljsayz2pjaz412g=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJavaRes/zip-cache/yKQbye3lNHU0CtvpUDhjZ1unK7I=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJniLibs/merge-state" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJniLibs/zip-cache/fZJHh+8Dxw7WliHsd9RKD+QPBI8=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJniLibs/zip-cache/nS87n2VWXqz32IyThU9y35GZ4lI=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJniLibs/zip-cache/xCmcFshVCNF9Ljsayz2pjaz412g=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/debug-mergeJniLibs/zip-cache/yKQbye3lNHU0CtvpUDhjZ1unK7I=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugAndroidTestResources/compile-file-map.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugAndroidTestResources/merger.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugAssets/merger.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugAssets/merger.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/compile-file-map.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/compile-file-map.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw720dp-land-v13/values-sw720dp-land-v13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw720dp-land-v13/values-sw720dp-land-v13.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v11/values-v11.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v11/values-v11.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v14/values-v14.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v14/values-v14.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merger.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugResources/merger.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugShaders/merger.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/mergeDebugShaders/merger.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/packageDebug/debug/dex-renamer-state.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/packageDebug/debug/file-input-save-data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/incremental/packageDebug/debug/zip-cache/AZKzIh7ezhQZ7wEUmMqkpiITgUc=" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/javaPrecompile/debug/annotationProcessors.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifest/androidTest/debug/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifest/androidTest/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifests/density/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifests/full/debug/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifests/full/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/manifests/instant-run/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/androidTest/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-hdpi_ic_launcher.png.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-hdpi_ic_launcher.png.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-mdpi_ic_launcher.png.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-mdpi_ic_launcher.png.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-xhdpi_ic_launcher.png.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-xhdpi_ic_launcher.png.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-xxhdpi_ic_launcher.png.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/drawable-xxhdpi_ic_launcher.png.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/layout_activity_main.xml.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/layout_activity_main.xml.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/menu_main.xml.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/menu_main.xml.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-sw720dp-land-v13_values-sw720dp-land-v13.arsc.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-sw720dp-land-v13_values-sw720dp-land-v13.arsc.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-v11_values-v11.arsc.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-v11_values-v11.arsc.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-v14_values-v14.arsc.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values-v14_values-v14.arsc.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values_values.arsc.flat" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/merged/debug/values_values.arsc.flat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/res/symbol-table-with-package/debug/package-aware-r.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/splits-support/androidTest/debug/split-list.gson" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/splits-support/debug/split-list.gson" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/symbols/debug/R.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/transforms/dexBuilder/debug/__content__.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/transforms/dexMerger/debug/__content__.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/transforms/externalLibsDexMerger/debug/__content__.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/transforms/mergeJavaRes/debug/__content__.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/intermediates/transforms/mergeJniLibs/debug/__content__.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/outputs/apk/debug/output.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/build/outputs/logs/manifest-merger-debug-report.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/build/outputs/logs/manifest-merger-debug-report.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AndroidRipperService/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidRipperService/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="RandomDriver.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="229" column="54" lean-forward="true" selection-start-line="229" selection-start-column="54" selection-end-line="229" selection-end-column="54" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ExplorationWatchdog.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/watchdog/ExplorationWatchdog.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="34" column="13" lean-forward="false" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>driver.</find>
-      <find>tcp</find>
-      <find>schedule</find>
-      <find>scheduler.</find>
-    </findStrings>
-  </component>
-  <component name="GradleLocalSettings">
-    <option name="externalProjectsViewState">
-      <projects_view />
+  <component name="Git.Merge.Settings">
+    <option name="OPTIONS">
+      <set>
+        <option value="NO_COMMIT" />
+      </set>
     </option>
+    <option name="BRANCH" value="git.nju/master" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/library/Configuration.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/driver/AbstractDriverExtended.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/planner/HandlerBasedPlannerWithDetection.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/planner/ConfigurationBasedPlannerWithDetection.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/planner/ConfigurationBasedPlanner.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/planner/Planner.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/planner/HandlerBasedPlanner.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/driver/AndroidRipperStarterExtended.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/driver/random/RandomDriverExtended.java" />
-        <option value="$PROJECT_DIR$/src/com/huawei/gtar/driver/random/SmartRandomDriver.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/watchdog/ExplorationWatchdog.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AndroidRipperStarter.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/driver/AbstractDriver.java" />
-        <option value="$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java" />
-      </list>
-    </option>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RESET_MODE" value="HARD" />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="293" />
-    <option name="y" value="53" />
-    <option name="width" value="1400" />
-    <option name="height" value="1000" />
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/ripper/net/RipperServiceSocket.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/shared/ripper/model/state/ActivityDescription.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/AndroidRipperStarter.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/AbstractDriver.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/systematic/SystematicDriver.java" root0="SKIP_INSPECTION" />
   </component>
-  <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scratches" />
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="AndroidRipperDriver" type="cbb8eebc:String" user="AndroidRipperDriver" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="AndroidRipperDriver" type="58d84e3e:PackageViewProjectNode" />
-              <item name="AndroidRipperNewDriver" type="616d4139:PackageViewModuleNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="ripper" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="ripper" type="462c0819:PsiDirectoryNode" />
-              <item name="driver" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="ripper" type="462c0819:PsiDirectoryNode" />
-              <item name="driver" type="462c0819:PsiDirectoryNode" />
-              <item name="random" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AndroidRipperDriver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AndroidRipperDriver" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="ripper" type="462c0819:PsiDirectoryNode" />
-              <item name="watchdog" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="AndroidView" />
-    </panes>
+  <component name="JupyterTrust" id="64ff1840-0dcc-4b3d-ada4-a5e0040ec09c" />
+  <component name="ProjectId" id="1pfHqe7uN7U4QyNZF8Dx5ooYsRh" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="abbreviatePackageNames" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="add_unversioned_files" value="true" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
+    <property name="settings.editor.selected.configurable" value="ssh.settings" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="Applet" factoryName="Applet">
@@ -201,213 +235,132 @@
       <module />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="" />
-      <envs />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
-    <configuration default="true" type="TestNG" factoryName="TestNG">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="SUITE_NAME" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="GROUP_NAME" />
+    <configuration default="true" type="TestNG">
       <option name="TEST_OBJECT" value="CLASS" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <option name="OUTPUT_DIRECTORY" />
-      <option name="ANNOTATION_TYPE" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <option name="USE_DEFAULT_REPORTERS" value="false" />
-      <option name="PROPERTIES_FILE" />
-      <envs />
       <properties />
       <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
-    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
       <option name="PROGRAM_PARAMETERS" />
-      <predefined_log_file id="idea.log" enabled="true" />
+      <predefined_log_file enabled="true" id="idea.log" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
   </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SshConsoleOptionsProvider">
+    <option name="myEncoding" value="UTF-8" />
+    <option name="myConnectionType" value="NONE" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="37e4f4bc-d44c-45f7-bc04-d272747cbe53" name="Default" comment="" />
+      <changelist id="5e843025-389e-4f95-bd9c-33d05a6f8369" name="Default Changelist" comment="" />
       <created>1514460846214</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1514460846214</updated>
+      <workItem from="1615567429256" duration="60000" />
+      <workItem from="1615793507875" duration="13305000" />
+      <workItem from="1615874635487" duration="7719000" />
     </task>
     <servers />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="293" y="53" width="1853" height="1055" extended-state="6" />
-    <layout>
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32982087" sideWeight="0.48623854" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32982087" sideWeight="0.51376146" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18888289" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-    </layout>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager />
-    <watches-manager />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/driver/AndroidRipperStarterExtended.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/boundary/web_service/AndroidRipperWebService.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/driver/AbstractDriverExtended.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/planner/HandlerBasedPlannerWithDetection.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/planner/ConfigurationBasedPlannerWithDetection.java" />
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/planner/ConfigurationBasedPlanner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="228" column="13" lean-forward="false" selection-start-line="228" selection-start-column="13" selection-end-line="228" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/planner/HandlerBasedPlanner.java" />
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/planner/Planner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-72">
-          <caret line="37" column="3" lean-forward="false" selection-start-line="37" selection-start-column="3" selection-end-line="37" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/driver/random/RandomDriverExtended.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/driver/random/SmartRandomDriver.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/driver/AndroidRipperStarterExtended.java" />
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/systematic/SystematicDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-931">
-          <caret line="70" column="13" lean-forward="false" selection-start-line="70" selection-start-column="13" selection-end-line="70" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/utils/RipperStringUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/huawei/gtar/library/Configuration.java" />
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/net/RipperServiceSocket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="344">
-          <caret line="601" column="23" lean-forward="true" selection-start-line="601" selection-start-column="23" selection-end-line="601" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/AbstractDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-985">
-          <caret line="301" column="27" lean-forward="false" selection-start-line="301" selection-start-column="27" selection-end-line="301" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/AndroidRipperStarter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="544" column="0" lean-forward="true" selection-start-line="544" selection-start-column="0" selection-end-line="544" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/driver/random/RandomDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="229" column="54" lean-forward="true" selection-start-line="229" selection-start-column="54" selection-end-line="229" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/it/unina/android/ripper/watchdog/ExplorationWatchdog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="34" column="13" lean-forward="false" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="412" y="130" key="#TODO" timestamp="1615797449288">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="412" y="130" key="#TODO/0.0.1280.680@0.0.1280.680" timestamp="1615797449288" />
+    <state x="93" y="93" width="1095" height="495" key="DiffContextDialog" timestamp="1615797861856">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="93" y="93" width="1095" height="495" key="DiffContextDialog/0.0.1280.680@0.0.1280.680" timestamp="1615797861856" />
+    <state x="142" y="0" key="SettingsEditor" timestamp="1615880676095">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="142" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1615880676095" />
+    <state x="345" y="37" key="VCS.ChangeListViewerDialog" timestamp="1615795546253">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="345" y="37" key="VCS.ChangeListViewerDialog/0.0.1280.680@0.0.1280.680" timestamp="1615795546253" />
+    <state x="233" y="74" key="Vcs.Push.Dialog.v2" timestamp="1615881197254">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="233" y="74" key="Vcs.Push.Dialog.v2/0.0.1280.680@0.0.1280.680" timestamp="1615881197254" />
+    <state x="93" y="93" width="1095" height="495" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1615393864042">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="93" y="93" width="1095" height="495" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1280.680@0.0.1280.680" timestamp="1615393864042" />
+    <state x="339" y="72" width="603" height="536" key="find.popup" timestamp="1615800770570">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="339" y="72" width="603" height="536" key="find.popup/0.0.1280.680@0.0.1280.680" timestamp="1615800770570" />
+    <state x="405" y="240" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1615881813154">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="405" y="240" key="git4idea.remote.GitConfigureRemotesDialog/0.0.1280.680@0.0.1280.680" timestamp="1615881813154" />
   </component>
   <component name="masterDetails">
     <states>

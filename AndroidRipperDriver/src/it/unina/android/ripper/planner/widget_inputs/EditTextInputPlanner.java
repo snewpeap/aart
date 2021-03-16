@@ -32,7 +32,6 @@ public class EditTextInputPlanner extends WidgetInputPlanner {
 
 	public EditTextInputPlanner(WidgetDescription widget) {
 		super(widget, InteractionType.WRITE_TEXT, true);
-		// TODO Auto-generated constructor stub
 	}
 	
 }

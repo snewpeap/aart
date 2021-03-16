@@ -84,6 +84,7 @@ public class SystematicDriver extends AbstractDriver {
 
 	/**
 	 * Constructor. Default Components.
+	 * 没有用到
 	 */
 	public SystematicDriver() {
 		this(new BreadthScheduler(), new ConfigurationBasedPlanner(), new XMLRipperInput(),
@@ -209,7 +210,7 @@ public class SystematicDriver extends AbstractDriver {
 					
 					boolean aTaskHasBeenExecuted = false;
 						
-					if (bootstrapDone) {
+					if (bootstrapDone) {//第一轮循环不会进入该分支
 						notifyRipperLog("Scheduled tasks: " + ((this.getScheduler()!=null && this.getScheduler().getTaskList()!=null)?this.getScheduler().getTaskList().size():"NULL"));
 						t = this.schedule();
 
@@ -245,7 +246,7 @@ public class SystematicDriver extends AbstractDriver {
 					Actions.sleepMilliSeconds(SLEEP_AFTER_TASK);
 
 					if (bootstrapDone == false || aTaskHasBeenExecuted == true) {
-										
+
 						//handle ads
 						ActivityDescription ad = getCurrentDescriptionAsActivityDescription();
 						do {
@@ -254,10 +255,8 @@ public class SystematicDriver extends AbstractDriver {
 									notifyRipperLog("Google ADS Activity detected : BACK!");
 									executeEvent(new Event(InteractionType.BACK, null, null, null));
 								} catch (AckNotReceivedException e) {
-									// TODO Auto-generated catch block
 									//e.printStackTrace();
 								} catch (NullMessageReceivedException e) {
-									// TODO Auto-generated catch block
 									//e.printStackTrace();
 								}
 								Actions.sleepMilliSeconds(1000);
@@ -273,6 +272,7 @@ public class SystematicDriver extends AbstractDriver {
 						
 						TaskList plannedTasks = new TaskList();
 						if (compareAndAddState(getCurrentDescriptionAsActivityDescription())) {
+							//第一轮t==null
 							plannedTasks = plan(t, getLastActivityDescription());
 							
 							scheduler.addTasks(plannedTasks);
@@ -419,10 +419,8 @@ public class SystematicDriver extends AbstractDriver {
 							notifyRipperLog("Google ADS Activity detected : BACK!");
 							executeEvent(new Event(InteractionType.BACK, null, null, null));
 						} catch (AckNotReceivedException e) {
-							// TODO Auto-generated catch block
 							//e.printStackTrace();
 						} catch (NullMessageReceivedException e) {
-							// TODO Auto-generated catch block
 							//e.printStackTrace();
 						}
 						Actions.sleepMilliSeconds(1000);

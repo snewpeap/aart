@@ -71,10 +71,8 @@ public class AdbStraceDumper extends StraceDumper {
 
 			System.out.println("Tracing PID: " + pid);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		}
 

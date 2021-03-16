@@ -24,7 +24,7 @@ import it.unina.android.shared.ripper.model.task.TaskList;
 
 /**
  * The Process is ended when no more events are in the Task List
- * 
+ * 但是出现了不停止的情况
  * @author Nicola Amatucci - REvERSE
  *
  */

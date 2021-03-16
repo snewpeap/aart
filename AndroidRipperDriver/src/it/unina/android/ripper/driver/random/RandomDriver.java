@@ -205,10 +205,8 @@ public class RandomDriver extends AbstractDriver {
 									notifyRipperLog("Google ADS Activity detected : BACK!");
 									executeEvent(new Event(InteractionType.BACK, null, null, null));
 								} catch (AckNotReceivedException e) {
-									// TODO Auto-generated catch block
 									//e.printStackTrace();
 								} catch (NullMessageReceivedException e) {
-									// TODO Auto-generated catch block
 									//e.printStackTrace();
 								}
 								Actions.sleepMilliSeconds(1000);

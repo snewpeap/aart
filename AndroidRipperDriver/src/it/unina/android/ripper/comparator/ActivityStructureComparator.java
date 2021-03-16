@@ -75,6 +75,7 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 	/* (non-Javadoc)
 	 * @see it.unina.android.ripper.comparator.IComparator#compare(it.unina.android.ripper.model.ActivityDescription, it.unina.android.ripper.model.ActivityDescription)
 	 */
+	//代表了Android Ripper（默认的）对状态的定义
 	@Override
 	public Object compare(ActivityDescription activity1, ActivityDescription activity2)
 	{
@@ -151,24 +152,27 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 	 */
 	protected boolean matchWidget(WidgetDescription w1, WidgetDescription w2)
 	{
-		if (w1.getId().equals(w2.getId()) == false) {
+		//比较id
+		if (!w1.getId().equals(w2.getId())) {
 			debug("compare widget id ("+w1.getId()+","+w2.getId()+") -> false");
 			return false;
 		} else {
 			debug("compare widget id ("+w1.getId()+","+w2.getId()+") -> true");		
 		}
 
-		if (w1.getSimpleType().equals(w2.getSimpleType()) == false) {
+		//比较类型
+		if (!w1.getSimpleType().equals(w2.getSimpleType())) {
 			debug("compare widget simple type("+w1.getSimpleType()+","+w2.getSimpleType()+") -> false");
 			return false;
 		} else {
 			debug("compare widget simple type("+w1.getSimpleType()+","+w2.getSimpleType()+") -> true");	
 		}				
-		
+
+		//如果是列表，比较数目
 		//Compare the item count of two LIST_VIEW WidgetDescription instances		
 		if (w1.getSimpleType().equals(SimpleType.LIST_VIEW) && w2.getSimpleType().equals(SimpleType.LIST_VIEW))
 		{		
-			if (w1.getCount().equals(w2.getCount()) == false) {
+			if (!w1.getCount().equals(w2.getCount())) {
 				if (w1.getCount() >= maxListElementsCount && w2.getCount() >= maxListElementsCount)
 				{
 					debug("compare list item count (maxListElementsConut) -> true");	
@@ -183,10 +187,11 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 			}
 		}
 
+		//如果是菜单，比较数目
 		//Compare the item count of two MENU_VIEW WidgetDescription instances			
 		if (w1.getSimpleType().equals(SimpleType.MENU_VIEW) && w2.getSimpleType().equals(SimpleType.MENU_VIEW))
 		{
-			if (w1.getCount().equals(w2.getCount()) == false) {
+			if (!w1.getCount().equals(w2.getCount())) {
 				debug("compare menu item count -> false");
 				return false;
 			} else {
@@ -206,15 +211,15 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 	 */
 	protected boolean testIfWidgetsListMatch(ArrayList<WidgetDescription> widgets1, ArrayList<WidgetDescription> widgets2)
 	{
-		/**
-		 * Implement a contains() method to verify if the widget is already in the list
+		/*
+		  Implement a contains() method to verify if the widget is already in the list
 		 */
 		ArrayList<WidgetDescription> checkedAlready = new ArrayList<WidgetDescription>()
 		{
 			@Override
 			public boolean contains(Object o)
 			{
-				if (o == null && WidgetDescription.class.isInstance(o) == false)
+				if (!(o instanceof WidgetDescription))
 					return false;
 				
 				return lookFor((WidgetDescription)o, this);
@@ -226,7 +231,7 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 		for (WidgetDescription w1 : widgets1)
 		{
 			//if (checkedAlready.contains(w1) == false) {
-				if(lookFor(w1, widgets2) == false)
+				if(!lookFor(w1, widgets2))
 				{
 					debug("lookFor(w1, widgets2) no " + w1.getId());
 					return false;
@@ -241,8 +246,8 @@ public class ActivityStructureComparator implements IComparator, Serializable {
 		//Second Pass of comparison
 		for (WidgetDescription w2 : widgets2)
 		{
-			if (checkedAlready.contains(w2) == false) {
-				if(lookFor(w2, widgets1) == false)
+			if (!checkedAlready.contains(w2)) {
+				if(!lookFor(w2, widgets1))
 				{
 					debug("lookFor(w2, widgets1) no " + w2.getId());
 					return false;

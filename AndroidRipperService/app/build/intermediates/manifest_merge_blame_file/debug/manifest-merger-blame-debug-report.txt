@@ -1,0 +1,82 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="it.unina.android.ripper_service"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk android:minSdkVersion="4" />
+7-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml
+8
+9    <uses-permission android:name="android.permission.INTERNET" />
+9-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:8:5-67
+9-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:8:22-64
+10    <!-- <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> -->
+11    <uses-permission android:name="android.permission.GET_TASKS" />
+11-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:10:2-65
+11-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:10:19-62
+12
+13    <application
+13-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:12:5-50:19
+14        android:allowBackup="true"
+14-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:13:9-35
+15        android:debuggable="true"
+16        android:icon="@drawable/ic_launcher"
+16-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:14:9-45
+17        android:label="@string/app_name"
+17-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:15:9-41
+18        android:theme="@style/AppTheme" >
+18-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:16:9-40
+19
+20        <!--
+21        <receiver
+22            android:name=".StartupReceiver "
+23            android:enabled="true"
+24            android:exported="false" >
+25            <intent-filter>
+26                <action android:name="android.intent.action.BOOT_COMPLETED" />
+27            </intent-filter>
+28        </receiver>
+29        -->
+30
+31        <activity
+31-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:30:9-37:20
+32            android:name="it.unina.android.ripper_service.MainActivity"
+32-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:31:13-72
+33            android:label="@string/title_activity_main" >
+33-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:32:13-56
+34            <intent-filter>
+34-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:33:13-36:29
+35                <action android:name="android.intent.action.MAIN" />
+35-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:34:17-69
+35-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:34:25-66
+36
+37                <category android:name="android.intent.category.LAUNCHER" />
+37-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:35:17-77
+37-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:35:27-74
+38            </intent-filter>
+39        </activity>
+40
+41        <service
+41-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:40:9-49:19
+42            android:name="it.unina.android.ripper_service.AndroidRipperService"
+42-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:40:19-55
+43            android:exported="true"
+43-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:42:12-35
+44            android:process=":android_ripper_service_process" >
+44-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:41:12-61
+45            <intent-filter>
+45-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:43:13-48:29
+46                <action android:name=".IAndroidRipperService" />
+46-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:44:17-65
+46-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:44:25-62
+47                <action android:name=".IAnrdoidRipperServiceCallback" />
+47-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:45:17-73
+47-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:45:25-70
+48                <action android:name="it.unina.android.ripper_service.ANDROID_RIPPER_SERVICE" />
+48-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:47:17-97
+48-->D:\programe\AndroidRipper\AndroidRipperService\app\src\main\AndroidManifest.xml:47:25-94
+49            </intent-filter>
+50        </service>
+51    </application>
+52
+53</manifest>

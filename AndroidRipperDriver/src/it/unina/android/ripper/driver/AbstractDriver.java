@@ -806,7 +806,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * StartUp of the Ripping Process
-	 * 
+	 * 这个方法做了太多事情
+	 *
 	 * @return
 	 */
 	public void startup() {
@@ -839,7 +840,6 @@ public abstract class AbstractDriver {
 						notifyRipperLog("WAIT_BEFORE_INSTALL: waited " + i + " minutes");
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					// System.out.println(e.getMessage());
 					notifyRipperLog("WAIT_BEFORE_INSTALL interrupted!");
 				}
@@ -865,7 +865,6 @@ public abstract class AbstractDriver {
 					notifyRipperLog("WAIT_AFTER_INSTALL: waited " + i + " minutes");
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				notifyRipperLog("WAIT_AFTER_INSTALL interrupted!");
 			}
 
@@ -874,6 +873,7 @@ public abstract class AbstractDriver {
 
 		String curPackage = Actions.getCurrentForegroundActivityPackage();
 		try {
+			//为什么
 			if (curPackage.endsWith("launcher") == false && curPackage.endsWith("Launcher") == false) {
 				System.out.println("Killing " + curPackage + "...");
 				Actions.killApp(curPackage);
@@ -928,9 +928,9 @@ public abstract class AbstractDriver {
 			if (running && (pingFailures <= PING_FAILURE_THRESHOLD) // too many
 																	// pings,
 																	// need a
-																	// restart
+																	// restart，但是为什么不用ping：boolean
 			) {
-				// TODO: this.notifyRipperStarted()
+				// TODO: this.notifyRipperStarted()，啥意思，暂且蒙在鼓里
 				started = true;
 			} else {
 				throw new RipperRuntimeException(AbstractDriver.class, "startup", "Android Ripper Service Connection Error: Ping Threshold Exceeded");

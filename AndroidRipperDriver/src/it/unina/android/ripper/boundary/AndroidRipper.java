@@ -69,7 +69,7 @@ public class AndroidRipper implements RipperEventListener {
 			if (checkConfigurationFile(args[1]) == false) {
 				System.out.println("ERROR: Config file does not exist!");
 			} else {
-				ripper = new AndroidRipper(args[0], defaultConf);
+				ripper = new AndroidRipper(args[0], args[1]);
 			}
 			noProblem = true;
 		}

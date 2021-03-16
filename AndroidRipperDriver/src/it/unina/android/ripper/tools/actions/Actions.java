@@ -70,7 +70,6 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "shell", "input", "keyevent", "4").waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -79,7 +78,6 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "shell", "input", "keyevent", "82").waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -91,7 +89,6 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "shell", "input", "keyevent", "3").waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -105,7 +102,6 @@ public class Actions {
 					"am startservice -a it.unina.android.ripper_service.ANDROID_RIPPER_SERVICE")
 					.connectStdout(System.out).connectStderr(System.out);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 
@@ -132,7 +128,6 @@ public class Actions {
 		try {
 			Thread.sleep(milli);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -181,10 +176,8 @@ public class Actions {
 
 					ripperActive = false;
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					// e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					// e.printStackTrace();
 				} // .connectStdout(System.out).connectStderr(System.err);
 			}
@@ -210,7 +203,6 @@ public class Actions {
 					AndroidTools.emulator("@" + AVD_NAME, "-no-snapshot-load", "-port", Integer.toString(EMULATOR_PORT))
 							.connectStdout(System.out).connectStderr(System.err).waitForSuccess();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					// e.printStackTrace();
 				}
 			}
@@ -239,7 +231,6 @@ public class Actions {
 							Integer.toString(EMULATOR_PORT)).connectStdout(System.out).connectStderr(System.err)
 							.waitForSuccess();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					// e.printStackTrace();
 				}
 			}
@@ -266,7 +257,6 @@ public class Actions {
 			sleepSeconds(START_EMULATOR_SNAPSHOOT_WAIT_SECONDS);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -289,7 +279,6 @@ public class Actions {
 			sleepSeconds(START_EMULATOR_SNAPSHOOT_WAIT_SECONDS);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -312,7 +301,6 @@ public class Actions {
 			sleepSeconds(START_EMULATOR_SNAPSHOOT_WAIT_SECONDS);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -353,7 +341,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 
@@ -395,7 +382,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 
@@ -443,7 +429,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 
@@ -521,7 +506,6 @@ public class Actions {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 
@@ -574,7 +558,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 
@@ -628,7 +611,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 
@@ -669,7 +651,6 @@ public class Actions {
 			p.waitFor();
 //			System.out.println(apk +" installed!");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			//// e.printStackTrace();
 			return false;
 		}
@@ -682,7 +663,6 @@ public class Actions {
 			AndroidTools.adb("-s", DEVICE, "shell", "pm", "clear", autPackage).connectStdout(System.out).waitFor();
 			AndroidTools.adb("-s", DEVICE, "uninstall", autPackage).connectStdout(System.out).waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			//// e.printStackTrace();
 		}
 	}
@@ -693,7 +673,6 @@ public class Actions {
 			AndroidTools.adb("-s", DEVICE, "shell", "pm", "clear", autPackage).connectStdout(System.out).waitFor();
 			AndroidTools.adb("-s", DEVICE, "shell", "am", "force-stop", autPackage).connectStdout(System.out).waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			//// e.printStackTrace();
 		}
 	}
@@ -703,7 +682,6 @@ public class Actions {
 			AndroidTools.adb("-s", DEVICE, "forward", "tcp:" + SERVICE_DEVICE_PORT, "tcp:" + SERVICE_HOST_PORT)
 					.connectStderr(System.out).connectStdout(System.out);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -712,7 +690,6 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "emu", "kill").connectStderr(System.out).connectStdout(System.out);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -722,7 +699,6 @@ public class Actions {
 			AndroidTools.adb("-s", DEVICE, "shell", "am", "force-stop", appPackage).connectStderr(System.out)
 					.connectStdout(System.out);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -732,7 +708,6 @@ public class Actions {
 			AndroidTools.adb("-s", DEVICE, "shell", "am", "start", "-n", appPackage).connectStderr(System.out)
 					.connectStdout(System.out);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 	}
@@ -746,7 +721,6 @@ public class Actions {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
 		}
@@ -781,7 +755,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 			return false;
 		}
@@ -814,7 +787,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 
@@ -857,7 +829,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		}
 
@@ -885,7 +856,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
 
@@ -916,7 +886,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			// e.printStackTrace();
 			return false;
 		}
@@ -954,7 +923,6 @@ public class Actions {
 			p.waitFor();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		}
 
@@ -974,7 +942,6 @@ public class Actions {
 		try {
 			AndroidTools.adb(both).waitFor();
 		} catch (InterruptedException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -985,7 +952,6 @@ public class Actions {
 		try {
 			AndroidTools.adb(both).waitFor();
 		} catch (InterruptedException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -995,10 +961,8 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "pull", src, dest).connectStderr(System.out).connectStdout(System.out).waitFor();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -1009,10 +973,8 @@ public class Actions {
 			p = AndroidTools.adb("-s", DEVICE, "push", string, "/sdcard/").connectStderr(System.out).connectStdout(System.out);
 			p.waitFor();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -1023,10 +985,8 @@ public class Actions {
 			p = AndroidTools.adb("-s", DEVICE, "push", string, dest).connectStderr(System.out).connectStdout(System.out);
 			p.waitFor();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -1043,10 +1003,8 @@ public class Actions {
 			p.waitFor();
 			System.out.println(string +" installed!");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -1055,7 +1013,6 @@ public class Actions {
 		try {
 			AndroidTools.adb("-s", DEVICE, "shell", "sendevent", event).connectStdout(System.out).waitFor();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			//// e.printStackTrace();
 		}
 	}

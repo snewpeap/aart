@@ -261,6 +261,7 @@ public class AndroidRipperStarter {
 			String aut_apk = apkToTest;
 			String extractorClass = "SimpleNoValuesExtractor";
 
+			// myPath是tools文件夹...那为啥不起名toolsPath...差评
 			String myPath = sanitizePath(Paths.get("").toAbsolutePath().toString() + "/tools/");
 
 			String debugKeyStorePath = myPath + "/";// conf.getProperty("android_keystore_path",
@@ -310,6 +311,7 @@ public class AndroidRipperStarter {
 				mRipperUncaughtExceptionHandler.setPackageName(aut_package);
 				
 				//aut blacklist
+				//此黑名单文件不存在于2017.10发布，但是令人好奇，什么App会上黑名单？
 				if (new File("blacklist.txt").exists()) {
 					String line;
 					try (
@@ -354,6 +356,7 @@ public class AndroidRipperStarter {
 				}
 
 				try {
+					// TODO 考虑使用Android 11，arm avd性能惨不忍睹
 					if (ZipUtils.containsDirectory(aut_apk, "lib")) {
 						if (ZipUtils.containsDirectory(aut_apk, "lib/x86")
 								|| ZipUtils.containsDirectory(aut_apk, "lib/x86_64")) {
@@ -453,7 +456,7 @@ public class AndroidRipperStarter {
 				terminationCriterion = new it.unina.android.ripper.termination.EmptyActivityStateListTerminationCriterion();
 				
 				
-				
+
 				String comparatorName = conf.getProperty("comparator", "activity-structure");
 				
 				if (comparatorName != null && comparatorName.equals("activity-name")) {
@@ -564,7 +567,6 @@ public class AndroidRipperStarter {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						//e.printStackTrace();
 					}
 				}
@@ -710,10 +712,13 @@ public class AndroidRipperStarter {
 			println("Cleaning apks...");
 			println("Building AndroidRipper...");
 
+			//通过smali构建了AndroidRipper插桩应用
+			//smali还是混淆过的，不知道和AndroidRipper项目里的还是不是一个东西
 			execCommand("java -jar " + toolsPath + "apktool.jar b " + testSuitePath + " -o " + tempPath + "/ar.apk");
 
 			println("Signing AndroidRipper...");
 
+			//签名和对齐，ripper.apk是成品
 			execCommand("jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 					+ "/debug.keystore -storepass android -keypass android " + tempPath + "/ar.apk androiddebugkey");
 			execCommand("zipalign 4 " + tempPath + "/ar.apk " + tempPath + "/ripper.apk");
@@ -723,7 +728,7 @@ public class AndroidRipperStarter {
 					(CopyOption) StandardCopyOption.REPLACE_EXISTING);
 
 			println("Signing AUT...");
-			ZipUtils.deleteFromZip(tempPath + "/temp.apk");
+			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//这是在干嘛
 			execCommand("jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 					+ "/debug.keystore -storepass android -keypass android " + tempPath
 					+ "/temp.apk androiddebugkey");
@@ -900,7 +905,9 @@ public class AndroidRipperStarter {
 		
 		try {
 			String simpleClassName = mainActivityClass.substring(mainActivityClass.lastIndexOf('.') + 1).toLowerCase();
-			
+			//判断mainActivity是否为开屏界面，并且等待更多时长
+			//目前还无法判断这种经验主义做法是否仍然有效
+			//同时还有另一种开屏（如新版本介绍、使用介绍）问题需要解决 TODO
 			if (RipperStringUtils.stringContainsItemFromList(simpleClassName, new String[] {"splash", "welcome", "intro", "loading", "logo"})) {
 				return "10000";
 			}

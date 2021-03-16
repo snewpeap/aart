@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         applicationId "it.unina.android.ripper_service"
+        minSdkVersion 4
     }
 
     buildTypes {

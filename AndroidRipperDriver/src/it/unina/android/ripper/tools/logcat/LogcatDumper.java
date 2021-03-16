@@ -77,7 +77,6 @@ public class LogcatDumper extends Thread {
 			try { fos.close(); } catch (Exception ex) {}
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

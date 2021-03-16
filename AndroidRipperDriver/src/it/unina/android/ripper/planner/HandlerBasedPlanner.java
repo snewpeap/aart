@@ -147,7 +147,7 @@ public class HandlerBasedPlanner extends Planner
 		if (CAN_GO_BACK_ON_HOME_ACTIVITY && activity.isRootActivity())
 			taskList.addNewTaskForActivity(currentTask, InteractionType.BACK);
 		
-		if (CAN_GO_BACK && activity.isRootActivity() == false)
+		if (CAN_GO_BACK && !activity.isRootActivity())
 			taskList.addNewTaskForActivity(currentTask, InteractionType.BACK);
 		
 		if (CAN_CHANGE_ORIENTATION)

@@ -51,7 +51,7 @@ import it.unina.android.shared.ripper.model.transition.Input;
  * This planner does not take into account listeners defined in the WidgetDescription.
  * 
  * @author Nicola Amatucci - REvERSE
- *
+ * 没有用到
  */
 public class ConfigurationBasedPlanner extends Planner
 {

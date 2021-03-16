@@ -295,7 +295,6 @@ public class RipperServiceSocket {
 			try {
 				this.sendBytes(message);
 			} catch (Throwable e) {
-				// TODO Auto-generated catch block
 				//System.out.println(e.getMessage());
 			}
 			
@@ -343,7 +342,6 @@ public class RipperServiceSocket {
 		} catch (java.net.SocketException se) {
 			throw se;
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		}
 		
@@ -387,7 +385,6 @@ public class RipperServiceSocket {
 		} catch (java.net.SocketTimeoutException e) {
 
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 		}
 
@@ -437,7 +434,6 @@ public class RipperServiceSocket {
 		} catch (java.net.SocketTimeoutException e) {
 			
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			//System.out.println(e.getMessage());
 			System.out.println("RipperServiceSocket.readMessage().e: "+e.getMessage());
 		}

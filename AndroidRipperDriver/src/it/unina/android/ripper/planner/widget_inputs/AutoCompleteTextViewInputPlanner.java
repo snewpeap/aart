@@ -32,7 +32,6 @@ public class AutoCompleteTextViewInputPlanner extends WidgetInputPlanner {
 
 	public AutoCompleteTextViewInputPlanner(WidgetDescription widget) {
 		super(widget, InteractionType.TYPE_TEXT, true);
-		// TODO Auto-generated constructor stub
 	}
 	
 }

@@ -1,0 +1,4 @@
+#Mon Mar 15 17:54:18 CST 2021
+base.0=D\:\\programe\\AndroidRipper\\AndroidRipperService\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

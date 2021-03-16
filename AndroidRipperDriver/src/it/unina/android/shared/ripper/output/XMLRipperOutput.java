@@ -632,7 +632,6 @@ public class XMLRipperOutput implements RipperOutput
 				xmlSerializerThread.join();
 				return xmlSerializerThread.getOutput();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
