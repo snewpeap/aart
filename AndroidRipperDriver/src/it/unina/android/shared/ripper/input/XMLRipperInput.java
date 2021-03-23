@@ -54,6 +54,7 @@ import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_VISIB
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -79,18 +80,10 @@ public class XMLRipperInput implements RipperInput {
 		
 		if (activityElement != null) {
 			ret = new ActivityDescription();
-			
-			try {
-				ret.setId( activityElement.getAttribute(ACTIVITY_ID) );
-			} catch (Exception ex) {
-				//System.out.println(ex.getMessage());
-			}
-			
-			try {
-				ret.setUid( activityElement.getAttribute(ACTIVITY_UID) );
-			} catch (Exception ex) {
-				//System.out.println(ex.getMessage());
-			}
+
+			ret.setId( activityElement.getAttribute(ACTIVITY_ID) );
+
+			ret.setUid( activityElement.getAttribute(ACTIVITY_UID) );
 			
 			ret.setTitle(activityElement.getAttribute(ACTIVITY_TITLE));
 			ret.setName(activityElement.getAttribute(ACTIVITY_NAME));
@@ -106,8 +99,7 @@ public class XMLRipperInput implements RipperInput {
 			ret.setIsRootActivity(activityElement.getAttribute(
 					ACTIVITY_IS_ROOT_ACTIVITY).equalsIgnoreCase("TRUE"));
 			
-			try
-			{
+			try {
 				ret.setTabsCount( Integer.parseInt(activityElement.getAttribute(ACTIVITY_TABS_COUNT)));
 			} catch(Throwable t){
 				ret.setTabsCount(0);
@@ -117,7 +109,7 @@ public class XMLRipperInput implements RipperInput {
 
 			for (int index = 0; index < childNodes.getLength(); index++) {
 
-				Node node = (Node) childNodes.item(index);
+				Node node = childNodes.item(index);
 				
 				//System.out.println("1)"+node.getNodeName());
 				
@@ -130,8 +122,7 @@ public class XMLRipperInput implements RipperInput {
 
 						ret.addListener(
 								e.getAttribute(LISTENER_CLASS),
-								e.getAttribute(LISTENER_PRESENT).equalsIgnoreCase(
-										"TRUE"));
+								e.getAttribute(LISTENER_PRESENT).equalsIgnoreCase("TRUE"));
 
 					} else if (e.getNodeName().equals(WIDGET)) {
 
@@ -151,14 +142,10 @@ public class XMLRipperInput implements RipperInput {
 	@Override
 	public ActivityDescription inputActivityDescription(String description) {
 		
-		//System.out.println(description);
-		
 		ActivityDescription ret = null;
 
 		try {
-			//ret = new ActivityDescription();
-			
-			ByteArrayInputStream bs = new ByteArrayInputStream(description.getBytes("UTF-8"));
+			ByteArrayInputStream bs = new ByteArrayInputStream(description.getBytes(StandardCharsets.UTF_8));
 			InputSource is = new InputSource(bs);
 	        is.setEncoding("UTF-8");
 	        
@@ -186,7 +173,6 @@ public class XMLRipperInput implements RipperInput {
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			//System.out.println(ex.getMessage());
 		}
 
 		return ret;

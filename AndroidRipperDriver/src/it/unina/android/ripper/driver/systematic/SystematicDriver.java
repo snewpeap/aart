@@ -214,7 +214,7 @@ public class SystematicDriver extends AbstractDriver {
 						notifyRipperLog("Scheduled tasks: " + ((this.getScheduler()!=null && this.getScheduler().getTaskList()!=null)?this.getScheduler().getTaskList().size():"NULL"));
 						t = this.schedule();
 
-						if (t != null) {
+						if (t != null) {//第一轮也不会进入该分支
 							Message msg = this.executeTask(t);
 
 							Actions.sleepMilliSeconds(SLEEP_AFTER_EVENT);
@@ -262,7 +262,7 @@ public class SystematicDriver extends AbstractDriver {
 								Actions.sleepMilliSeconds(1000);
 
 								this.updateLatestDescriptionAsActivityDescription();
-								ad = this.getLastActivityDescription();
+								ad = this.getLastActivityDescription();//我晕!
 								ad.setId(statesList.getEquivalentActivityStateId(ad));
 								this.appendLineToLogFile(this.ripperOutput.outputActivityDescription(ad));
 								

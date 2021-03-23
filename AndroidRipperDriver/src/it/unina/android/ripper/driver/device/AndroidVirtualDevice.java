@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -29,7 +29,7 @@ import it.unina.android.ripper.tools.actions.Actions;
 
 public class AndroidVirtualDevice extends AbstractDevice {
 
-	int port = 5554;
+	int port;
 	
 	public AndroidVirtualDevice(String name, int port) {
 		super(name);

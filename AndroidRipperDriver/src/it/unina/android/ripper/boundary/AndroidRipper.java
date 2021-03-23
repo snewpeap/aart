@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -28,56 +28,42 @@ import it.unina.android.ripper.observer.RipperEventListener;
 
 /**
  * Entry Point of Android Ripper
- * 
+ *
  * @author Nicola Amatucci - REvERSE
- * 
  */
 public class AndroidRipper implements RipperEventListener {
 
-	public AndroidRipperStarter ripper = null;
+	public AndroidRipperStarter ripper;
 
-	private static String defaultConf = "default.properties";
+	private static final String defaultConf = "default.properties";
 
-	
+
 	/**
 	 * Entry Point
-	 * 
+	 * <p>
 	 * Args:
 	 * - args[0] apk to test
 	 * - args[1] configuration properties file
-	 * 
-	 * @param args
+	 *
+	 * @param args args
 	 */
 	public static void main(String[] args) {
-
-		boolean noProblem = false;
-
 		System.out.println("Android Ripper");
 
-		AndroidRipper ripper = null;
+		AndroidRipper instance = null;
 
 		if (args.length < 1) {
 			System.out.println("ERROR: You haven't specified needed parameters!");
 		} else if (args.length == 1) {
-			if (checkConfigurationFile(defaultConf) == false) {
-				System.out.println("ERROR: Config file does not exist!");
-			} else {
-				ripper = new AndroidRipper(args[0], defaultConf);
-			}
-			noProblem = true;
+			instance = new AndroidRipper(args[0], defaultConf);
 		} else if (args.length == 2) {
-			if (checkConfigurationFile(args[1]) == false) {
-				System.out.println("ERROR: Config file does not exist!");
-			} else {
-				ripper = new AndroidRipper(args[0], args[1]);
-			}
-			noProblem = true;
+			instance = new AndroidRipper(args[0], args[1]);
 		}
 
-		if (noProblem == false) {
+		if (instance == null) {
 			printUsageInstructions();
 		} else {
-			ripper.startRipping();
+			instance.startRipping();
 		}
 	}
 
@@ -94,15 +80,15 @@ public class AndroidRipper implements RipperEventListener {
 
 	/**
 	 * Verify if the configuration file exists
-	 * 
-	 * @param fileName
-	 *            Configuration file name
-	 * @return
+	 *
+	 * @param fileName Configuration file name
+	 * @return Configuration file existence
 	 */
 	public static boolean checkConfigurationFile(String fileName) {
 		if (new File(fileName).exists()) {
 			return true;
 		} else {
+			System.out.println("ERROR: Config file does not exist!");
 			return false;
 		}
 	}
@@ -125,7 +111,7 @@ public class AndroidRipper implements RipperEventListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * it.unina.android.ripper.observer.RipperEventListener#ripperLog(java.lang.
 	 * String)
@@ -137,7 +123,7 @@ public class AndroidRipper implements RipperEventListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * it.unina.android.ripper.observer.RipperEventListener#ripperStatusUpdate(
 	 * java.lang.String)
@@ -149,7 +135,7 @@ public class AndroidRipper implements RipperEventListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * it.unina.android.ripper.observer.RipperEventListener#ripperTaskEneded()
 	 */
@@ -160,7 +146,7 @@ public class AndroidRipper implements RipperEventListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see it.unina.android.ripper.observer.RipperEventListener#ripperEneded()
 	 */
 	@Override
@@ -171,9 +157,8 @@ public class AndroidRipper implements RipperEventListener {
 
 	/**
 	 * Print a formatted debug line
-	 * 
-	 * @param line
-	 *            line to print
+	 *
+	 * @param line line to print
 	 */
 	protected void println(String line) {
 		System.out.println("[" + System.currentTimeMillis() + "] " + line);
@@ -183,13 +168,10 @@ public class AndroidRipper implements RipperEventListener {
 	public void ripperPaused() {
 		println("Ripper Paused!");
 		System.out.println("Press \"ENTER\" to continue...");
-		new Thread() {
-			@Override
-			public void run() {
-				Scanner scanner = new Scanner(System.in);
-				scanner.nextLine();
-				ripper.getDriver().resumeRipping();
-			}
-		}.start();
+		new Thread(() -> {
+			Scanner scanner = new Scanner(System.in);
+			scanner.nextLine();
+			ripper.getDriver().resumeRipping();
+		}).start();
 	}
 }

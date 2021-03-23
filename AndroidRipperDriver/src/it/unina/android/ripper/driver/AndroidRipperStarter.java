@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -18,27 +18,6 @@
  **/
 
 package it.unina.android.ripper.driver;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Properties;
 
 import it.unina.android.ripper.comparator.ActivityNameComparator;
 import it.unina.android.ripper.comparator.ActivityStructureComparator;
@@ -59,19 +38,33 @@ import it.unina.android.ripper.scheduler.BreadthScheduler;
 import it.unina.android.ripper.scheduler.DepthScheduler;
 import it.unina.android.ripper.scheduler.Scheduler;
 import it.unina.android.ripper.scheduler.UniformRandomScheduler;
+import it.unina.android.ripper.termination.EmptyActivityStateListTerminationCriterion;
+import it.unina.android.ripper.termination.MaxEventsTerminationCriterion;
 import it.unina.android.ripper.termination.TerminationCriterion;
+import it.unina.android.ripper.termination.TestingTimeBasedTerminationCriterion;
 import it.unina.android.ripper.tools.actions.Actions;
 import it.unina.android.ripper.utils.RipperStringUtils;
 import it.unina.android.shared.ripper.input.RipperInput;
 import it.unina.android.shared.ripper.output.RipperOutput;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Properties;
+
 /**
  * Configure the AndroidRipperDriver, handle console output, start up the
  * ripping process
- * 
- * @author Nicola Amatucci - REvERSE
  *
+ * @author Nicola Amatucci - REvERSE
  */
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class AndroidRipperStarter {
 
 	public static String shell_CMD = OSSpecific.getShellCommand();
@@ -80,7 +73,7 @@ public class AndroidRipperStarter {
 	 * Driver Type = RANDOM
 	 */
 	public final static String DRIVER_RANDOM = "random";
-	
+
 	/**
 	 * Driver Type = SYSTEMATIC
 	 */
@@ -109,7 +102,7 @@ public class AndroidRipperStarter {
 	/**
 	 * Path to apk to test
 	 */
-	String apkToTest = null;
+	String apkToTest;
 
 	/**
 	 * RipperEventListener
@@ -117,34 +110,33 @@ public class AndroidRipperStarter {
 	RipperEventListener eventListener;
 
 	public RipperUncaughtExceptionHandler mRipperUncaughtExceptionHandler;
-	
+
 	/**
 	 * Constructor
-	 * 
-	 * @param driverType
-	 *            RipperDriver type
-	 * @param apk
-	 *            Apk to test
-	 * @param configFile
-	 *            Configuration file name
+	 *
+	 * @param apk        Apk to test
+	 * @param configFile Configuration file name
 	 */
-	public AndroidRipperStarter(String apk, String configFile, RipperEventListener eventListener, RipperUncaughtExceptionHandler ripperUncaughtExceptionHandler) {
+	public AndroidRipperStarter(String apk,
+								String configFile,
+								RipperEventListener eventListener,
+								RipperUncaughtExceptionHandler ripperUncaughtExceptionHandler) {
 		super();
-		
+
 		//set UncaughtExceptionHandler
 		mRipperUncaughtExceptionHandler = ripperUncaughtExceptionHandler;
 		Thread.currentThread().setUncaughtExceptionHandler(mRipperUncaughtExceptionHandler);
-	
+
 		String debugRipper = System.getenv("ANDROID_RIPPER_DEBUG");
 		if (debugRipper != null && debugRipper.equals("1")) {
 			mRipperUncaughtExceptionHandler.setPrintStackTrace(true);
 		}
-		
-		if (new File(configFile).exists() == false) {
+
+		if (!new File(configFile).exists()) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "AndroidRipperStarter", "File " + configFile + " not Found!");
 		}
 
-		if (new File(apk).exists() == false) {
+		if (!new File(apk).exists()) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "AndroidRipperStarter", "Apk " + apk + " not Found!");
 		}
 
@@ -157,13 +149,13 @@ public class AndroidRipperStarter {
 	}
 
 	public AndroidRipperStarter(String apkFile, String configFile, RipperEventListener eventListener, RipperUncaughtExceptionHandler ripperUncaughtExceptionHandler,
-			HashMap<String, String> configurationOverride) {
+								HashMap<String, String> configurationOverride) {
 		this(sanitizePath(apkFile), configFile,
 				eventListener, ripperUncaughtExceptionHandler);
 
 		for (String key : configurationOverride.keySet()) {
 			String value = configurationOverride.get(key);
-			
+
 			if (key.equals("load")) {
 				conf.put("load_manual_sequences", value);
 			} else if (key.equals("store")) {
@@ -178,22 +170,25 @@ public class AndroidRipperStarter {
 	 * Starting staus. False if is started or not started
 	 */
 	boolean mIsStarting = false;
-	public boolean isStarting() { return this.mIsStarting; }
-	
+
+	public boolean isStarting() {
+		return this.mIsStarting;
+	}
+
 	/**
 	 * Configure and StartUp Ripping Process
 	 */
 	public void startRipping() {
 
 		this.mIsStarting = true;
-		
-		validateEnvorinment();
 
-		Scheduler scheduler = null;
-		Planner planner = null;
-		RipperInput ripperInput = null;
-		RipperOutput ripperOutput = null;
-		TerminationCriterion terminationCriterion = null;
+		validateEnvironment();
+
+		Scheduler scheduler;
+		Planner planner;
+		RipperInput ripperInput;
+		RipperOutput ripperOutput;
+		TerminationCriterion terminationCriterion;
 		IComparator comparator = null;
 
 		if (conf != null) {
@@ -204,19 +199,18 @@ public class AndroidRipperStarter {
 			} else if (driverType.equals(DRIVER_RANDOM)) {
 				println("Random Ripper " + VERSION);
 			} else {
-				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver Type not suppported!");
+				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver Type not supported!");
 			}
 
-			String reportFile = new String("report.xml");
-			String logFilePrefix = new String("log_");
+			String reportFile = "report.xml";
+			String logFilePrefix = "log_";
 			String avd_name_x86 = conf.getProperty("avd_name_x86", null);
 			String avd_name_arm = conf.getProperty("avd_name_arm", null);
 			String avd_port = conf.getProperty("avd_port", "5554");
 
 			boolean model_output_enable = conf.getProperty("model", "0").equals("1");
-			
 			boolean planner_rotation_enable = conf.getProperty("planner.rotation", "0").equals("1");
-			
+
 			String ping_max_retry = conf.getProperty("socket.ping_max_retry", "10");
 			String ack_max_retry = conf.getProperty("socket.ack_max_retry", "10");
 			String failure_threshold = conf.getProperty("socket.failure_threshold", "10");
@@ -226,37 +220,38 @@ public class AndroidRipperStarter {
 
 			String target = conf.getProperty("target", "avd");
 			String device = conf.getProperty("device", null);
-			
+
 			String wait_after_install = conf.getProperty("sleep_after_install", "0");
 			String wait_before_install = conf.getProperty("sleep_before_install", "0");
 			String wait_after_manual_sequence = conf.getProperty("sleep_after_manual_sequence", "0");
-			
+
 			if (target != null && target.equals("device") && (device == null || device.equals(""))) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "No Device SET!");
 			}
 
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 			Date date = new Date();
-			String apkName = this.apkToTest.substring(this.apkToTest.lastIndexOf('/') + 1) + "_"
-					+ dateFormat.format(date);
+			String apkName = apkToTest.substring(apkToTest.lastIndexOf('/') + 1, apkToTest.length() - 4);
+			String subDirName = apkName + "/" + dateFormat.format(date);
 
-			String base_result_dir = null;
+			String base_result_dir;
 			try {
-				base_result_dir = new java.io.File(".").getCanonicalPath() + "/" + apkName;
+				base_result_dir = new File(".").getCanonicalPath() + "/" + subDirName;
 			} catch (Exception ex) {
-				base_result_dir = "./" + apkName;
+				base_result_dir = "./" + subDirName;
 			}
 
-			new File(base_result_dir).mkdirs();
+			if (!mkdirs(base_result_dir)){
+				throw new RipperRuntimeException(AndroidRipperStarter.class,
+						"startRipping",
+						"Error create result directory");
+			}
 
 			// temp path
 			String tempPath = base_result_dir + "/temp";
-			new File(tempPath).mkdir();
-
 			String logcatPath = base_result_dir + "/logcat/";
 			String xmlOutputPath = base_result_dir + "/model/";
-			
-		
+
 			// installer parameters
 			String aut_apk = apkToTest;
 			String extractorClass = "SimpleNoValuesExtractor";
@@ -264,18 +259,14 @@ public class AndroidRipperStarter {
 			// myPath是tools文件夹...那为啥不起名toolsPath...差评
 			String myPath = sanitizePath(Paths.get("").toAbsolutePath().toString() + "/tools/");
 
-			String debugKeyStorePath = myPath + "/";// conf.getProperty("android_keystore_path",
-													// null);
-			String testSuitePath = myPath + "/AndroidRipper/";// conf.getProperty("testsuite_path",
-																// null);
-			String serviceApkPath = myPath + "/";// conf.getProperty("service_apk_path",
-													// null);
-			String toolsPath = myPath + "/";// conf.getProperty("tools_path",
-											// null);
+			String debugKeyStorePath = myPath + "/";// conf.getProperty("android_keystore_path", null);
+			String testSuitePath = myPath + "/AndroidRipper/";// conf.getProperty("testsuite_path", null);
+			String serviceApkPath = myPath + "/AndroidRipperService.apk";// conf.getProperty("service_apk_path", null);
+			String toolsPath = myPath + "/";// conf.getProperty("tools_path", null);
 
 			String straceEnabled = conf.getProperty("strace", "0");
 			String tcpdumpEnabled = conf.getProperty("tcpdump", "0");
-			boolean explorationWatchdogEnabled = new String(conf.getProperty("exploration_watchdog", "0")).equals("1");
+			boolean explorationWatchdogEnabled = conf.getProperty("exploration_watchdog", "0").equals("1");
 
 			// validation
 			if (target != null && target.equals("avd")) {
@@ -283,16 +274,16 @@ public class AndroidRipperStarter {
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "avd_name_x86 null!");
 				}
 
-				if (avd_name_arm == null) {
-					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "avd_name_arm null!");
-				}
+//                if (avd_name_arm == null) {
+//                    throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "avd_name_arm null!");
+//                }
 			}
 
 			if (aut_apk == null) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "aut_apk null!");
 			}
 
-			if (new File(aut_apk).exists() == false) {
+			if (!new File(aut_apk).exists()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", aut_apk + " does not exist!");
 			}
 
@@ -305,53 +296,50 @@ public class AndroidRipperStarter {
 			println("DETECTED aut_package = " + aut_package);
 			println("DETECTED aut_main_activity = " + aut_main_activity);
 
-			if (aut_package == null || (aut_package != null && aut_package.equals(""))) {
+			if (aut_package == null || aut_package.equals("")) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "aut_package null!");
 			} else {
 				mRipperUncaughtExceptionHandler.setPackageName(aut_package);
-				
+
 				//aut blacklist
-				//此黑名单文件不存在于2017.10发布，但是令人好奇，什么App会上黑名单？
+				//此黑名单文件不存在于2017.10发布，令人好奇，什么App会上黑名单？
 				if (new File("blacklist.txt").exists()) {
 					String line;
 					try (
-					    InputStream fis = new FileInputStream("blacklist.txt");
-					    InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-					    BufferedReader br = new BufferedReader(isr);
+							InputStream fis = new FileInputStream("blacklist.txt");
+							InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+							BufferedReader br = new BufferedReader(isr)
 					) {
-					    while ((line = br.readLine()) != null) {
-					        if (line.toLowerCase().equals(aut_package.toLowerCase())) {
-					        	throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "App BlackListed!");
-					        }
-					    }
-					} catch (FileNotFoundException e1) {
-						throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", e1.getMessage(), e1);
+						while ((line = br.readLine()) != null) {
+							if (line.equalsIgnoreCase(aut_package)) {
+								throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "App BlackListed!");
+							}
+						}
 					} catch (IOException e1) {
 						throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", e1.getMessage(), e1);
 					}
 				}
 			}
-			
-			//String no_reinstall_str = conf.getProperty("no_reinstall", "0");
-			//boolean no_reinstall = (no_reinstall_str != null && no_reinstall_str.equals("1"));
-			
+
+//            String no_reinstall_str = conf.getProperty("no_reinstall", "0");
+//            boolean no_reinstall = (no_reinstall_str != null && no_reinstall_str.equals("1"));
+
+			String sleep_before_start_ripping;
 			if (aut_main_activity == null) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "aut_main_activity null!");
+			} else {
+				sleep_before_start_ripping = conf.getProperty("sleep_before_start_ripping", howMuchSleepINeed(aut_main_activity));
 			}
-			
-			String sleep_before_start_ripping = conf.getProperty("sleep_before_start_ripping", howMuchSleepINeed(aut_main_activity));
-			
+
 			// check avd
 			String avd_name = avd_name_x86;
 			if (target != null && target.equals("avd")) {
 
-				if (checkAVD(avd_name_x86) == false) {
+				if (!checkAVD(avd_name_x86)) {
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "AVD X86 does not exist!");
-				} else {
-
 				}
 
-				if (checkAVD(avd_name_arm) == false) {
+				if (!checkAVD(avd_name_arm)) {
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "AVD ARM does not exist!");
 				}
 
@@ -374,29 +362,29 @@ public class AndroidRipperStarter {
 				}
 			}
 
-			if (new File(serviceApkPath + "/AndroidRipperService.apk").exists() == false) {
+			if (!new File(serviceApkPath).exists()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", serviceApkPath + "/AndroidRipperService.apk does not exist!");
 			}
 
-			if (new File(toolsPath).exists() == false || new File(toolsPath).isDirectory() == false) {
+			if (!new File(toolsPath).exists() || !new File(toolsPath).isDirectory()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", toolsPath + " does not exist or is not a directory!");
 			}
 
-			if (new File(testSuitePath).exists() == false || new File(testSuitePath).isDirectory() == false) {
+			if (!new File(testSuitePath).exists() || !new File(testSuitePath).isDirectory()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", testSuitePath + " does not exist or is not a directory!");
 			}
 
-			if (new File(debugKeyStorePath + "/debug.keystore").exists() == false) {
+			if (!new File(debugKeyStorePath + "/debug.keystore").exists()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", debugKeyStorePath + "/debug.keystore does not exist!");
 			}
 
-			String ANDROID_RIPPER_SERVICE_WAIT_SECONDS = new String("3");
-			String ANDROID_RIPPER_WAIT_SECONDS = new String("3");
+			String ANDROID_RIPPER_SERVICE_WAIT_SECONDS = "3";
+			String ANDROID_RIPPER_WAIT_SECONDS = "3";
 
 			// RANDOM CONFIGURATION PARAMETERS
 			String legacyRandomNumEvents = conf.getProperty("events", "50");
 			String randomNumEvents = conf.getProperty("random.events", legacyRandomNumEvents);
-			println("Number of random events : "+randomNumEvents);
+			println("Number of random events : " + randomNumEvents);
 			String randomTime = conf.getProperty("random.time_sec", null);
 
 			// seed
@@ -404,7 +392,7 @@ public class AndroidRipperStarter {
 			String legacyRandomseed = conf.getProperty("seed", myDefaultSeed);
 			String randomSeed = conf.getProperty("random.seed", legacyRandomseed);
 			println("Random Seed = " + randomSeed);
-			
+
 			try {
 				Files.copy(Paths.get(configFile), Paths.get(base_result_dir + "/default.properties"));
 			} catch (IOException e1) {
@@ -412,25 +400,22 @@ public class AndroidRipperStarter {
 			}
 
 			String coverageFrequency = conf.getProperty("coverage.frequency", "100");
-			String newLogFrequency = new String("100");
-			String num_events_per_session = new String("0");
+			String newLogFrequency = "100";
+			String num_events_per_session = "0";
 
 			//Planner Configuration
 			Planner.CAN_CHANGE_ORIENTATION = planner_rotation_enable;
-			
 			planner = new it.unina.android.ripper.planner.HandlerBasedPlanner();
 
 			ripperInput = new it.unina.android.shared.ripper.input.XMLRipperInput();
 			ripperOutput = new it.unina.android.shared.ripper.output.XMLRipperOutput();
 
-			if (new java.io.File(logcatPath).exists() == false)
-				new java.io.File(logcatPath).mkdir();
-
-			if (new java.io.File(xmlOutputPath).exists() == false)
-				new java.io.File(xmlOutputPath).mkdir();
+			for (String path : new String[]{tempPath, logcatPath, xmlOutputPath}) {
+				mkdirs(path);
+			}
 
 			long seedLong = System.currentTimeMillis();
-			if (randomSeed != null && randomSeed.equals("") == false) {
+			if (randomSeed != null && !randomSeed.equals("")) {
 				seedLong = Long.parseLong(randomSeed);
 			}
 
@@ -452,13 +437,11 @@ public class AndroidRipperStarter {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver not valid.");
 			}
 
+			//TODO 工厂方法
 			if (driverType.equals(DRIVER_SYSTEMATIC)) {
-				terminationCriterion = new it.unina.android.ripper.termination.EmptyActivityStateListTerminationCriterion();
-				
-				
+				terminationCriterion = new EmptyActivityStateListTerminationCriterion();
 
 				String comparatorName = conf.getProperty("comparator", "activity-structure");
-				
 				if (comparatorName != null && comparatorName.equals("activity-name")) {
 					comparator = new ActivityNameComparator();
 				} else if (comparatorName != null && comparatorName.equals("widget-properties")) {
@@ -467,14 +450,13 @@ public class AndroidRipperStarter {
 					//default: "activity-structure"
 					comparator = new ActivityStructureComparator();
 				}
-				
-				
-				
+
+
 			} else if (driverType.equals(DRIVER_RANDOM)) {
 				if (randomTime == null) {
-					terminationCriterion = new it.unina.android.ripper.termination.MaxEventsTerminationCriterion(Integer.parseInt(randomNumEvents));
+					terminationCriterion = new MaxEventsTerminationCriterion(Integer.parseInt(randomNumEvents));
 				} else {
-					terminationCriterion = new it.unina.android.ripper.termination.TestingTimeBasedTerminationCriterion(Long.parseLong(randomTime) * 1000);
+					terminationCriterion = new TestingTimeBasedTerminationCriterion(Long.parseLong(randomTime) * 1000);
 				}
 			} else {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver not valid.");
@@ -486,11 +468,12 @@ public class AndroidRipperStarter {
 					aut_apk, tempPath);
 
 			println("Starting Ripper...");
+			//TODO 与上方if分支合并
 			if (driverType.equals(DRIVER_SYSTEMATIC)) {
 
 				driver = new SystematicDriver(scheduler, planner, ripperInput, comparator, terminationCriterion,
 						ripperOutput);
-				terminationCriterion.init(driver);
+//                terminationCriterion.init(driver);
 			} else if (driverType.equals(DRIVER_RANDOM)) {
 
 				try {
@@ -499,20 +482,15 @@ public class AndroidRipperStarter {
 				} catch (IOException e1) {
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", e1.getMessage(), e1);
 				}
-				
-				if (driverType.equals(DRIVER_RANDOM)) {
-					driver = new RandomDriver(scheduler, planner, ripperInput, ripperOutput, terminationCriterion);
-					((RandomDriver) driver).RANDOM_SEED = seedLong;
-					((RandomDriver) driver).NUM_EVENTS = Integer.parseInt(randomNumEvents);
-					((RandomDriver) driver).NUM_EVENTS_PER_SESSION = Integer.parseInt(num_events_per_session);
-					((RandomDriver) driver).NEW_LOG_FREQUENCY = Integer.parseInt(newLogFrequency);
-					((RandomDriver) driver).COVERAGE_FREQUENCY = Integer.parseInt(coverageFrequency);
-				}				
 
+				driver = new RandomDriver(scheduler, planner, ripperInput, ripperOutput, terminationCriterion);
+				((RandomDriver) driver).RANDOM_SEED = seedLong;
+				((RandomDriver) driver).NUM_EVENTS = Integer.parseInt(randomNumEvents);
+				((RandomDriver) driver).NUM_EVENTS_PER_SESSION = Integer.parseInt(num_events_per_session);
+				((RandomDriver) driver).NEW_LOG_FREQUENCY = Integer.parseInt(newLogFrequency);
+				((RandomDriver) driver).COVERAGE_FREQUENCY = Integer.parseInt(coverageFrequency);
 			} else {
-
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver Type not supported!");
-
 			}
 
 			if (driver != null) {
@@ -535,20 +513,20 @@ public class AndroidRipperStarter {
 				driver.PING_FAILURE_THRESHOLD = Integer.parseInt(ping_failure_threshold);
 				driver.LOGCAT_PATH = logcatPath;
 				driver.XML_OUTPUT_PATH = xmlOutputPath;
-				driver.TOOLS_PATH=toolsPath;
-				driver.WAIT_AFTER_INSTALL=Integer.parseInt(wait_after_install);
-				driver.WAIT_BEFORE_INSTALL=Integer.parseInt(wait_before_install);
-				
+				driver.TOOLS_PATH = toolsPath;
+				driver.WAIT_AFTER_INSTALL = Integer.parseInt(wait_after_install);
+				driver.WAIT_BEFORE_INSTALL = Integer.parseInt(wait_before_install);
+
 				driver.MODEL_OUTPUT_ENABLE = model_output_enable;
-				
-				driver.SLEEP_BEFORE_START_RIPPING=Integer.parseInt(sleep_before_start_ripping);
+
+				driver.SLEEP_BEFORE_START_RIPPING = Integer.parseInt(sleep_before_start_ripping);
 
 				driver.TCPDUMP_ENABLED = tcpdumpEnabled != null && tcpdumpEnabled.equals("1");
 				driver.STRACE_ENABLED = straceEnabled != null && straceEnabled.equals("1");
 
 				driver.EXPLORATION_WATCHDOG_ENABLED = explorationWatchdogEnabled;
 
-								
+
 				if (target.equals("device")) {
 					driver.device = new HardwareDevice(device);
 				} else { // target.equals("avd")
@@ -561,7 +539,7 @@ public class AndroidRipperStarter {
 				driver.setRipperEventListener(eventListener);
 				driver.startRipping();
 				this.mIsStarting = false;
-				
+
 				while (driver.isRunning()) {
 					// TODO: stop pause commands
 					try {
@@ -580,10 +558,9 @@ public class AndroidRipperStarter {
 
 	/**
 	 * Load the configuration file into a Properties class instance
-	 * 
-	 * @param fileName
-	 *            configuration file name
-	 * @return
+	 *
+	 * @param fileName configuration file name
+	 * @return properties
 	 */
 	private Properties loadConfigurationFile(String fileName) {
 		Properties conf = new Properties();
@@ -594,15 +571,12 @@ public class AndroidRipperStarter {
 		} catch (IOException ex) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "loadConfigurationFile", "Unable to load cofngiruation file!", ex);
 		}
-
-		//return null;
 	}
 
 	/**
 	 * Print a formatted debug line
-	 * 
-	 * @param line
-	 *            line to print
+	 *
+	 * @param line line to print
 	 */
 	protected void println(String line) {
 		if (eventListener != null) {
@@ -633,6 +607,15 @@ public class AndroidRipperStarter {
 	public final static String MANIFEST_XPATH = "//manifest[1]/@package";
 	public final static String CLASS_XPATH = "//activity[intent-filter/action/@name='android.intent.action.MAIN'][1]/@name";
 
+	protected void validateEnvironment() {
+		for (String exe : Arrays.asList("java", "jarsigner", "zipalign", "adb", "emulator")) {
+			if (!validateCommand(exe)) {
+				throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", exe + " executable not in PATH!");
+			}
+		}
+
+	}
+
 	protected void validateEnvorinment() {
 		// system variables validation
 //		String java_home = System.getenv("JAVA_HOME");
@@ -649,17 +632,17 @@ public class AndroidRipperStarter {
 
 		// String path = System.getenv("PATH");
 
-		if (validateCommand("java") == false) {
+		if (!validateCommand("java")) {
 			//throw new RuntimeException("java not in PATH");
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", "java executable not in PATH!");
 		}
 
-		if (validateCommand("jarsigner") == false) {
+		if (!validateCommand("jarsigner")) {
 			//throw new RuntimeException("jarsigner not in PATH");
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", "jarsigner executable not in PATH!");
 		}
 
-		if (validateCommand("zipalign") == false) {
+		if (!validateCommand("zipalign")) {
 			//throw new RuntimeException("zipalign not in PATH");
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", "zipalign executable not in PATH!");
 		}
@@ -671,12 +654,12 @@ public class AndroidRipperStarter {
 //			}
 //		}
 
-		if (validateCommand("adb") == false) {
+		if (!validateCommand("adb")) {
 			//throw new RuntimeException("adb not in PATH");
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", "adb executable not in PATH!");
 		}
 
-		if (validateCommand("emulator") == false) {
+		if (!validateCommand("emulator")) {
 			//throw new RuntimeException("emulator not in PATH");
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "validateEnvorinment", "emulator executable not in PATH!");
 		}
@@ -687,7 +670,7 @@ public class AndroidRipperStarter {
 			Process proc = Runtime.getRuntime().exec(cmd);
 			try {
 				proc.destroy();
-			} catch (Exception ex) {
+			} catch (Exception ignored) {
 			}
 			return true;
 		} catch (IOException e1) {
@@ -697,7 +680,8 @@ public class AndroidRipperStarter {
 	}
 
 	protected void createAPKs(String testSuitePath, String appPackage, String appMainActivity, String extractorClass,
-			String toolsPath, String debugKeyStorePath, String autAPK, String tempPath) {
+							  String toolsPath, String debugKeyStorePath, String autAPK, String tempPath) {
+		//TODO 更换为repack
 		// replace strings
 		println("Editing 'Configuration.java'");
 		replaceStringsInFile(
@@ -725,23 +709,23 @@ public class AndroidRipperStarter {
 
 			Files.copy(FileSystems.getDefault().getPath(autAPK),
 					FileSystems.getDefault().getPath(tempPath + "/temp.apk"),
-					(CopyOption) StandardCopyOption.REPLACE_EXISTING);
+					StandardCopyOption.REPLACE_EXISTING);
 
 			println("Signing AUT...");
-			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//这是在干嘛
+			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//这是在干嘛//原来是删除META-INF
 			execCommand("jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 					+ "/debug.keystore -storepass android -keypass android " + tempPath
 					+ "/temp.apk androiddebugkey");
 			execCommand("jarsigner -verify " + tempPath + "/temp.apk");
 			execCommand("zipalign -v 4 " + tempPath + "/temp.apk " + tempPath + "/aut.apk");
-			
+
 		} catch (Throwable t) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "createAPKs", "apk build failed", t);
 		}
 	}
 
 	protected void replaceStringsInFile(String templateFilePath, String outputFilePath, String appPackage,
-			String appMainActivity) {
+										String appMainActivity) {
 		try {
 
 			Path templatePath = Paths.get(templateFilePath);
@@ -790,20 +774,18 @@ public class AndroidRipperStarter {
 		try {
 			final Process p = Runtime.getRuntime().exec(shell_CMD + cmd);
 
-			Thread t = new Thread() {
-				public void run() {
-					try {
-						String line = "";
-						BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-						while ((line = input.readLine()) != null) {
-							System.out.println(line);
-						}
-						input.close();
-					} catch (Exception ex) {
-						// ex.printStackTrace();
+			Thread t = new Thread(() -> {
+				try {
+					String line;
+					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+					while ((line = input.readLine()) != null) {
+						System.out.println(line);
 					}
+					input.close();
+				} catch (Exception ex) {
+					// ex.printStackTrace();
 				}
-			};
+			});
 			t.start();
 			p.waitFor();
 		} catch (Exception ex) {
@@ -819,12 +801,10 @@ public class AndroidRipperStarter {
 		try {
 			final Process p = Runtime.getRuntime().exec("aapt dump badging " + apk);
 
-			String line = "";
+			String line;
 			BufferedReader aaptReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String contentLine = "";
+			String contentLine;
 			while ((contentLine = aaptReader.readLine()) != null) {
-				// System.out.println(contentLine);
-
 				if (ret[0] == null && contentLine.startsWith("package:")) {
 					int ind = contentLine.indexOf("name=") + "name='".length();
 					ret[0] = contentLine.substring(ind, contentLine.indexOf('\'', ind + 1)).trim();
@@ -842,22 +822,21 @@ public class AndroidRipperStarter {
 
 			try {
 				aaptReader.close();
-			} catch (Throwable t) {
+			} catch (Throwable ignored) {
 
 			}
 
 			try {
 				p.waitFor();
-			} catch (Throwable t) {
+			} catch (Throwable ignored) {
 
 			}
 
 			if (ret[1] == null) {
 				final Process p2 = Runtime.getRuntime().exec("aapt dump xmltree " + apk + " AndroidManifest.xml");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p2.getInputStream()));
-				line = "";
 				String mainActivity = null;
-				while ((line = reader.readLine()) != null) {
+				while ((line = reader.readLine()) != null) { //TODO 用DOM会不会更好？此情况是否足够常见以值得优化
 					if (line.contains("targetActivity")) {
 						mainActivity = line.trim().split("\"")[1];
 						System.out.println(mainActivity);
@@ -868,13 +847,13 @@ public class AndroidRipperStarter {
 
 				try {
 					reader.close();
-				} catch (Throwable t) {
+				} catch (Throwable ignored) {
 
 				}
 
 				try {
 					p2.waitFor();
-				} catch (Throwable t) {
+				} catch (Throwable ignored) {
 
 				}
 
@@ -886,6 +865,13 @@ public class AndroidRipperStarter {
 		}
 
 		return ret;
+	}
+
+	private boolean mkdirs(String path) {
+		File dir = new File(path);
+		if (!dir.exists())
+			return dir.mkdirs();
+		else return true;
 	}
 
 	private static String sanitizePath(String pathToSanitize) {
@@ -900,21 +886,16 @@ public class AndroidRipperStarter {
 	public AbstractDriver getDriver() {
 		return this.driver;
 	}
-	
+
 	public String howMuchSleepINeed(String mainActivityClass) {
-		
-		try {
-			String simpleClassName = mainActivityClass.substring(mainActivityClass.lastIndexOf('.') + 1).toLowerCase();
-			//判断mainActivity是否为开屏界面，并且等待更多时长
-			//目前还无法判断这种经验主义做法是否仍然有效
-			//同时还有另一种开屏（如新版本介绍、使用介绍）问题需要解决 TODO
-			if (RipperStringUtils.stringContainsItemFromList(simpleClassName, new String[] {"splash", "welcome", "intro", "loading", "logo"})) {
-				return "10000";
-			}
-		} catch (Throwable t) {
-			
+		String simpleClassName = mainActivityClass.substring(mainActivityClass.lastIndexOf('.') + 1).toLowerCase();
+		//判断mainActivity是否为开屏界面，并且等待更多时长
+		//目前还无法判断这种经验主义做法是否仍然有效
+		//同时还有另一种开屏（如新版本介绍、使用介绍）问题需要解决 TODO
+		if (RipperStringUtils.stringContainsItemFromList(simpleClassName, new String[]{"splash", "welcome", "intro", "loading", "logo"})) {
+			return "10000";
 		}
-		
+
 		return "3000";
 	}
 }

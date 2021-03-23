@@ -19,6 +19,7 @@
 
 package it.unina.android.shared.ripper_service.net.packer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,17 +69,17 @@ public class MessagePacker {
 	 * @return UnPacked Map
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map unpack(byte[] b) {
+	public static Map<String, Object> unpack(byte[] b) {
 		if (b != null) {
-			String s = new String(b);
+			String s = new String(b, StandardCharsets.UTF_8);
 
 			try {
 				Gson gson = new Gson();
 				JsonParser parser = new JsonParser();
 				JsonObject o = parser.parse(s).getAsJsonObject();
-				Map<String, Object> map = new HashMap<String, Object>();
+				Map<String, Object> map = new HashMap<>();
 				
-				map = (Map<String,Object>) gson.fromJson(o, map.getClass());
+				map = gson.fromJson(o, map.getClass());
 				
 				return map;
 

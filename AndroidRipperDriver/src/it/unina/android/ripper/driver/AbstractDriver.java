@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import it.unina.android.ripper.driver.device.AbstractDevice;
@@ -52,9 +53,8 @@ import it.unina.android.shared.ripper.output.RipperOutput;
 
 /**
  * Managers the Ripper Process
- * 
+ *
  * @author Nicola Amatucci - REvERSE
- * 
  */
 public abstract class AbstractDriver {
 
@@ -77,7 +77,7 @@ public abstract class AbstractDriver {
 	 * Model Output;
 	 */
 	public boolean MODEL_OUTPUT_ENABLE = false;
-	
+
 	/**
 	 * Main Activity Class of the AUT
 	 */
@@ -277,22 +277,22 @@ public abstract class AbstractDriver {
 	 * tcpdump tool thread holder
 	 */
 	TcpdumpDumper tcpDumper = null;
-	
+
 	/**
 	 * strace tool thread holder
 	 */
 	StraceDumper straceDumper = null;
-	
+
 	/**
 	 * Tcpdump enabled
 	 */
 	public boolean TCPDUMP_ENABLED = false;
-		
+
 	/**
 	 * Strace enabled
 	 */
 	public boolean STRACE_ENABLED = false;
-	
+
 	/**
 	 * Storage path of capture files
 	 */
@@ -308,7 +308,7 @@ public abstract class AbstractDriver {
 	 */
 	public AbstractDriver() {
 		super();
-		terminationCriteria = new ArrayList<TerminationCriterion>();
+		terminationCriteria = new ArrayList<>();
 	}
 
 	/**
@@ -352,8 +352,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Check if the Ripping Process is running
-	 * 
-	 * @return
+	 *
+	 * @return if ripping process is running
 	 */
 	public boolean isRunning() {
 		return this.running;
@@ -363,7 +363,7 @@ public abstract class AbstractDriver {
 		return this.doPause;
 	}
 
-	
+
 	public boolean isPaused = false;
 
 	/**
@@ -392,7 +392,7 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Return the Scheduler TaskList
-	 * 
+	 *
 	 * @return Task List
 	 */
 	public TaskList getTaskList() {
@@ -453,9 +453,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Write the final Report file
-	 * 
-	 * @param report
-	 *            Report file name (with full path)
+	 *
+	 * @param report Report file name (with full path)
 	 */
 	public void writeReportFile(String report) {
 		this.writeStringToFile(report, XML_OUTPUT_PATH + REPORT_FILE);
@@ -463,47 +462,33 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Write a string to a file (closes the file)
-	 * 
-	 * @param string
-	 *            String to write
-	 * @param file
-	 *            File to write to
+	 *
+	 * @param string String to write
+	 * @param file   File to write to
 	 */
 	public void writeStringToFile(String string, String file) {
-		BufferedWriter out = null;
-		try {
-			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
+		try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false),
+				StandardCharsets.UTF_8))) {
 			out.write(string);
 			out.flush();
 		} catch (Exception ex) {
 			notifyRipperLog(ex.getMessage());
-		} finally {
-			if (out != null) {
-				try { out.close(); } catch(Throwable t) {}
-			}
 		}
 	}
 
 	/**
 	 * Write a string to a file (append to the file)
-	 * 
-	 * @param string
-	 *            String to write
-	 * @param file
-	 *            File to write to
+	 *
+	 * @param string String to write
+	 * @param file   File to write to
 	 */
 	public void appendStringToFile(String string, String file) {
-		BufferedWriter out = null;
-		try {
-			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8"));
+		try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true),
+				StandardCharsets.UTF_8))) {
 			out.write(string);
 			out.flush();
 		} catch (Exception ex) {
 			notifyRipperLog(ex.getMessage());
-		} finally {
-			if (out != null) {
-				try { out.close(); } catch(Throwable t) {}
-			}
 		}
 	}
 
@@ -517,7 +502,7 @@ public abstract class AbstractDriver {
 	 * System.currentTimeMillis()
 	 */
 	public void createLogFileAtCurrentTimeMillis() {
-		
+
 		if (MODEL_OUTPUT_ENABLE) {
 			currentLogFile = XML_OUTPUT_PATH + LOG_FILE_PREFIX + System.currentTimeMillis() + ".xml";
 			this.doCreateLogFile();
@@ -553,9 +538,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Append a line to xml log file
-	 * 
-	 * @param s
-	 *            line
+	 *
+	 * @param s line
 	 */
 	public void appendLineToLogFile(String s) {
 		if (MODEL_OUTPUT_ENABLE) {
@@ -564,34 +548,23 @@ public abstract class AbstractDriver {
 	}
 
 	private void writeLineToLogFile(String s, boolean append) {
-		if (MODEL_OUTPUT_ENABLE) {
-			if (currentLogFile == null || currentLogFile.equals(""))
-				return;
-	
-			FileWriter fileWriter = null;
-			BufferedWriter bufferWriter = null;
-			try {
-				fileWriter = new FileWriter(currentLogFile, append);
-				bufferWriter = new BufferedWriter(fileWriter);
+		if (currentLogFile == null || currentLogFile.equals(""))
+			return;
+
+		try (FileWriter fileWriter = new FileWriter(currentLogFile, append)) {
+			try (BufferedWriter bufferWriter = new BufferedWriter(fileWriter)) {
 				bufferWriter.write(s);
 				bufferWriter.flush();
-			} catch (Exception ex) {
-				notifyRipperLog(ex.getMessage());
-			} finally {
-				if (bufferWriter != null) {
-					try { bufferWriter.close(); } catch(Throwable t) {}
-				}
-				if (fileWriter != null) {
-					try { fileWriter.close(); } catch(Throwable t) {}
-				}
 			}
+		} catch (Exception ex) {
+			notifyRipperLog(ex.getMessage());
 		}
 	}
 
 	/**
 	 * Handle PING Request and Response
-	 * 
-	 * @return
+	 *
+	 * @return If ping success
 	 */
 	public boolean ping() {
 		int pingRetryCount = 0;
@@ -605,11 +578,11 @@ public abstract class AbstractDriver {
 					return true;
 				} else if (m != null && m.getType().equals(MessageType.WAIT_APP_READY)) {
 					continue;
-				} else if (m != null && m.getType().equals(MessageType.PONG_MESSAGE) == false) {
+				} else if (m != null && !m.getType().equals(MessageType.PONG_MESSAGE)) {
 					notifyRipperLog("Message != PONG -> " + m.getType());
 				}
 
-				if (this.running == false)
+				if (!this.running)
 					return false;
 
 				if (pingRetryCount++ > PING_MAX_RETRY) {
@@ -625,7 +598,7 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Wait for an ACK message
-	 * 
+	 *
 	 * @return Message
 	 * @throws AckNotReceivedException
 	 * @throws NullMessageReceivedException
@@ -647,13 +620,13 @@ public abstract class AbstractDriver {
 			if (msg != null)
 				break;
 
-			if (Actions.checkCurrentForegroundActivityPackage(AUT_PACKAGE) == false) {
+			if (!Actions.checkCurrentForegroundActivityPackage(AUT_PACKAGE)) {
 				throw new AckNotReceivedException("waitAck() : check current foreground activity package");
 			}
 
 		} while (running && retryCount++ < ACK_MAX_RETRY);
 
-		if (running == false) {
+		if (!running) {
 			notifyRipperLog("running == false");
 			return null;
 		}
@@ -672,7 +645,7 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Handle retrieval of the current ActivityDescription from the device
-	 * 
+	 *
 	 * @return Serialized ActivityDescription (XML)
 	 * @throws IOException
 	 */
@@ -682,30 +655,25 @@ public abstract class AbstractDriver {
 
 			notifyRipperLog("Sending describe msg...");
 
-			String xml = null;
-			// try {
-			xml = rsSocket.describe();
+			String xml = rsSocket.describe();
 
 			if (xml != null) {
 				xml = xml.replaceAll("&", "");
-			}
-
-			if (xml != null) {
 				notifyRipperLog("Description Received!");
 			}
 
 			return xml;
 		} else {
-			throw new RuntimeException("AUT not in foreground!");
+			throw new RipperRuntimeException(AbstractDriver.class, "getCurrentDescription", "AUT not in foreground!");
 		}
 	}
 
 	/**
 	 * Update the ActivtyDescription currently stored in the
 	 * lastActivityDescription variable.
-	 * 
+	 * <p>
 	 * Call getCurrentDescriptionAsActivityDescription()
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void updateLatestDescriptionAsActivityDescription() throws IOException {
@@ -719,9 +687,9 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Update and Return the ActivtyDescription of the current Activity
-	 * 
+	 * <p>
 	 * Store the description in the lastActivityDescription variable.
-	 * 
+	 *
 	 * @return Current ActivityDescription
 	 * @throws IOException
 	 */
@@ -746,8 +714,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Return latest retrieved ActivityDescription.
-	 * 
-	 * @return
+	 *
+	 * @return last activity description
 	 */
 	public ActivityDescription getLastActivityDescription() {
 		return lastActivityDescription;
@@ -776,9 +744,9 @@ public abstract class AbstractDriver {
 		if (Actions.checkApplicationInstalled("it.unina.android.ripper_service")) {
 			Actions.uninstallAPK("it.unina.android.ripper_service");
 		}
-		Actions.installAPK(SERVICE_APK_PATH + "AndroidRipperService.apk");
+		Actions.installAPK(SERVICE_APK_PATH);
 
-		this.uninstallAPKs(true);
+		this.uninstallAPKs(true); //FIXME 卸载两次，真有你的，，，
 
 		// start ripper service
 		notifyRipperLog("Start ripper service...");
@@ -787,7 +755,7 @@ public abstract class AbstractDriver {
 		if (device.isVirtualDevice()) {
 			// redirect port
 			notifyRipperLog("Redir port...");
-			Actions.redirectPort(SERVICE_HOST_PORT, SERVICE_HOST_PORT);
+			Actions.redirectPort(SERVICE_HOST_PORT, SERVICE_HOST_PORT); // WHY？？？
 		}
 
 		// int screenStatus = Actions.checkDeviceScreen();
@@ -815,21 +783,21 @@ public abstract class AbstractDriver {
 
 		long startup_t1 = System.currentTimeMillis();
 
-		Long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 
-		if(TCPDUMP_ENABLED == true) {
+		if (TCPDUMP_ENABLED) {
 			if (tcpDumper == null) {
 				tcpDumper = new TcpdumpDumper(AUT_PACKAGE, CAPTURE_PATH, device, time);
 				tcpDumper.start();
 			}
 		}
-		
-		if(STRACE_ENABLED == true) {
+
+		if (STRACE_ENABLED) {
 			straceDumper = new AdbStraceDumper(AUT_PACKAGE, CAPTURE_PATH, device, time);
 			straceDumper.start();
 		}
-		
-		if (APK_INSTALLED == false) {
+
+		if (!APK_INSTALLED) {
 			// Install APK
 			if (WAIT_BEFORE_INSTALL > 0) {
 				notifyRipperLog("Waiting " + WAIT_BEFORE_INSTALL + " minutes");
@@ -849,10 +817,10 @@ public abstract class AbstractDriver {
 
 			// post-install
 			if (device.isVirtualDevice()) {
-				System.out.println("adb chmod 777...");
-				Actions.adbShell("chmod", "777", "/data/data/" + AUT_PACKAGE + "/");
+				notifyRipperLog("adb chmod 777...");
+				Actions.adbShell("chmod", "777", "/data/data/" + AUT_PACKAGE + "/");//FIXME 路径有问题
 			} else {
-				System.out.println("adb chmod 777...");
+				notifyRipperLog("adb chmod 777...");
 				Actions.adbSuShell("chmod", "777", "/data/data/" + AUT_PACKAGE + "/");
 			}
 
@@ -872,14 +840,9 @@ public abstract class AbstractDriver {
 		}
 
 		String curPackage = Actions.getCurrentForegroundActivityPackage();
-		try {
-			//为什么
-			if (curPackage.endsWith("launcher") == false && curPackage.endsWith("Launcher") == false) {
-				System.out.println("Killing " + curPackage + "...");
-				Actions.killApp(curPackage);
-			}
-		} catch (Exception e) {
-
+		if (!curPackage.endsWith("launcher") && !curPackage.endsWith("Launcher")) {
+			notifyRipperLog("Killing " + curPackage + "...");
+			Actions.killApp(curPackage);
 		}
 
 		Actions.setRipperActive(running);
@@ -899,7 +862,7 @@ public abstract class AbstractDriver {
 
 			do {
 				try {
-					if (rsSocket.isConnected() == false) {
+					if (!rsSocket.isConnected()) {
 						notifyRipperLog("Connecting to Android Ripper Service...");
 						rsSocket.connect();
 					} else {
@@ -909,26 +872,26 @@ public abstract class AbstractDriver {
 					socket_exception_count++;
 				}
 			} while (socket_exception_count <= SOCKET_EXCEPTION_THRESHOLD);
-			if ((socket_exception_count >= SOCKET_EXCEPTION_THRESHOLD)) {
+			if (socket_exception_count > SOCKET_EXCEPTION_THRESHOLD) {
 				started = false;
 				throw new RipperRuntimeException(AbstractDriver.class, "startup", "Android Ripper Service Connection Error: Socket Threshold Exceeded");
 			}
-			boolean ping = false;
+			boolean ping;
 			do {
 				ping = this.ping();
-				if (ping == false)
+				if (!ping)
 					pingFailures++;
 
-			} while (ping == false && pingFailures <= PING_FAILURE_THRESHOLD);
+			} while (!ping && pingFailures <= PING_FAILURE_THRESHOLD);
 
 			long startup_time = System.currentTimeMillis() - startup_t1;
 			notifyRipperLog("Startup time: " + startup_time);
 
 			// ready to go
 			if (running && (pingFailures <= PING_FAILURE_THRESHOLD) // too many
-																	// pings,
-																	// need a
-																	// restart，但是为什么不用ping：boolean
+				// pings,
+				// need a
+				// restart，但是为什么不用ping：boolean
 			) {
 				// TODO: this.notifyRipperStarted()，啥意思，暂且蒙在鼓里
 				started = true;
@@ -962,17 +925,17 @@ public abstract class AbstractDriver {
 	}
 
 	public boolean endRipperTask(boolean end, boolean notify) {
-		
-		if(end && straceDumper != null) {
+
+		if (end && straceDumper != null) {
 			straceDumper.stopProcess();
 			straceDumper = null;
 		}
-		
-		if(end && tcpDumper!=null){
+
+		if (end && tcpDumper != null) {
 			tcpDumper.pull();
 			tcpDumper = null;
 		}
-		
+
 		uninstallAPKs(end);
 
 		if (notify) {
@@ -1001,15 +964,15 @@ public abstract class AbstractDriver {
 	}
 
 	public void installAPKs() {
-		if (APK_INSTALLED == false) {
-			if (INSTALL_FROM_SDCARD == false) {
-				if (Actions.installAPK(TEMP_PATH + "/aut.apk") == false) {
+		if (!APK_INSTALLED) {
+			if (!INSTALL_FROM_SDCARD) {
+				if (!Actions.installAPK(TEMP_PATH + "/aut.apk")) {
 					// throw new RuntimeException("Install AUT APK Fail!");
 					throw new RipperRuntimeException(AbstractDriver.class, "startup", "Install AUT APK Fail!");
 				}
 
 				// Install RipperTestCase APK
-				if (Actions.installAPK(TEMP_PATH + "/ripper.apk") == false) {
+				if (!Actions.installAPK(TEMP_PATH + "/ripper.apk")) {
 					// throw new RuntimeException("Install Ripper APK Fail!");
 					throw new RipperRuntimeException(AbstractDriver.class, "startup", "Install Ripper APK Fail!");
 				}
@@ -1024,8 +987,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Return Scheduler instance
-	 * 
-	 * @return
+	 *
+	 * @return scheduler instance
 	 */
 	public Scheduler getScheduler() {
 		return scheduler;
@@ -1033,8 +996,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Return Planner instance
-	 * 
-	 * @return
+	 *
+	 * @return planner instance
 	 */
 	public Planner getPlanner() {
 		return planner;
@@ -1042,8 +1005,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Return RipperOutput instance
-	 * 
-	 * @return
+	 *
+	 * @return ripperOutput instance
 	 */
 	public RipperOutput getRipperOutput() {
 		return ripperOutput;
@@ -1051,12 +1014,12 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Evaluate each termination criterion (AND Operator)
-	 * 
-	 * @return
+	 *
+	 * @return should terminate
 	 */
 	public boolean checkTerminationCriteria() {
 		for (TerminationCriterion tc : this.terminationCriteria) {
-			if (tc.check() == false)
+			if (!tc.check())
 				return false;
 		}
 
@@ -1065,9 +1028,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Add a termination criterion
-	 * 
-	 * @param tc
-	 *            TerminationCriterion to add
+	 *
+	 * @param tc TerminationCriterion to add
 	 */
 	public void addTerminationCriterion(TerminationCriterion tc) {
 		tc.init(this);
@@ -1076,12 +1038,10 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Use the Planner to plan tasks basing on an ActivityDescription
-	 * 
-	 * @param t
-	 *            Latest executed Task
-	 * @param activity
-	 *            ActivityDescription
-	 * @return
+	 *
+	 * @param t        Latest executed Task
+	 * @param activity ActivityDescription
+	 * @return task list
 	 */
 	public TaskList plan(Task t, ActivityDescription activity) {
 		notifyRipperLog("Plan...");
@@ -1098,8 +1058,8 @@ public abstract class AbstractDriver {
 
 	/**
 	 * Schedule next task using the Scheduler
-	 * 
-	 * @return
+	 *
+	 * @return next task
 	 */
 	public Task schedule() {
 		return scheduler.nextTask();
@@ -1108,9 +1068,8 @@ public abstract class AbstractDriver {
 	/**
 	 * Execute an event and returns the message received after its execution or
 	 * throws an exception if error
-	 * 
-	 * @param evt
-	 *            Event
+	 *
+	 * @param evt Event
 	 * @return Message
 	 * @throws AckNotReceivedException
 	 * @throws NullMessageReceivedException
@@ -1126,12 +1085,12 @@ public abstract class AbstractDriver {
 				notifyRipperLog("executeEvent.event:" + evt.toString());
 				if (Actions.checkCurrentForegroundActivityPackage(AUT_PACKAGE)) {
 					rsSocket.sendEvent((Event) evt);
-					
+
 					//if (Actions.checkCurrentForegroundActivityPackage(AUT_PACKAGE)) {
 					return this.waitAck();
 					//}
 				}
-				
+
 			}
 
 		}
@@ -1177,7 +1136,7 @@ public abstract class AbstractDriver {
 	protected void handleEndOfLoop() {
 		if (device.isStarted()) {
 
-			this.endRipperTask(true, false);			
+			this.endRipperTask(true, false);
 
 			//this.uninstallAPKs(true);
 

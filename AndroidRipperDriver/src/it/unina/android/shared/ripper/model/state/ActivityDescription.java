@@ -33,7 +33,7 @@ import java.util.HashMap;
 public class ActivityDescription implements Serializable
 {
 	String id; //given by comparator
-	String uid; //given by comparator
+	String uid; //given by comparator，目前是given by AbstractDriver
 	String title;
 	String name;
 	Class<?> activityClass;

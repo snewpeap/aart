@@ -319,12 +319,13 @@ public class Actions {
 				final Process p = Runtime.getRuntime().exec("adb devices");
 
 				try {
-					String line = "";
+					String line;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while ((line = input.readLine()) != null) {
-						if (line != null && line.contains(DEVICE)) {
+						if (line.contains(DEVICE)) {
 							if (line.contains("device")) {
 								waitingDeviceBoot = false;
+								break;
 							}
 						}
 					}
@@ -338,7 +339,7 @@ public class Actions {
 				ex.printStackTrace();
 			}
 
-			try {
+			if (waitingDeviceBoot) try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// e.printStackTrace();
@@ -362,7 +363,7 @@ public class Actions {
 				final Process p = Runtime.getRuntime().exec("adb -s " + DEVICE + " shell getprop init.svc.bootanim");
 
 				try {
-					String line = "";
+					String line;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while ((line = input.readLine()) != null) {
 						if (line.contains("stopped")) {
@@ -379,7 +380,7 @@ public class Actions {
 				ex.printStackTrace();
 			}
 
-			try {
+			if (waitingDeviceOnline) try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// e.printStackTrace();
@@ -526,7 +527,7 @@ public class Actions {
 	 * Wait for an device to be closed
 	 */
 	public static void waitDeviceClosed() {
-		boolean waitingDeviceClose = false;
+		boolean waitingDeviceClose;
 
 		do {
 
@@ -536,12 +537,13 @@ public class Actions {
 				final Process p = Runtime.getRuntime().exec("adb devices");
 
 				try {
-					String line = "";
+					String line;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while ((line = input.readLine()) != null) {
-						if (line != null && line.contains(DEVICE)) {
+						if (line.contains(DEVICE)) {
 							if (line.contains("device")) {
 								waitingDeviceClose = true;
+								break;
 							}
 						}
 					}
@@ -555,7 +557,7 @@ public class Actions {
 				ex.printStackTrace();
 			}
 
-			try {
+			if (waitingDeviceClose) try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// e.printStackTrace();
@@ -767,7 +769,7 @@ public class Actions {
 			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "dumpsys", "activity");
 
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 
 				while ((line = input.readLine()) != null) {

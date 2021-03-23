@@ -28,15 +28,15 @@ package it.unina.android.ripper.utils;
 public class RipperStringUtils {
 	public static String quoteRegExSpecialChars(String s) {
 		if (s != null) {
-			return s.replaceAll("[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)‌​\\?\\*\\+\\.\\>]", "\\\\$0");
+			return s.replaceAll("[<(\\[{\\\\^\\-=$!|\\]})‌​?*+.>]", "\\\\$0");
 		} else {
 			return null;
 		}
 	}
 
 	public static boolean stringContainsItemFromList(String inputStr, String[] items) {
-		for (int i = 0; i < items.length; i++) {
-			if (inputStr.contains(items[i])) {
+		for (String item : items) {
+			if (inputStr.contains(item)) {
 				return true;
 			}
 		}

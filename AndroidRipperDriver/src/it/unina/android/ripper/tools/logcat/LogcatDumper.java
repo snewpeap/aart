@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 import it.unina.android.ripper.tools.lib.AndroidTools;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Dumps the Logcat to a File
@@ -41,7 +42,12 @@ public class LogcatDumper extends Thread {
 	 * Destination File Name
 	 */
 	String filename;
-	
+
+	/**
+	 * -t 'time' argument
+	 */
+	String timeOption = "";
+
 	/**
 	 * Constructor
 	 * 
@@ -58,9 +64,15 @@ public class LogcatDumper extends Thread {
 	 * @param filename Destination File Name
 	 */	
 	public LogcatDumper(String device, String filename) {
-		super();
 		this.device = device;
 		this.filename = filename;
+	}
+
+	public LogcatDumper(String device, String filename, String afterTime) {
+		this.device = device;
+		this.filename = filename;
+		if (!StringUtils.isEmpty(afterTime))
+			this.timeOption = String.format("-t '%s'", afterTime);
 	}
 
 	@Override
@@ -70,9 +82,9 @@ public class LogcatDumper extends Thread {
 			
 			FileOutputStream fos = new FileOutputStream(filename, true);
 			PrintStream ps = new PrintStream(fos);
-			
-			AndroidTools.adb("-s", device, "logcat").connectStderr(ps).connectStdout(ps).waitForSuccess();
-			
+			//明明是dump，却不加-d参数，无语
+			AndroidTools.adb("-s", device, "logcat", timeOption).connectStderr(ps).connectStdout(ps).waitForSuccess();
+
 			try { ps.close(); } catch (Exception ex) {}
 			try { fos.close(); } catch (Exception ex) {}
 			

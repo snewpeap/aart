@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -46,14 +46,14 @@ public class RipperUncaughtExceptionHandler implements Thread.UncaughtExceptionH
 		this.mThrowable = e;
 		
 		boolean uncaught = false;
-		if (e instanceof RipperRuntimeException) {
+		if (RipperRuntimeException.class.isAssignableFrom(e.getClass())) {
 			RipperRuntimeException ex = (RipperRuntimeException)e;
-			System.out.println("[EXCEPTION]["+ex.getSourceClassName()+"."+ex.getMethod()+"] "+ ex.getRipperMessage());
-		} else if (e.getCause() instanceof RipperRuntimeException) {
+			System.err.println("[EXCEPTION]["+ex.getSourceClassName()+"."+ex.getMethod()+"] "+ ex.getRipperMessage());
+		} else if (RipperRuntimeException.class.isAssignableFrom(e.getCause().getClass())) {
 			RipperRuntimeException ex = (RipperRuntimeException)e.getCause();
-			System.out.println("[EXCEPTION]["+ex.getSourceClassName()+"."+ex.getMethod()+"] "+ ex.getRipperMessage());
+			System.err.println("[EXCEPTION]["+ex.getSourceClassName()+"."+ex.getMethod()+"] "+ ex.getRipperMessage());
 		} else {
-			System.out.println("[UNCAUGHT-EXCEPTION] "+e.getMessage());
+			System.err.println("[UNCAUGHT-EXCEPTION] "+e.getMessage());
 			uncaught = true;
 		}
 		
