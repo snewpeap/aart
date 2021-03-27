@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import it.unina.android.shared.ripper.model.transition.Event;
@@ -37,20 +39,23 @@ import it.unina.android.shared.ripper.model.transition.Input;
  *
  */
 public class TaskList extends ArrayList<Task> {
+	private ListIterator<Task> iterator = null;
 
 	private static final long serialVersionUID = 1234567890L;
 
+	public ListIterator<Task> getIterator() {
+		if (iterator == null)
+			iterator = listIterator();
+		return iterator;
+	}
+
 	public void addNewTaskForWidget(Task baseTask, WidgetDescription widget,
 			String interaction, ArrayList<Input> inputs) {
-		// this.addNewTask(baseTask, new Event(interaction, widget, null,
-		// inputs));
 		this.add(new Task(baseTask, widget, interaction, inputs));
 	}
 
 	public void addNewTaskForWidget(Task baseTask, WidgetDescription widget,
 			String interaction, ArrayList<Input> inputs, String value) {
-		// this.addNewTask(baseTask, new Event(interaction, widget, value,
-		// inputs));
 		this.add(new Task(baseTask, widget, interaction, inputs, value));
 	}
 
@@ -101,14 +106,4 @@ public class TaskList extends ArrayList<Task> {
 		return t;
 	}
 
-//	@Override
-//	public boolean add(Task e) {
-//		boolean added = super.add(e);
-//		
-//		if (added) {
-//			this.saveToFile("current_TaskList.bin");
-//		}
-//		
-//		return added;
-//	}
 }

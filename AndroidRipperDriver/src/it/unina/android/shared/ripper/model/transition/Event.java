@@ -45,7 +45,11 @@ public class Event implements Serializable, IEvent {
 	public Event() {
 		super();
 	}
-	
+
+	public Event(String interaction) {
+		this(interaction, null, null, null);
+	}
+
 	public Event(String interaction, WidgetDescription widget, String value, ArrayList<Input> inputs) {
 		super();
 		this.interaction = interaction;
@@ -56,6 +60,10 @@ public class Event implements Serializable, IEvent {
 
 	public String getInteraction() {
 		return interaction;
+	}
+
+	public boolean isInteraction(String interaction) {
+		return this.getInteraction().equals(interaction);
 	}
 
 	public void setInteraction(String interaction) {

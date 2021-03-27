@@ -581,9 +581,22 @@ public class RipperServiceSocket {
 		this.sendInputs(evtUID, evt.getInputs());
 		
 		if (evt.getWidget() != null)
-			this.sendMessage(Message.getEventMessage((evt.getWidget().getId()!=null)?Integer.toString(evt.getWidget().getId()):"-1", Integer.toString(evt.getWidget().getIndex()), evt.getWidget().getName(), evt.getWidget().getSimpleType(), evt.getInteraction(), evt.getValue(), evtUID));
+			this.sendMessage(Message.getEventMessage(
+					(evt.getWidget().getId()!=null)?Integer.toString(evt.getWidget().getId()):"-1",
+					Integer.toString(evt.getWidget().getIndex()),
+					evt.getWidget().getName(),
+					evt.getWidget().getSimpleType(),
+					evt.getInteraction(),
+					evt.getValue(),
+					evtUID));
 		else
-			this.sendMessage(Message.getEventMessage(null, null, null, null, evt.getInteraction(), evt.getValue(), evtUID));
+			this.sendMessage(Message.getEventMessage(null,
+					null,
+					null,
+					null,
+					evt.getInteraction(),
+					evt.getValue(),
+					evtUID));
 	}
 	
 	/**
@@ -598,7 +611,14 @@ public class RipperServiceSocket {
 			long i = 0;
 			for(Input input : inputs) {
 				String count = Long.toString(i++);
-				this.sendMessage(Message.getInputMessage(Integer.toString(input.getWidget().getId()), Integer.toString(input.getWidget().getIndex()), input.getWidget().getName(), input.getWidget().getSimpleType(), input.getInputType(), input.getValue(), evtUID, count));
+				this.sendMessage(Message.getInputMessage(Integer.toString(input.getWidget().getId()),
+						Integer.toString(input.getWidget().getIndex()),
+						input.getWidget().getName(),
+						input.getWidget().getSimpleType(),
+						input.getInputType(),
+						input.getValue(),
+						evtUID,
+						count));
 			}
 			
 		}
