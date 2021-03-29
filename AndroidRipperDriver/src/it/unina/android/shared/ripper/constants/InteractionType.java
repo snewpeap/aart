@@ -30,6 +30,7 @@ public class InteractionType {
 	public final static String CLICK = "click";
 	public final static String BACK = "back";
 	public final static String SCROLL_DOWN = "scrollDown";
+	public final static String SCROLL_UP = "scrollUp";
 	public final static String SCROLL_TO_BOTTOM = "scrollBottom";
 	public final static String SCROLL_LEFT = "scrollLeft";
 	public final static String SCROLL_RIGHT = "scrollRight";
