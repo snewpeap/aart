@@ -1,6 +1,6 @@
 /**
  * GNU Affero General Public License, version 3
- * 
+ *
  * Copyright (c) 2014-2017 REvERSE, REsEarch gRoup of Software Engineering @ the University of Naples Federico II, http://reverse.dieti.unina.it/
  *
  * This program is free software: you can redistribute it and/or  modify
@@ -22,12 +22,14 @@ package it.unina.android.shared.ripper.model.transition;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
+import android.ripper.extension.robustness.tools.ObjectTool;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
 /**
  * Event
- * 
+ *
  * @author Nicola Amatucci - REvERSE
  *
  */
@@ -38,10 +40,10 @@ public class Event implements Serializable, IEvent {
 	private WidgetDescription widget;
 	private String value;
 	private ArrayList<Input> inputs;
-	
+
 	private String beforeExecutionStateUID = "UNDEFINED";
 	private String afterExecutionStateUID = "UNDEFINED";
-	
+
 	public Event() {
 		super();
 	}
@@ -50,8 +52,14 @@ public class Event implements Serializable, IEvent {
 		this(interaction, null, null, null);
 	}
 
+	public Event(String interaction, WidgetDescription widget, String value) {
+		this.interaction = interaction;
+		this.widget = widget;
+		this.value = value;
+		this.inputs = null;
+	}
+
 	public Event(String interaction, WidgetDescription widget, String value, ArrayList<Input> inputs) {
-		super();
 		this.interaction = interaction;
 		this.widget = widget;
 		this.value = value;
@@ -62,7 +70,7 @@ public class Event implements Serializable, IEvent {
 		return interaction;
 	}
 
-	public boolean isInteraction(String interaction) {
+	public boolean is(String interaction) {
 		return this.getInteraction().equals(interaction);
 	}
 
@@ -85,7 +93,7 @@ public class Event implements Serializable, IEvent {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+
 	public ArrayList<Input> getInputs() {
 		return inputs;
 	}
@@ -93,7 +101,7 @@ public class Event implements Serializable, IEvent {
 	public void setInputs(ArrayList<Input> inputs) {
 		this.inputs = inputs;
 	}
-	
+
 	public long getEventUID() {
 		return eventUID;
 	}
@@ -105,16 +113,16 @@ public class Event implements Serializable, IEvent {
 	public void addInput(WidgetDescription widget, String interactionType, String value)
 	{
 		if (inputs == null) {
-			inputs = new ArrayList<Input>();
+			inputs = new ArrayList<>();
 		}
 		this.inputs.add(new Input(widget, interactionType, value));
 	}
-	
+
 	public void clearInputs()
 	{
 		this.inputs.clear();
 	}
-	
+
 	public String getBeforeExecutionStateUID() {
 		return beforeExecutionStateUID;
 	}
@@ -130,54 +138,40 @@ public class Event implements Serializable, IEvent {
 	public void setAfterExecutionStateUID(String afterExecutionStateUID) {
 		this.afterExecutionStateUID = afterExecutionStateUID;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return ((widget!=null)?widget.toString()+",":"") + interaction;
 	}
-	
+
 	public String toXMLString()
 	{
-		String xml = new String("");
-		xml += "<event " +					
-					"interaction=\""+interaction+"\" " +
-					"value=\""+value+"\" " +
-				">\n";
-		
+		StringBuilder xml = new StringBuilder();
+		xml.append(String.format("<event interaction=\"%s\" value=\"%s\" >\n", interaction, value));
+
 		if (widget != null)
-			xml += widget.toXMLString();
+			xml.append(widget.toXMLString());
 		else
-			xml += "<widget id=\"null\" type=\"null\" />\n";
-	
+			xml.append("<widget id=\"null\" type=\"null\" />\n");
+
 		if (this.inputs != null && this.inputs.size() > 0)
 			for (Input in : this.inputs)
-				xml += in.toXMLString();
-		
-		xml += "</event>\n";
-		
-		return xml;
+				xml.append(in.toXMLString());
+
+		xml.append("</event>\n");
+
+		return xml.toString();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		
-		if (o != null && o instanceof Event) {
-			
+		if (o instanceof Event) {
 			Event e = (Event)o;
-			
-			return (
-					(
-								(e.widget == null && this.widget == null)
-							||	(e.widget != null && this.widget != null && e.widget.getId() == null && this.widget.getId() == null)
-							||	(e.widget != null && this.widget != null && e.widget.getId() != null && this.widget.getId() != null && e.widget.getId().equals(this.widget.getId()))
-					) 
-					&&	e.interaction.equals(this.interaction)
-					&&	((e.value == null && this.value == null) || (e.value != null && this.value != null && e.value.equals(this.value)))
-					);
-					
+			return ObjectTool.propEquals(widget, e.widget, WidgetDescription::getId) &&
+					Objects.equals(interaction, e.interaction) &&
+					Objects.equals(value, e.value);
 		}
-		
 		return false;
 	}
 }

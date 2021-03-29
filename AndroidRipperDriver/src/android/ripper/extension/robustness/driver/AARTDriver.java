@@ -6,15 +6,14 @@ import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.model.TransitionHelper;
 import android.ripper.extension.robustness.model.TransitionHelper.TransitionInfo;
+import android.ripper.extension.robustness.planner.WhatAPlanner;
 import it.unina.android.ripper.driver.AbstractDriver;
 import it.unina.android.ripper.driver.exception.RipperRuntimeException;
 import it.unina.android.ripper.net.RipperServiceSocket;
-import it.unina.android.ripper.planner.Planner;
 import it.unina.android.ripper.termination.TerminationCriterion;
 import it.unina.android.ripper.tools.actions.Actions;
 import it.unina.android.ripper.tools.logcat.LogcatDumper;
 import it.unina.android.shared.ripper.input.RipperInput;
-import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.task.Task;
 import it.unina.android.shared.ripper.model.task.TaskList;
 import it.unina.android.shared.ripper.model.transition.Event;
@@ -23,12 +22,12 @@ import it.unina.android.shared.ripper.net.Message;
 import it.unina.android.shared.ripper.output.RipperOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
@@ -43,11 +42,10 @@ public class AARTDriver extends AbstractDriver {
 	private static final FastDateFormat LOGCAT_TIME_FORMAT = FastDateFormat.getInstance("MM-dd hh:mm:ss.mmm");
 	private String loopStartTime = LOGCAT_TIME_FORMAT.format(0);
 
-	private final SortedMap<State, String> states;
-	private final SortedSet<Transition> transitions;
+	private final SortedMap<State, String> states = new TreeMap<>(new State.Comparator());
+	private final SortedSet<Transition> transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
 
-	private State prevState = null;
-	private State currState;
+	private State prevState = null, currState;
 
 	private final SchedulerEnhancement schedulerEnhancement;
 
@@ -66,7 +64,7 @@ public class AARTDriver extends AbstractDriver {
 				if (states.isEmpty()) {						//the beginning of everything
 					currState.setUid(State.DUMMY_UID);
 					states.put(currState, currState.getUid());
-					schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState, GoodPlanner.SPAN));
+					schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
 					if (currState.equals(prevState))		//just to save time
 						currState.setUid(prevState.getUid());
@@ -90,8 +88,10 @@ public class AARTDriver extends AbstractDriver {
 				prevState = currState;
 			}
 
-			endLogFile();//TODO endLoop()
+			endLoop();
 		} while (running && !checkTerminationCriteria());
+
+		notifyRipperEnded();
 	}
 
 	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput) {
@@ -102,19 +102,16 @@ public class AARTDriver extends AbstractDriver {
 		addTerminationCriterion(yabs);
 		this.schedulerEnhancement = yabs;
 
-		this.planner = new GoodPlanner();
-
-		this.states = new TreeMap<>(new State.Comparator());
-		this.transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
+		this.planner = new WhatAPlanner();
 	}
 
 	@Override
 	public void startupDevice() {
-		//TODO 需要监控线程
+		//TODO LOW 需要监控线程
 		if (device.isStarted())
 			return;
 		device.start();
-		device.waitForDevice(); //TODO 方法没有反馈，加上返回值
+		device.waitForDevice(); //TODO LOW 方法没有反馈，加上返回值
 		device.setStarted(true);
 	}
 
@@ -138,12 +135,17 @@ public class AARTDriver extends AbstractDriver {
 			throw new RipperIllegalArgException(AARTDriver.class, here(), "event", String.valueOf(event));
 		event.setEventUID(eventsUIDCounter++);
 		notifyRipperLog("executeEvent.event=" + event.toString());
-		rsSocket.sendEvent(event);
+		if (event.getInputs() != null)
+			rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
+		else
+			rsSocket.sendEvent(event);
 		waitAck();//FIXME 同步和验证
 	}
 
 	private void executeTask(Iterator<IEvent> taskIter) {
-		//TODO
+		while (taskIter.hasNext()) {
+			executeEvent((Event) taskIter.next());
+		}
 	}
 
 	/**
@@ -163,6 +165,16 @@ public class AARTDriver extends AbstractDriver {
 			throw new RipperRuntimeException(AARTDriver.class, here(), ex.getMessage(), ex);
 		}
 		createLogFile();
+	}
+
+	private void endLoop() {
+		endLogFile();
+
+		notifyRipperLog("End message...");
+		rsSocket.sendMessage(Message.getEndMessage());
+		waitAck();
+
+		uninstallAPKs(false);
 	}
 
 	public final State getCurrentDescriptionAsState() {
@@ -191,7 +203,7 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	private void startService() {
-		//TODO 需要守护线程
+		//TODO LOW 需要守护线程
 		notifyRipperLog("Start ripper service...");
 		Actions.startAndroidRipperService();
 	}
@@ -228,16 +240,6 @@ public class AARTDriver extends AbstractDriver {
 		return task;
 	}
 
-	public static class GoodPlanner extends Planner {
-		public static final String
-				SPAN = "SPAN";//指示优先规划不同类型操作
-
-		@Override
-		public TaskList plan(Task currentTask, ActivityDescription activity, String... options) {
-			return null;//TODO
-		}
-	}
-
 	public class YetAnotherBreadthScheduler implements TerminationCriterion, SchedulerEnhancement {
 		private final HashMap<State, TaskList> schedule = new HashMap<State, TaskList>() {
 			@Override
@@ -249,48 +251,42 @@ public class AARTDriver extends AbstractDriver {
 			}
 		};
 
-		private boolean back = false, recovery = false;
-		private Map.Entry<State, TaskList> pivot = null;	//current BFS pivot state and its taskList
+		private boolean back = false;
+		private boolean recovery = false;
+		private Pair<State, TaskList> pivot = null;	//current BFS pivot state and its taskList
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
 		private Task pathToPivot = null;
 
 		@Override
 		public ListIterator<IEvent> nextTaskIterator() {
-			ListIterator<IEvent> nextTask;
+			ListIterator<IEvent> nextTask = null;
 			TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
-			if (back) {
-				Task task = transitionInfo
-						.learn(transitions			//learn former transitions...
-								.parallelStream()	//...between previous state and current state...
-								.filter(t -> t.getFromState().equals(prevState) && t.getToState().equals(currState))
-								.map(Transition::getTask)
-								.collect(Collectors.toList()))
-						.backRecommend();	//...then make recommend
-				nextTask = task.listIterator(task.size() - 1);
+			if (back) {	//have to go back to pivot
+				nextTask = transitionInfo.learnToBack(transitions	//learn from former transitions...
+//								.parallelStream()		//...between previous state and current state...
+//								.filter(t -> t.getFromState().equals(prevState) && t.getToState().equals(currState))
+//								.collect(Collectors.toList())
+				).backRecommend();	//...then make recommend
 				back = false;
-			} else {
+			} else {	//at pivot, or need to recover to pivot
 				if (pivot == null)
-					pivot = new AbstractMap.SimpleEntry<>(currState, schedule.get(currState));
+					pivot = Pair.of(currState, schedule.get(currState));
 				ListIterator<Task> iter = pivot.getValue().getIterator();
 				if (currState == pivot.getKey()) {	//current state should be pivot state if back as expected
 					recovery = false;                //if not, null would be returned
 					transitionInfo.goodFeedback();   //last back was done great
-					if (iter.hasNext()) {
+					if (iter.hasNext()) {			//current pivot has remaining task to execute
 						Task t = iter.next();
 						nextTask = t.listIterator(t.size() - 1);
-						back = true;
-					} else {
-						//pivot has been completely searched, so choose a "downstream" state as the new pivot
-						pathToPivot = assignNextPivot();
+						back = true;		//next task would be back task
+					} else {				//pivot has been completely searched...
+						pathToPivot = assignNextPivot();//...so choose a "downstream" state as the new pivot
 						nextTask = pathToPivot.listIterator(pathToPivot.size() - 1);
 					}
-				} else if (recovery) {
-					transitionInfo.poorFeedback();
+				} else if (recovery) {	//need recovery...
+					transitionInfo.poorFeedback();	//...because last back event is not the right one
 					nextTask = pathToPivot.listIterator(0);
-					back = false;
-				} else {
-					throw new RipperRuntimeException(YetAnotherBreadthScheduler.class, here(), "Unacceptable situation");
 				}
 			}
 			return nextTask;
@@ -308,12 +304,8 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public void addTasks(TaskList taskList) {
-			if (taskList != null) {
-				Transition transitionJustMade = transitions.last();
-				if (transitionJustMade != null && transitionJustMade.getTask() != null)
-					taskList.forEach(task -> task.addAll(0, transitionJustMade.getTask()));
+			if (taskList != null)
 				schedule.putIfAbsent(currState, taskList);
-			}
 		}
 
 		@Override
@@ -344,7 +336,7 @@ public class AARTDriver extends AbstractDriver {
 			Task task = new Task();
 			if (!bfsDeque.isEmpty()) {
 				State newPivot = bfsDeque.removeLast();
-				this.pivot = new AbstractMap.SimpleEntry<>(newPivot, schedule.get(newPivot));
+				this.pivot = Pair.of(newPivot, schedule.get(newPivot));
 
 				//find the latest transition from previous pivot to new pivot
 				Transition lastTransitionToNewPivot = null;

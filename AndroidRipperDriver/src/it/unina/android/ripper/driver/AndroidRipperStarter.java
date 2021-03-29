@@ -437,7 +437,6 @@ public class AndroidRipperStarter {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver not valid.");
 			}
 
-			//TODO 工厂方法
 			if (driverType.equals(DRIVER_SYSTEMATIC)) {
 				terminationCriterion = new EmptyActivityStateListTerminationCriterion();
 

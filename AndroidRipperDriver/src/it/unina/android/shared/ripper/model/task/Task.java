@@ -82,4 +82,8 @@ public class Task extends ArrayList<IEvent> implements Serializable {
 	{
 		this.add(new Event(interaction, null, value, null));
 	}
+
+	public IEvent getLast() {
+		return get(size() - 1);
+	}
 }
