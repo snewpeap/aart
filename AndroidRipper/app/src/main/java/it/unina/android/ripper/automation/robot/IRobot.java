@@ -120,7 +120,12 @@ public interface IRobot {
 	 * @param text MenuItem Text
 	 */
 	public abstract void clickMenuItem(String text);
-	
+
+	/**
+	 * Scrolls up
+	 */
+	public abstract void scrollUp();
+
 	/**
 	 * Scrolls down
 	 */
