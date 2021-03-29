@@ -22,6 +22,7 @@ package it.unina.android.shared.ripper.model.state;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Abstraction of a GUI Widget, an Android GUI Component
@@ -60,11 +61,27 @@ public class WidgetDescription implements Serializable
 	public WidgetDescription()
 	{
 		super();
-		this.listeners = new HashMap<String, Boolean>();
-		this.supportedEvents = new ArrayList<String>();
+		this.listeners = new HashMap<>();
+		this.supportedEvents = new ArrayList<>();
 		this.enabled = true;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof WidgetDescription) {
+			WidgetDescription wd = (WidgetDescription) obj;
+			return id != null && id.equals(wd.id) &&
+					simpleType != null && simpleType.equals(wd.simpleType) &&
+					Objects.equals(name, wd.name) &&
+					Objects.equals(enabled, wd.enabled) &&
+					Objects.equals(visible, wd.visible) &&
+					Objects.equals(parentId, wd.parentId) &&
+					Objects.equals(ancestorId, wd.ancestorId);
+			//TODO Not compared props need specify condition
+		} else
+			return false;
+	}
+
 	public Integer getId() {
 		return id;
 	}

@@ -33,9 +33,9 @@ public class WhatAPlanner extends Planner {
 			else
 				planForWidget(taskList, wd, currentTask);
 		});
-		if (ArrayUtils.contains(options, SPAN)) {
-			//TODO
-		}
+//		if (ArrayUtils.contains(options, SPAN)) {
+//			//TODO
+//		}
 		return taskList;
 	}
 

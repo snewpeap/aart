@@ -42,10 +42,10 @@ public class AARTDriver extends AbstractDriver {
 	private static final FastDateFormat LOGCAT_TIME_FORMAT = FastDateFormat.getInstance("MM-dd hh:mm:ss.mmm");
 	private String loopStartTime = LOGCAT_TIME_FORMAT.format(0);
 
-	private final SortedMap<State, String> states = new TreeMap<>(new State.Comparator());
+	private final HashMap<State, String> states = new HashMap<>();
 	private final SortedSet<Transition> transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
 
-	private State prevState = null, currState;
+	private State prevState = null, lastSavedState = null, currState;
 
 	private final SchedulerEnhancement schedulerEnhancement;
 
@@ -64,6 +64,7 @@ public class AARTDriver extends AbstractDriver {
 				if (states.isEmpty()) {						//the beginning of everything
 					currState.setUid(State.DUMMY_UID);
 					states.put(currState, currState.getUid());
+					lastSavedState = currState;
 					schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
 					if (currState.equals(prevState))		//just to save time
@@ -71,8 +72,9 @@ public class AARTDriver extends AbstractDriver {
 					else if (states.containsKey(currState))	//already occurred state
 						currState.setUid(states.get(currState));
 					else {									//brand new state
-						currState.setUid(increaseUid(states.lastKey().getUid()));
+						currState.setUid(increaseUid(lastSavedState.getUid()));
 						states.put(currState, currState.getUid());
+						lastSavedState = currState;
 						schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState));
 					}
 					if (prevState != null)	//normal transition
@@ -179,7 +181,7 @@ public class AARTDriver extends AbstractDriver {
 
 	public final State getCurrentDescriptionAsState() {
 		try {
-			//TODO build State here
+			//TODO LOW build State here
 			return (State) ripperInput.inputActivityDescription(Optional.ofNullable(getCurrentDescription())
 					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription")));
 		} catch (IOException e) {
@@ -228,7 +230,7 @@ public class AARTDriver extends AbstractDriver {
 		try {
 			return Integer.toString(Integer.parseInt(lastUid) + 1);
 		} catch (NumberFormatException e) {
-			throw new RipperRuntimeException(AARTDriver.class, here(), "Last_State=" + states.lastKey().toString(), e);
+			throw new RipperRuntimeException(AARTDriver.class, here(), "Last_State=" + lastSavedState.toString(), e);
 		}
 	}
 
@@ -355,7 +357,7 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public boolean check() {
-			return false;//TODO
+			return bfsDeque.isEmpty() && pathToPivot != null;
 		}
 
 		@Override
