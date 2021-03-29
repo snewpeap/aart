@@ -207,6 +207,11 @@ public class RobotiumWrapperRobot implements IRobot
 		solo.sendKey(Solo.MENU);
 	}
 
+	@Override
+	public void scrollUp() {
+		solo.scrollUp();
+	}
+
 	/* (non-Javadoc)
 	 * @see it.unina.android.ripper.automation.robot.IRobot#scrollDown()
 	 */

@@ -21,7 +21,6 @@ package it.unina.android.ripper.automation;
 
 import static it.unina.android.shared.ripper.constants.InteractionType.BACK;
 import static it.unina.android.shared.ripper.constants.InteractionType.CHANGE_ORIENTATION;
-import static it.unina.android.shared.ripper.constants.InteractionType.DOUBLE_ORIENTATION;
 import static it.unina.android.shared.ripper.constants.InteractionType.CLICK;
 import static it.unina.android.shared.ripper.constants.InteractionType.CLICK_ON_TEXT;
 import static it.unina.android.shared.ripper.constants.InteractionType.CLICK_MENU_ITEM;
@@ -32,6 +31,7 @@ import static it.unina.android.shared.ripper.constants.InteractionType.LONG_CLIC
 import static it.unina.android.shared.ripper.constants.InteractionType.OPEN_MENU;
 import static it.unina.android.shared.ripper.constants.InteractionType.PRESS_KEY;
 import static it.unina.android.shared.ripper.constants.InteractionType.SCROLL_DOWN;
+import static it.unina.android.shared.ripper.constants.InteractionType.SCROLL_UP;
 import static it.unina.android.shared.ripper.constants.InteractionType.SET_BAR;
 import static it.unina.android.shared.ripper.constants.InteractionType.SPINNER_SELECT;
 import static it.unina.android.shared.ripper.constants.InteractionType.SWAP_TAB;
@@ -101,7 +101,7 @@ public class RipperAutomation implements IAutomation {
 			if (	eventType.equals(InteractionType.BACK)
 				|| 	eventType.equals(InteractionType.SCROLL_DOWN)
 				||	eventType.equals(InteractionType.CHANGE_ORIENTATION)
-				||	eventType.equals(InteractionType.DOUBLE_ORIENTATION)
+				|| 	eventType.equals(InteractionType.SCROLL_UP)
 				||	eventType.equals(InteractionType.OPEN_MENU))
 			{
 				this.fireEventOnView(null, eventType, null);
@@ -171,12 +171,7 @@ public class RipperAutomation implements IAutomation {
 		{
 			this.robot.changeOrientation();
 		}
-		else if (interactionType.equals(DOUBLE_ORIENTATION))
-		{
-			this.robot.changeOrientation();
-			this.robot.sleep(1000);
-			this.robot.changeOrientation();
-		}
+
 		else if (interactionType.equals(CLICK_ON_TEXT))
 		{
 			this.robot.clickOnText(value);
@@ -190,6 +185,9 @@ public class RipperAutomation implements IAutomation {
 		{
 			//this.robot.sendKey(Solo.MENU);
 			robot.getInstrumentation().sendCharacterSync(Solo.MENU);
+		}
+		else if (interactionType.equals(SCROLL_UP)){
+			this.robot.scrollUp();;
 		}
 		else if (interactionType.equals(SCROLL_DOWN))
 		{
@@ -280,7 +278,7 @@ public class RipperAutomation implements IAutomation {
 		Debug.info(this, "Firing event: type= " + eventType + " value= " + value);
 		
 		View v = null;
-		if (eventType.equals(BACK) || eventType.equals(SCROLL_DOWN))
+		if (eventType.equals(BACK) || eventType.equals(SCROLL_DOWN) || eventType.equals(SCROLL_UP))
 		{
 			fireEventOnView(null, eventType, null);
 			return;
