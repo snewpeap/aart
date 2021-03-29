@@ -94,6 +94,12 @@ public class SimpleNoValuesExtractor implements IExtractor {
 			ret.setTabsCount(this.getTabActivityTabsCount(activity));
 			ret.setCurrentTab(this.getTabActivityPosition(activity));
 		}
+		// view hasn't father
+		View topView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+		// < 0 scrollUp
+		// > 0 scrollDown
+		ret.setScrollUpAble(topView.canScrollVertically(-1));
+		ret.setScrollUpAble(topView.canScrollVertically(1));
 		
 		if (activity.isTaskRoot()) {
 			ret.setIsRootActivity(true);
@@ -127,8 +133,8 @@ public class SimpleNoValuesExtractor implements IExtractor {
 
 					wd.setEnabled(v.isEnabled());
 
-					wd.setVisible(v.getVisibility() == 0);
-					objectsVisibilityMap.put(v.toString(), v.getVisibility() == 0);
+					wd.setVisible(v.getVisibility() == View.VISIBLE);
+					objectsVisibilityMap.put(v.toString(), v.getVisibility() == View.VISIBLE);
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
 					if (v.getId() > 0 && v.getResources() != null) {
