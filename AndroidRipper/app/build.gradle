@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 26
+//    buildToolsVersion "26.0.3"
 
     defaultConfig {
         minSdkVersion 19
@@ -19,9 +19,8 @@ android {
 
 dependencies {
     implementation project(path: ':robotium')
-    implementation 'me.weishu:epic:0.11.1'
     //compile 'com.jayway.android.robotium:robotium-solo:5.6.3'
-    compile files('libs/custom_gson_2.8.1.jar')
-    compile files('libs/ripper_shared.jar')
-    compile files('libs/robotium_5.6.3_custom.jar')
+    implementation files('libs/custom_gson_2.8.1.jar')
+    implementation files('libs/ripper_shared.jar')
+//    compile files('libs/robotium_5.6.3_custom.jar')
 }

@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
@@ -83,8 +84,12 @@ public class AARTDriver extends AbstractDriver {
 						schedulerEnhancement.needRecovery();
 				}
 				ListIterator<IEvent> taskTodo = schedulerEnhancement.nextTaskIterator();
-				if (taskTodo == null || !taskTodo.hasNext())
+				if (taskTodo == null || !taskTodo.hasNext()) {
+					notifyRipperLog(String.format("State %s %s has no task to execute.",
+							currState.getUid(),
+							currState.getName()));
 					break;
+				}
 				executeTask(taskTodo);
 				taskJustDone = iterToTask(taskTodo);
 				prevState = currState;
@@ -181,9 +186,9 @@ public class AARTDriver extends AbstractDriver {
 
 	public final State getCurrentDescriptionAsState() {
 		try {
-			//TODO LOW build State here
-			return (State) ripperInput.inputActivityDescription(Optional.ofNullable(getCurrentDescription())
-					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription")));
+			//TODO build State here
+			return new State(ripperInput.inputActivityDescription(Optional.ofNullable(getCurrentDescription())
+					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
 		} catch (IOException e) {
 			throw new RipperRuntimeException(AARTDriver.class, here(), e.getMessage(), e);
 		}
@@ -192,15 +197,16 @@ public class AARTDriver extends AbstractDriver {
 	private void setupEnvironment() {
 		endRipperTask(false, false);
 		if (INSTALL_FROM_SDCARD) {
-			Actions.pushToSD(TEMP_PATH + "/aut.apk");
-			Actions.pushToSD(TEMP_PATH + "/ripper.apk");
+			Actions.pushToSD(Paths.get(TEMP_PATH, "aut.apk").toAbsolutePath().toString());
+			Actions.pushToSD(Paths.get(TEMP_PATH, "ripper.apk").toAbsolutePath().toString());
 		}
 		if (device.isVirtualDevice())
 			device.unlockDevice();
 
 		//install and start service
-		if (!Actions.checkApplicationInstalled(RIPPER_SERVICE_PKG))
-			Actions.installAPK(SERVICE_APK_PATH);
+		if (Actions.checkApplicationInstalled(RIPPER_SERVICE_PKG))
+			Actions.uninstallAPK(RIPPER_SERVICE_PKG);
+		Actions.installAPK(SERVICE_APK_PATH);
 		startService();
 	}
 
@@ -208,6 +214,8 @@ public class AARTDriver extends AbstractDriver {
 		//TODO LOW 需要守护线程
 		notifyRipperLog("Start ripper service...");
 		Actions.startAndroidRipperService();
+		if (device.isVirtualDevice())
+			Actions.redirectPort(SERVICE_HOST_PORT, SERVICE_HOST_PORT);
 	}
 
 	private void dumpLastLoopLogcat() {
@@ -263,8 +271,8 @@ public class AARTDriver extends AbstractDriver {
 		@Override
 		public ListIterator<IEvent> nextTaskIterator() {
 			ListIterator<IEvent> nextTask = null;
-			TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
 			if (back) {	//have to go back to pivot
+				TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
 				nextTask = transitionInfo.learnToBack(transitions	//learn from former transitions...
 //								.parallelStream()		//...between previous state and current state...
 //								.filter(t -> t.getFromState().equals(prevState) && t.getToState().equals(currState))
@@ -272,23 +280,32 @@ public class AARTDriver extends AbstractDriver {
 				).backRecommend();	//...then make recommend
 				back = false;
 			} else {	//at pivot, or need to recover to pivot
-				if (pivot == null)
+				if (pivot == null) {
 					pivot = Pair.of(currState, schedule.get(currState));
-				ListIterator<Task> iter = pivot.getValue().getIterator();
-				if (currState == pivot.getKey()) {	//current state should be pivot state if back as expected
-					recovery = false;                //if not, null would be returned
-					transitionInfo.goodFeedback();   //last back was done great
-					if (iter.hasNext()) {			//current pivot has remaining task to execute
+					ListIterator<Task> iter = pivot.getValue().getIterator();
+					if (iter.hasNext()) {
 						Task t = iter.next();
 						nextTask = t.listIterator(t.size() - 1);
-						back = true;		//next task would be back task
-					} else {				//pivot has been completely searched...
-						pathToPivot = assignNextPivot();//...so choose a "downstream" state as the new pivot
-						nextTask = pathToPivot.listIterator(pathToPivot.size() - 1);
+						back = true;
 					}
-				} else if (recovery) {	//need recovery...
-					transitionInfo.poorFeedback();	//...because last back event is not the right one
-					nextTask = pathToPivot.listIterator(0);
+				} else {
+					TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
+					if (currState.equals(pivot.getKey())) {    //current state should be pivot state if back as expected
+						recovery = false;                //if not, null would be returned
+						transitionInfo.goodFeedback();   //last back was done great
+						ListIterator<Task> iter = pivot.getValue().getIterator();
+						if (iter.hasNext()) {            //current pivot has remaining task to execute
+							Task t = iter.next();
+							nextTask = t.listIterator(t.size() - 1);
+							back = true;        //next task would be back task
+						} else {                //pivot has been completely searched...
+							pathToPivot = assignNextPivot();//...so choose a "downstream" state as the new pivot
+							nextTask = pathToPivot.listIterator(pathToPivot.size() - 1);
+						}
+					} else if (recovery) {    //need recovery...
+						transitionInfo.poorFeedback();    //...because last back event is not the right one
+						nextTask = pathToPivot.listIterator(0);
+					}
 				}
 			}
 			return nextTask;
