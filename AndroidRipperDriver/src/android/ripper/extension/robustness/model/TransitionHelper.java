@@ -26,7 +26,7 @@ public class TransitionHelper {
 	public static class TransitionInfo extends Transition {
 		private final LinkedList<Event> possibleBackEvents = new LinkedList<>();
 		private boolean needLearning = true;
-		private static final int MAX_RECOMMEND_REPEAT = 3;
+		private static final int MAX_RECOMMEND_REPEAT = 2;
 
 		public TransitionInfo(State fromState, State toState, Task task) {
 			super(fromState, toState, task);
@@ -61,7 +61,8 @@ public class TransitionHelper {
 		}
 
 		private boolean familiar(State a, State b) {
-			return a.getActivityClass().equals(b.getActivityClass());
+			//TODO LOW Too shallow. use distance
+			return a.getClassName().equals(b.getClassName());
 		}
 
 		/**
@@ -72,12 +73,13 @@ public class TransitionHelper {
 		 */
 		public TransitionInfo learnToBack(Collection<Transition> formerTransitions) {
 			if (needLearning) {
-				possibleBackEvents.addAll(0, formerTransitions.parallelStream()
+				Map<IEvent, Long> m = formerTransitions.parallelStream()
 						.filter(t -> familiar(getFromState(), t.getToState()) && familiar(getToState(), t.getFromState()))
-						.collect(Collectors.groupingBy(t -> t.getTask().getLast(), Collectors.counting()))
-						.entrySet().stream()
-						.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-						.collect(LinkedList<Event>::new, (l, e) -> l.add((Event) e.getKey()), LinkedList::addAll));
+						.collect(Collectors.groupingBy(t -> t.getTask().getLast(), Collectors.counting()));
+				if (!m.isEmpty())
+					possibleBackEvents.addAll(0, m.entrySet().stream()
+							.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+							.collect(LinkedList<Event>::new, (l, e) -> l.add((Event) e.getKey()), LinkedList::addAll));
 				needLearning = false;
 			}
 			return this;

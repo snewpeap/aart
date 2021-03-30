@@ -268,7 +268,7 @@ public class State extends ActivityDescription {
 
 	@Override
 	public String toString() {
-		return super.toString();//TODO LOW
+		return ad.toString();//TODO LOW
 	}
 
 }

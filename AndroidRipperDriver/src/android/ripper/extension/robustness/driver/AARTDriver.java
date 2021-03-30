@@ -48,7 +48,7 @@ public class AARTDriver extends AbstractDriver {
 
 	private State prevState = null, lastSavedState = null, currState;
 
-	private final SchedulerEnhancement schedulerEnhancement;
+	private final SchedulerEnhancement yabScheduler;
 
 	@Override
 	public void rippingLoop() {
@@ -66,7 +66,7 @@ public class AARTDriver extends AbstractDriver {
 					currState.setUid(State.DUMMY_UID);
 					states.put(currState, currState.getUid());
 					lastSavedState = currState;
-					schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
+					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
 					if (currState.equals(prevState))		//just to save time
 						currState.setUid(prevState.getUid());
@@ -76,14 +76,14 @@ public class AARTDriver extends AbstractDriver {
 						currState.setUid(increaseUid(lastSavedState.getUid()));
 						states.put(currState, currState.getUid());
 						lastSavedState = currState;
-						schedulerEnhancement.addTasks(planner.plan(taskJustDone, currState));
+						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
-					if (prevState != null)	//normal transition
+					if (prevState != null && taskJustDone != null && !taskJustDone.isEmpty())	//normal transition
 						transitions.add(TransitionHelper.v(prevState, currState, taskJustDone));
 					else					//null prevState and nonempty states set mean accident
-						schedulerEnhancement.needRecovery();
+						yabScheduler.needRecovery();
 				}
-				ListIterator<IEvent> taskTodo = schedulerEnhancement.nextTaskIterator();
+				ListIterator<IEvent> taskTodo = yabScheduler.nextTaskIterator();
 				if (taskTodo == null || !taskTodo.hasNext()) {
 					notifyRipperLog(String.format("State %s %s has no task to execute.",
 							currState.getUid(),
@@ -107,7 +107,7 @@ public class AARTDriver extends AbstractDriver {
 
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
-		this.schedulerEnhancement = yabs;
+		this.yabScheduler = yabs;
 
 		this.planner = new WhatAPlanner();
 	}
@@ -273,11 +273,9 @@ public class AARTDriver extends AbstractDriver {
 			ListIterator<IEvent> nextTask = null;
 			if (back) {	//have to go back to pivot
 				TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
-				nextTask = transitionInfo.learnToBack(transitions	//learn from former transitions...
-//								.parallelStream()		//...between previous state and current state...
-//								.filter(t -> t.getFromState().equals(prevState) && t.getToState().equals(currState))
-//								.collect(Collectors.toList())
-				).backRecommend();	//...then make recommend
+				//learn from former transitions then make recommend
+				nextTask = transitionInfo.learnToBack(transitions).backRecommend();
+				notifyRipperLog("Going back...");
 				back = false;
 			} else {	//at pivot, or need to recover to pivot
 				if (pivot == null) {
@@ -285,13 +283,14 @@ public class AARTDriver extends AbstractDriver {
 					ListIterator<Task> iter = pivot.getValue().getIterator();
 					if (iter.hasNext()) {
 						Task t = iter.next();
-						nextTask = t.listIterator(t.size() - 1);
+						nextTask = t.listIterator(0);
 						back = true;
 					}
 				} else {
 					TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
 					if (currState.equals(pivot.getKey())) {    //current state should be pivot state if back as expected
 						recovery = false;                //if not, null would be returned
+						notifyRipperLog("We're back!");
 						transitionInfo.goodFeedback();   //last back was done great
 						ListIterator<Task> iter = pivot.getValue().getIterator();
 						if (iter.hasNext()) {            //current pivot has remaining task to execute
@@ -299,12 +298,23 @@ public class AARTDriver extends AbstractDriver {
 							nextTask = t.listIterator(t.size() - 1);
 							back = true;        //next task would be back task
 						} else {                //pivot has been completely searched...
-							pathToPivot = assignNextPivot();//...so choose a "downstream" state as the new pivot
-							nextTask = pathToPivot.listIterator(pathToPivot.size() - 1);
+							nextTask = newPivotAndNextTask();//...so choose a "downstream" state as the new pivot
 						}
 					} else if (recovery) {    //need recovery...
+						notifyRipperLog("Recovering...");
 						transitionInfo.poorFeedback();    //...because last back event is not the right one
-						nextTask = pathToPivot.listIterator(0);
+						if (pathToPivot == null) {
+							recovery = false;
+							ListIterator<Task> iter = pivot.getValue().getIterator();
+							if (iter.hasNext()) {
+								Task t = iter.next();
+								nextTask = t.listIterator(0);
+								back = true;
+							} else {
+								nextTask = newPivotAndNextTask();
+							}
+						} else
+							nextTask = pathToPivot.listIterator(0);
 					}
 				}
 			}
@@ -367,6 +377,12 @@ public class AARTDriver extends AbstractDriver {
 			return task;
 		}
 
+		private ListIterator<IEvent> newPivotAndNextTask() {
+			pathToPivot = assignNextPivot();
+			notifyRipperLog("Assign next pivot="+ pivot.getKey());
+			return pathToPivot.listIterator(pathToPivot.size() - 1);
+		}
+
 		@Override
 		public void init(AbstractDriver driver) {
 			//do nothing
@@ -379,6 +395,7 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public void needRecovery() {
+			notifyRipperLog("We've lost the way!");
 			recovery = true;
 		}
 	}
