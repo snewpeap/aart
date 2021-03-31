@@ -38,7 +38,7 @@ public class State extends ActivityDescription {
 								!s.isTabActivity()
 						);
 			} else
-				return getUid().equals(s.getUid());
+				return Objects.equals(getUid(), s.getUid());
 		} else
 			return false;
 	}
@@ -47,17 +47,22 @@ public class State extends ActivityDescription {
 		ad = activityDescription;
 	}
 
-	private static final State EXIT_STATE = new State(new ActivityDescription());
+	public static final State EXIT_STATE = new State(new ActivityDescription()){
+		@Override
+		public String getUid() {
+			return "-1";
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof State && "-1".equals(((State) obj).getUid());
+		}
+	};
 	static {
 		EXIT_STATE.setId("");
 		EXIT_STATE.setName("");
 		EXIT_STATE.setTitle("");
 		EXIT_STATE.setClassName("");
-		EXIT_STATE.setUid("-1");
-	}
-	public static State EXIT_STATE() {
-		EXIT_STATE.setUid("-1");
-		return EXIT_STATE;
 	}
 
 	@Override

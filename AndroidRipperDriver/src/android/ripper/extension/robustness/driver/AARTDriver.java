@@ -55,22 +55,24 @@ public class AARTDriver extends AbstractDriver {
 		setupEnvironment();
 		do {
 			dumpLastLoopLogcat();
-			loopStartTime = LOGCAT_TIME_FORMAT.format(new Date());
 			readyToLoop();
 
 			Task taskJustDone = null;
 			while (true) {
 				currState = getCurrentDescriptionAsState();
-				//TODO deal with EXIT_STATE
-				if (states.isEmpty()) {						//the beginning of everything
+				if (states.isEmpty()) {					//the beginning of everything
 					currState.setUid(State.LOWEST_UID);
 					states.put(currState, currState.getUid());
 					lastSavedState = currState;
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
-					if (states.containsKey(currState))	//already occurred state
+					if (State.EXIT_STATE.equals(currState)) {
+						transitions.add(TransitionHelper.v(prevState, currState, taskJustDone));
+						notifyRipperLog("Accidentally exit AUT");
+						break;
+					} else if (states.containsKey(currState)) {	//already occurred state
 						currState.setUid(states.get(currState));
-					else {									//brand new state
+					} else {									//brand new state
 						currState.setUid(increaseUid(lastSavedState.getUid()));
 						states.put(currState, currState.getUid());
 						lastSavedState = currState;
@@ -85,8 +87,7 @@ public class AARTDriver extends AbstractDriver {
 				ListIterator<IEvent> taskTodo = yabScheduler.nextTaskIterator();
 				if (taskTodo == null || !taskTodo.hasNext()) {
 					notifyRipperLog(String.format("State %s %s has no task to execute.",
-							currState.getUid(),
-							currState.getName()));
+							currState.getUid(), currState.getName()));
 					break;
 				}
 				executeTask(taskTodo);
@@ -158,8 +159,8 @@ public class AARTDriver extends AbstractDriver {
 	 * Start ripper and AUT, check alive and then create log file.
 	 */
 	private void readyToLoop() {
+		loopStartTime = LOGCAT_TIME_FORMAT.format(new Date());
 		checkSocket();
-
 		super.startup();
 
 		notifyRipperLog("Check alive...");
@@ -189,7 +190,7 @@ public class AARTDriver extends AbstractDriver {
 			try {
 				cd = getCurrentDescription();
 			} catch (RipperRuntimeException e) {
-				return State.EXIT_STATE();
+				return State.EXIT_STATE;
 			}
 			return new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
 					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
@@ -265,8 +266,7 @@ public class AARTDriver extends AbstractDriver {
 			}
 		};
 
-		private boolean back = false;
-		private boolean recovery = false;
+		private boolean back = false, recovery = false;
 		private Pair<State, TaskList> pivot = null;	//current BFS pivot state and its taskList
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
@@ -319,9 +319,7 @@ public class AARTDriver extends AbstractDriver {
 		}
 
 		@Override
-		public void addTask(Task t) {
-
-		}
+		public void addTask(Task t) {}
 
 		@Override
 		public void addTasks(TaskList taskList) {
@@ -335,9 +333,7 @@ public class AARTDriver extends AbstractDriver {
 		}
 
 		@Override
-		public void clear() {
-
-		}
+		public void clear() {}
 
 		/**
 		 * Assign pivot to a "downstream" state of the current state, meanwhile current state is marked pivoted,
@@ -353,7 +349,7 @@ public class AARTDriver extends AbstractDriver {
 					.filter(t -> {
 						State to = t.getToState();
 						return t.getFromState().equals(prevPivot) &&
-								!to.equals(State.EXIT_STATE()) && !pivoted.contains(to.getUid());
+								!State.EXIT_STATE.equals(to) && !pivoted.contains(to.getUid());
 					})
 					.map(Transition::getToState).distinct()
 					.forEachOrdered(bfsDeque::push);//enqueue bfs target, possibly no state enqueue
@@ -362,21 +358,35 @@ public class AARTDriver extends AbstractDriver {
 			if (!bfsDeque.isEmpty()) {
 				State newPivot = bfsDeque.removeLast();
 				this.pivot = Pair.of(newPivot, schedule.get(newPivot));
-
+				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
 				Transition lastTransitionToNewPivot = null;
 				for (Transition t : transitions)
 					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot))
 						lastTransitionToNewPivot = t;
-				task = lastTransitionToNewPivot == null ? null : lastTransitionToNewPivot.getTask();
+				if (lastTransitionToNewPivot == null) {
+					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
+							prevPivot.getUid(), newPivot.getUid()));
+					return null;
+				} else task = lastTransitionToNewPivot.getTask();
+			} else {
+				pivot = null;
 			}
 			return task;
 		}
 
 		private ListIterator<IEvent> newPivotAndNextTask() {
 			pathToPivot = assignNextPivot();
-			notifyRipperLog(String.format("Assign new pivot = State %s = %s", pivot.getKey().getUid(), pivot.getKey()));
-			return pathToPivot != null ? pathToPivot.listIterator(pathToPivot.size() - 1) : null;
+			if (pivot == null) {
+				notifyRipperLog("No more new pivot");
+				return null;
+			}
+			if (pathToPivot == null) {
+				pathToPivot = (Task) schedule.get(pivot.getKey()).get(0).clone();
+				pathToPivot.remove(pathToPivot.size() - 1);
+				return pathToPivot.listIterator(pathToPivot.size());
+			}
+			return pathToPivot.listIterator(pathToPivot.size() - 1);
 		}
 
 		private ListIterator<IEvent> nextTaskAtPivot(ListIterator<Task> iter) {
@@ -392,13 +402,14 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public boolean check() {
-			return bfsDeque.isEmpty() && pathToPivot != null;
+			return bfsDeque.isEmpty() && pivot == null;
 		}
 
 		@Override
 		public void needRecovery() {
 			notifyRipperLog("We've lost the way!");
 			recovery = true;
+			back = false;
 		}
 	}
 }

@@ -41,7 +41,7 @@ public class WhatAPlanner extends Planner {
 
 	private void planForActivity(TaskList taskList, ActivityDescription ad, Task t) {
 		//ifCanScrollDown
-		taskList.addNewTaskForActivity(t, SCROLL_DOWN);
+		taskList.addNewTaskForActivity(t, SCROLL_DOWN);//FIXME
 		if (ad.isTabActivity())
 			for (int i = 0; i < ad.getTabsCount(); i++)
 				taskList.addNewTaskForActivity(t, SWAP_TAB, Integer.toString(i));
