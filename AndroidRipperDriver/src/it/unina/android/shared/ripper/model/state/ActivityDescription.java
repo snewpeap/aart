@@ -42,6 +42,25 @@ public class ActivityDescription implements Serializable
 	Boolean handlesKeyPress;
 	Boolean handlesLongKeyPress;
 	Boolean isTabActivity;
+	Boolean scrollUpAble;
+	Boolean scrollDownAble;
+
+	public Boolean getScrollUpAble() {
+		return scrollUpAble;
+	}
+
+	public void setScrollUpAble(Boolean scrollUpAble) {
+		this.scrollUpAble = scrollUpAble;
+	}
+
+	public Boolean getScrollDownAble() {
+		return scrollDownAble;
+	}
+
+	public void setScrollDownAble(Boolean scrollDownAble) {
+		this.scrollDownAble = scrollDownAble;
+	}
+
 	int tabsCount;
 	int currentTab;
 	Boolean isRootActivity;
