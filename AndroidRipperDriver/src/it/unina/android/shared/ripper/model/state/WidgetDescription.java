@@ -82,6 +82,11 @@ public class WidgetDescription implements Serializable
 			return false;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, simpleType, name, enabled, visible, parentId, ancestorId);
+	}
+
 	public Integer getId() {
 		return id;
 	}

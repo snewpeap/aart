@@ -61,8 +61,8 @@ public class TransitionHelper {
 		}
 
 		private boolean familiar(State a, State b) {
-			//TODO LOW Too shallow. use distance
-			return a.getClassName().equals(b.getClassName());
+			//TODO can't be too shallow. use distance?
+			return a.equals(b);
 		}
 
 		/**

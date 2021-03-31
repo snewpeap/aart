@@ -7,12 +7,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static android.ripper.extension.robustness.tools.ObjectTool.propEquals;
 
 public class State extends ActivityDescription {
-	public static final String DUMMY_UID = "0";
+	public static final String LOWEST_UID = "0";
 	private final ActivityDescription ad;
 
 	@Override
@@ -26,7 +27,7 @@ public class State extends ActivityDescription {
 				Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
 				return widgetsEquality && propEquals(su, State::getTitle) &&
 						propEquals(su, State::getName) &&
-						propEquals(su, State::getActivityClass) &&
+						propEquals(su, State::getClassName) &&
 						propEquals(su, State::hasMenu) &&
 						propEquals(su, State::handlesKeyPress) &&
 						propEquals(su, State::handlesLongKeyPress) &&
@@ -44,6 +45,19 @@ public class State extends ActivityDescription {
 
 	public State(ActivityDescription activityDescription) {
 		ad = activityDescription;
+	}
+
+	private static final State EXIT_STATE = new State(new ActivityDescription());
+	static {
+		EXIT_STATE.setId("");
+		EXIT_STATE.setName("");
+		EXIT_STATE.setTitle("");
+		EXIT_STATE.setClassName("");
+		EXIT_STATE.setUid("-1");
+	}
+	public static State EXIT_STATE() {
+		EXIT_STATE.setUid("-1");
+		return EXIT_STATE;
 	}
 
 	@Override
@@ -271,4 +285,10 @@ public class State extends ActivityDescription {
 		return ad.toString();//TODO LOW
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(getTitle(), getName(), getClassName(),
+				getHasMenu(), getHandlesKeyPress(), getHandlesLongKeyPress(),
+				getIsTabActivity(), getTabsCount(), getCurrentTab(), getWidgets());
+	}
 }
