@@ -418,7 +418,7 @@ public class AndroidRipperStarter {
 			}
 
 			long seedLong = System.currentTimeMillis();
-			if (randomSeed != null && !randomSeed.equals("")) {
+			if (!randomSeed.equals("")) {
 				seedLong = Long.parseLong(randomSeed);
 			}
 
@@ -483,7 +483,10 @@ public class AndroidRipperStarter {
 					((RandomDriver) driver).COVERAGE_FREQUENCY = Integer.parseInt(coverageFrequency);
 					break;
 				case "AART":
-					driver = new AARTDriver(ripperInput, ripperOutput);
+					boolean generateTestsuite = Boolean.parseBoolean(conf.getProperty("AART.generate_testsuite"));
+					String coverage = conf.getProperty("AART.coverage", "");
+					String perturb = conf.getProperty("AART.perturb", "");
+					driver = new AARTDriver(ripperInput, ripperOutput, generateTestsuite, coverage, perturb);
 					break;
 				default:
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver Type not supported!");

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="custom_gson_2.8.1">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/jar/custom_gson_2.8.1.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

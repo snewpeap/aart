@@ -3,8 +3,3 @@
 !/jar/*.jar
 !/ripper_shared.jar
 .idea/**
-!*/
-!/.idea/misc.xml
-!/.idea/vcs.xml
-!/.idea/libraries/*
-!/.idea/artifacts/*

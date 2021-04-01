@@ -60,7 +60,7 @@ public class TransitionHelper {
 				needLearning = true;
 		}
 
-		private boolean familiar(State a, State b) {
+		private boolean similar(State a, State b) {
 			//TODO can't be too shallow. use distance?
 			return a.equals(b);
 		}
@@ -74,7 +74,7 @@ public class TransitionHelper {
 		public TransitionInfo learnToBack(Collection<Transition> formerTransitions) {
 			if (needLearning) {
 				Map<IEvent, Long> m = formerTransitions.parallelStream()
-						.filter(t -> familiar(getFromState(), t.getToState()) && familiar(getToState(), t.getFromState()))
+						.filter(t -> similar(getFromState(), t.getToState()) && similar(getToState(), t.getFromState()))
 						.collect(Collectors.groupingBy(t -> t.getTask().getLast(), Collectors.counting()));
 				if (!m.isEmpty())
 					possibleBackEvents.addAll(0, m.entrySet().stream()

@@ -6,6 +6,7 @@ import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.model.TransitionHelper;
 import android.ripper.extension.robustness.model.TransitionHelper.TransitionInfo;
+import android.ripper.extension.robustness.output.TestSuiteGenerator;
 import android.ripper.extension.robustness.planner.WhatAPlanner;
 import it.unina.android.ripper.driver.AbstractDriver;
 import it.unina.android.ripper.driver.exception.RipperRuntimeException;
@@ -45,9 +46,13 @@ public class AARTDriver extends AbstractDriver {
 
 	private final HashMap<State, String> states = new HashMap<>();
 	private final SortedSet<Transition> transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
-	private State prevState = null, lastSavedState = null, currState;
+	private State prevState = null;
+	private State lastSavedState = null;
+	private State currState;
 
 	private final SchedulerEnhancement yabScheduler;
+	private final TestSuiteGenerator testSuiteGenerator;
+	private final boolean generateTestSuite;
 
 	@Override
 	public void rippingLoop() {
@@ -62,8 +67,7 @@ public class AARTDriver extends AbstractDriver {
 				currState = getCurrentDescriptionAsState();
 				if (states.isEmpty()) {					//the beginning of everything
 					currState.setUid(State.LOWEST_UID);
-					states.put(currState, currState.getUid());
-					lastSavedState = currState;
+					addNewState();
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
 					if (State.EXIT_STATE.equals(currState)) {
@@ -74,10 +78,8 @@ public class AARTDriver extends AbstractDriver {
 						currState.setUid(states.get(currState));
 					} else {									//brand new state
 						currState.setUid(increaseUid(lastSavedState.getUid()));
-						states.put(currState, currState.getUid());
-						lastSavedState = currState;
+						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
-						notifyRipperLog(String.format("new state %s = %s", currState.getUid(), currState.toString()));
 					}
 					if (prevState != null && taskJustDone != null && !taskJustDone.isEmpty())	//normal transition
 						transitions.add(TransitionHelper.v(prevState, currState, taskJustDone));
@@ -98,18 +100,23 @@ public class AARTDriver extends AbstractDriver {
 			endLoop();
 		} while (running && !checkTerminationCriteria());
 
+		if (generateTestSuite)
+			testSuiteGenerator.generate(new TreeSet<>(transitions));
 		notifyRipperEnded();
 	}
 
-	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput) {
+	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput, boolean generateTestsuite,
+					  String coverage, String perturb) {
 		this.ripperInput = ripperInput;
 		this.ripperOutput = ripperOutput;
 
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-
+		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb);
 		this.planner = new WhatAPlanner();
+
+		this.generateTestSuite = generateTestsuite;
 	}
 
 	@Override
@@ -127,12 +134,9 @@ public class AARTDriver extends AbstractDriver {
 		Message message;
 		for (int retry = 0; retry < ACK_MAX_RETRY; retry++) {
 			try {
-				message = rsSocket.readMessage(1000, false);
-			} catch (SocketException e) {
-				continue;
-			}
-			if (message != null)
-				return message;
+				if ((message = rsSocket.readMessage(1000, false)) != null)
+					return message;
+			} catch (SocketException ignored) {}
 		}
 		throw new RipperNullMsgException(AARTDriver.class, caller() + "->" + here(), "readMessage()");
 	}
@@ -239,6 +243,12 @@ public class AARTDriver extends AbstractDriver {
 		}
 	}
 
+	private void addNewState() {
+		states.put(currState, currState.getUid());
+		lastSavedState = currState;
+		notifyRipperLog(String.format("new state %s = %s", currState.getUid(), currState.toString()));
+	}
+
 	private String increaseUid(String lastUid) {
 		try {
 			return Integer.toString(Integer.parseInt(lastUid) + 1);
@@ -266,7 +276,8 @@ public class AARTDriver extends AbstractDriver {
 			}
 		};
 
-		private boolean back = false, recovery = false;
+		private boolean back = false;
+		private boolean recovery = false;
 		private Pair<State, TaskList> pivot = null;	//current BFS pivot state and its taskList
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
@@ -350,9 +361,8 @@ public class AARTDriver extends AbstractDriver {
 						State to = t.getToState();
 						return t.getFromState().equals(prevPivot) &&
 								!State.EXIT_STATE.equals(to) && !pivoted.contains(to.getUid());
-					})
-					.map(Transition::getToState).distinct()
-					.forEachOrdered(bfsDeque::push);//enqueue bfs target, possibly no state enqueue
+					})//enqueue bfs target, possibly no state enqueue
+					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
 
 			Task task = new Task();
 			if (!bfsDeque.isEmpty()) {

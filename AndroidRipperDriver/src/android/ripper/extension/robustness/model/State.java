@@ -1,6 +1,6 @@
 package android.ripper.extension.robustness.model;
 
-import android.ripper.extension.robustness.tools.ObjectTool.Comparand;
+import android.ripper.extension.robustness.model.compare.Comparand;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import org.apache.commons.lang3.StringUtils;
