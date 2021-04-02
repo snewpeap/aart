@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,8 +27,19 @@ public class WhatAPlanner extends Planner {
 	@Override
 	public TaskList plan(Task currentTask, ActivityDescription activity, String... options) {
 		TaskList taskList = new TaskList();
+		ArrayList<WidgetDescription> widgets = activity.getWidgets();
+		ListIterator<WidgetDescription> iter = activity.getWidgets().listIterator();
+		while (iter.hasNext()) {
+			if (iter.next().getClassName().endsWith("DecorView") && iter.hasNext()) {
+				widgets = new ArrayList<>(widgets.size() - iter.nextIndex());
+				iter.forEachRemaining(widgets::add);
+			}
+		}
+		if (widgets != activity.getWidgets()) {
+			activity.setScrollDownAble(false);//FIXME
+		}
 		planForActivity(taskList, activity, currentTask);
-		activity.getWidgets().forEach(wd -> {
+		widgets.forEach(wd -> {
 			if (ArrayUtils.contains(HandlerBasedPlanner.inputWidgetList, wd.getSimpleType()))
 				planForInput(taskList, wd, currentTask);
 			else
@@ -40,8 +52,8 @@ public class WhatAPlanner extends Planner {
 	}
 
 	private void planForActivity(TaskList taskList, ActivityDescription ad, Task t) {
-		//ifCanScrollDown
-		taskList.addNewTaskForActivity(t, SCROLL_DOWN);//FIXME
+		if (ad.getScrollDownAble())
+			taskList.addNewTaskForActivity(t, SCROLL_DOWN);
 		if (ad.isTabActivity())
 			for (int i = 0; i < ad.getTabsCount(); i++)
 				taskList.addNewTaskForActivity(t, SWAP_TAB, Integer.toString(i));
