@@ -113,7 +113,8 @@ public class AARTDriver extends AbstractDriver {
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb);
+		//TODO add CLASS_NAME here
+		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, "TEMP");
 		this.planner = new WhatAPlanner();
 
 		this.generateTestSuite = generateTestsuite;
