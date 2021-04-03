@@ -719,7 +719,7 @@ public class Actions {
 	}
 
 	public static void waitForForegroundActivityPackage(String pack, int max_retry) {
-		while (max_retry-- >= 0 || checkCurrentForegroundActivityPackage(pack) == false) {
+		while (max_retry-- >= 0 && !checkCurrentForegroundActivityPackage(pack)) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

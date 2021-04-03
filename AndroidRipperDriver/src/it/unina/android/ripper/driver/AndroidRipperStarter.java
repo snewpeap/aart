@@ -849,6 +849,6 @@ public class AndroidRipperStarter {
 			return "10000";
 		}
 
-		return "3000";
+		return "1000";
 	}
 }
