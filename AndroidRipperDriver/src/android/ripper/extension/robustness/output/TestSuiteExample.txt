@@ -738,6 +738,28 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 		}
 	}
 
+    public String report(int id, ActivityDescription ad){
+        //TODO
+        //1. get state from shouldBeState
+        //2. judge whether equals
+        //3. report!
+        try{
+            if(shouldBeState.get(id).equals(ad)){
+                Path path = Paths.get("reportPath.txt");
+                BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+                writer.append("REPORT The State in testTrace" + id + "is not equal the final state.\n");
+                writer.append("It should be :\n" + shouldBeState.get(id)+"\n");
+                writer.append("But actually is :\n"+ad.toString()+"\n\n")
+                writer.close();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
 	<PERTURB_FUNCTION>
 
 }

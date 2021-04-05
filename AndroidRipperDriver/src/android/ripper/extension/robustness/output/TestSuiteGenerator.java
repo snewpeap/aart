@@ -1,13 +1,13 @@
 package android.ripper.extension.robustness.output;
 
+import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.strategy.Coverage;
 import android.ripper.extension.robustness.strategy.Perturb;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.HashMap;
 import java.util.Set;
 
 public class TestSuiteGenerator {
@@ -17,6 +17,8 @@ public class TestSuiteGenerator {
     private final Coverage coverage;
     private final Perturb perturb;
     private final String testSuitePath = "TestSuite.java";
+    private final String reportPath = "reportPath.txt";
+    private final HashMap<Integer, State> shouldBeState = new HashMap<>();
 
     public void generate(Set<Transition> transitions) {
         //TODO
@@ -34,9 +36,23 @@ public class TestSuiteGenerator {
             testTrace.append("    public void testTrace" + id + " () {");
             testTrace.append(perturb.recover(Boolean.toString(true)));
             testTrace.append(perturb.perturb(transition, Boolean.toString(false)));
+//            testTrace.append(report(id));
+
+            shouldBeState.put(id, transition.getToState());
+
         }
         //TODO check whether reach final state
+        ADSerializable();
     }
+
+    public void ADSerializable(){
+    }
+
+
+    public String addReport(){
+        return null;
+    }
+
 
     public TestSuiteGenerator(String AUT_PACKAGE, String coverage, String perturb, String CLASS_NAME) {
         this.AUT_PACKAGE = AUT_PACKAGE;
@@ -55,8 +71,8 @@ public class TestSuiteGenerator {
     }
 
 
-    public static void main(String[] args) {
-        System.out.println(Boolean.toString(true));
+    public static void main(String[] args) throws IOException{
+
     }
 
 }
