@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import com.alibaba.fastjson.JSONObject;
 import android.test.ActivityInstrumentationTestCase2;
 
 import static android.content.Context.WINDOW_SERVICE;
@@ -104,7 +105,7 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 	public final static String RELATIVE_LAYOUT = "relativeLayout";
 	public final static String FOCUSABLE_EDIT_TEXT = "focusableEditText";
 	public final static String[] PRECRAWLING = {};
-
+	private final static HashMap<Integer, ActivityDescription> map;
 	private static Class<?> theClass;
 	static {
 		try {
@@ -124,6 +125,7 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.solo = new Solo (getInstrumentation(), getActivity());
+		map = ADDeserialized();
 		restart();
 		afterRestart();
 		refreshCurrentActivity();
@@ -758,6 +760,25 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 
         return null;
 
+    }
+
+    public HashMap ADDeserialized(){
+
+        Path path = Paths.get("SerializableState.txt");
+        try{
+            BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
+            String s = bufferedReader.readLine();
+            JSONObject jsonObject = JSON.parseObject(s);
+            HashMap<Integer, ActivityDescription> map = new HashMap<>();
+            for(String key : jsonObject.keySet()){
+                ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
+                map.put(Integer.parseInt(key), ad);
+            }
+            return map;
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 	<PERTURB_FUNCTION>

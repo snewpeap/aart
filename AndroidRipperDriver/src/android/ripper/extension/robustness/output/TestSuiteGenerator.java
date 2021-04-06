@@ -5,14 +5,15 @@ import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.strategy.Coverage;
 import android.ripper.extension.robustness.strategy.Perturb;
 import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
-import custom.com.google.gson.JsonObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
+import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.Set;
 
 public class TestSuiteGenerator {
@@ -30,7 +31,6 @@ public class TestSuiteGenerator {
         //for each transition, generate testcase
         StringBuilder testTrace = new StringBuilder();
         int id = 0;
-
         OperationFactory perturbFactory = new OperationFactory("solo", 1);
         perturbFactory.addParam(false);
         perturbFactory.setMobileData(new int[]{0});
@@ -52,6 +52,8 @@ public class TestSuiteGenerator {
 
             shouldBeState.put(id, transition.getToState());
 
+            testTrace.append("report(id, transition.getToState().getAd());");
+
         }
         //TODO check whether reach final state
         ADSerializable();
@@ -60,19 +62,31 @@ public class TestSuiteGenerator {
     public void ADSerializable(){
         Path path = Paths.get("SerializableState.txt");
         try{
-            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND));
-//            bufferedWriter.write();
-//            ObjectOutputStream oos = new ObjectOutputStream(bufferedWriter);
-//            oos.writeObject(hmap);
-//            oos.close();
+            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
+            bufferedWriter.append(JSONObject.toJSONString(shouldBeState));
+            bufferedWriter.close();
         }catch (IOException e){
             e.printStackTrace();
         }
     }
 
+    public HashMap ADDeserialized(){
 
-    public String addReport(){
-        return null;
+        Path path = Paths.get("SerializableState.txt");
+        try{
+            BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
+            String s = bufferedReader.readLine();
+            JSONObject jsonObject = JSON.parseObject(s);
+            HashMap<Integer, ActivityDescription> map = new HashMap<>();
+            for(String key : jsonObject.keySet()){
+                ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
+                map.put(Integer.parseInt(key), ad);
+            }
+            return map;
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -94,8 +108,17 @@ public class TestSuiteGenerator {
 
 
     public static void main(String[] args) throws IOException{
-        Path path = Paths.get("reportPath.txt");
-        BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND));
+        TestSuiteGenerator testSuiteGenerator = new TestSuiteGenerator("ABC","A","A","ASB");
+        ActivityDescription ad = new ActivityDescription();
+        ad.addListener("ASD", true);
+        WidgetDescription widgetDescription = new WidgetDescription();
+        widgetDescription.addListener("ASDDE", true);
+        widgetDescription.setId(123123);
+        ad.addWidget(widgetDescription);
+        testSuiteGenerator.shouldBeState.put(1, new State(ad));
+        testSuiteGenerator.ADSerializable();
+        HashMap hashMap = testSuiteGenerator.ADDeserialized();
+        hashMap.containsKey("123");
     }
 
 }

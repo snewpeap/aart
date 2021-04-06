@@ -65,6 +65,10 @@ public class State extends ActivityDescription {
 		EXIT_STATE.setClassName("");
 	}
 
+	public ActivityDescription getAd() {
+		return ad;
+	}
+
 	@Override
 	public void addWidget(WidgetDescription widget) {
 		ad.addWidget(widget);
