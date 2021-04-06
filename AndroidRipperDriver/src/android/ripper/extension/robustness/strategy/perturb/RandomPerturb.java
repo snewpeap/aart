@@ -10,19 +10,6 @@ import java.util.Random;
 
 public class RandomPerturb implements Perturb {
 
-
-    private final static String perturbFunction =
-                    "protected void perturb(String args0){\n"+
-                    "    if(new Random().nextBoolean()) {\n" +
-                    "       this.solo.setMobileData(args0);\n" +
-                        "}\n" +
-                    "}\n" +
-                    "protected void recover(String args0){\n" +
-                    "   this.solo.setMobileDate(args0);\n" +
-                    "}\n";
-
-
-    private final static String callPerturb = "perturb(<ARGS0>);";
     private final static String callRecover = "recover(<ARGS0>);";
     private final static String fireEvent = "fireEvent (<widgetId>, <widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
 
@@ -31,7 +18,8 @@ public class RandomPerturb implements Perturb {
      * @return
      */
     @Override
-    public String perturb(Transition transition, String... args){
+    public String perturb(Transition transition,  OperationFactory operationFactory){
+
         StringBuilder testTrace = new StringBuilder();
         List<Event> events = transition.getEvents();
         for (Event event : events) {
@@ -51,21 +39,17 @@ public class RandomPerturb implements Perturb {
                     .replaceFirst("<value>", value));
         }
 
-        testTrace.append(callPerturb.replaceFirst("<ARGS0>", args[0]));
+        if(new Random().nextBoolean()){
+            testTrace.append(operationFactory.buildCall());
+        }
+
+//        testTrace.append(callPerturb.replaceFirst("<ARGS0>", args[0]));
         return testTrace.toString();
     }
 
-    /**
-     * insert perturb function into test suite.
-     * @return
-     */
     @Override
-    public String getPerturbFunction() {
-        return perturbFunction;
-    }
-
-    @Override
-    public String recover(String... args) {
-        return callRecover.replaceFirst("<ARGS0>", args[0]);
+    public String recover(OperationFactory operationFactory) {
+//        return callRecover.replaceFirst("<ARGS0>", args[0]);
+        return null;
     }
 }

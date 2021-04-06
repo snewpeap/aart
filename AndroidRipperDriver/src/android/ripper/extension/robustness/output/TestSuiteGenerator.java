@@ -4,10 +4,15 @@ import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.strategy.Coverage;
 import android.ripper.extension.robustness.strategy.Perturb;
+import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
+import custom.com.google.gson.JsonObject;
+import it.unina.android.shared.ripper.model.state.ActivityDescription;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 
 public class TestSuiteGenerator {
@@ -26,6 +31,14 @@ public class TestSuiteGenerator {
         StringBuilder testTrace = new StringBuilder();
         int id = 0;
 
+        OperationFactory perturbFactory = new OperationFactory("solo", 1);
+        perturbFactory.addParam(false);
+        perturbFactory.setMobileData(new int[]{0});
+        OperationFactory recoverFactory = new OperationFactory("solo", 1);
+        recoverFactory.addParam(true);
+        recoverFactory.setMobileData(new int[]{0});
+
+
         for (Transition transition : coverage.cherryPick(transitions)) {
             //always start running from the root state
             //fire task's events, insert perturbation according to (TODO) strategy
@@ -34,9 +47,8 @@ public class TestSuiteGenerator {
             //report, manually check for true/false positive later
             testTrace.append("    //Generated from trace " + id + "\n");
             testTrace.append("    public void testTrace" + id + " () {");
-            testTrace.append(perturb.recover(Boolean.toString(true)));
-            testTrace.append(perturb.perturb(transition, Boolean.toString(false)));
-//            testTrace.append(report(id));
+            testTrace.append(perturb.recover(recoverFactory));
+            testTrace.append(perturb.perturb(transition, perturbFactory));
 
             shouldBeState.put(id, transition.getToState());
 
@@ -46,6 +58,16 @@ public class TestSuiteGenerator {
     }
 
     public void ADSerializable(){
+        Path path = Paths.get("SerializableState.txt");
+        try{
+            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND));
+//            bufferedWriter.write();
+//            ObjectOutputStream oos = new ObjectOutputStream(bufferedWriter);
+//            oos.writeObject(hmap);
+//            oos.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -72,7 +94,8 @@ public class TestSuiteGenerator {
 
 
     public static void main(String[] args) throws IOException{
-
+        Path path = Paths.get("reportPath.txt");
+        BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND));
     }
 
 }
