@@ -23,6 +23,7 @@ public class TestSuiteGenerator {
     private final Coverage coverage;
     private final Perturb perturb;
     private final String testSuitePath = "TestSuite.java";
+    private final String testcase = "<TEST_TRACE_ID>";
     private final String reportPath = "reportPath.txt";
     private final HashMap<Integer, State> shouldBeState = new HashMap<>();
 
@@ -53,17 +54,27 @@ public class TestSuiteGenerator {
             shouldBeState.put(id, transition.getToState());
 
             testTrace.append("report(id, transition.getToState().getAd());");
-
+            //TODO check the rate of coverage
+            testTrace.append("}\n").append(testcase);
+            Path path = Paths.get(testSuitePath);
+            try{
+                BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
+                String s = bufferedReader.readLine();
+                s = s.replaceFirst(testcase, testTrace.toString());
+                Files.write(Paths.get(testSuitePath), s.getBytes(StandardCharsets.UTF_8));
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
-        //TODO check whether reach final state
-        ADSerializable();
+
+
     }
 
     public void ADSerializable(){
         Path path = Paths.get("SerializableState.txt");
         try{
-            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
-            bufferedWriter.append(JSONObject.toJSONString(shouldBeState));
+            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE));
+            bufferedWriter.write(JSONObject.toJSONString(shouldBeState));
             bufferedWriter.close();
         }catch (IOException e){
             e.printStackTrace();
@@ -96,7 +107,7 @@ public class TestSuiteGenerator {
         this.perturb = Perturb.of(perturb);
         String target = "";
         try {
-            Path path = Paths.get("/Users/pkun/IdeaProjects/android-robustness/AndroidRipperDriver/src/android/ripper/extension/robustness/output/TestSuiteExample.txt");
+            Path path = Paths.get("TestSuiteExample.txt");
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             target = target.replaceAll("<PACKAGE_NAME>", AUT_PACKAGE);
             target = target.replaceAll("<CLASS_NAME>", CLASS_NAME);
@@ -119,6 +130,10 @@ public class TestSuiteGenerator {
         testSuiteGenerator.ADSerializable();
         HashMap hashMap = testSuiteGenerator.ADDeserialized();
         hashMap.containsKey("123");
+//        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec("/bin/zsh -c 'aapt dump badging ./diary.apk'").getInputStream()).useDelimiter("\\A");
+//        while(s.hasNext()){
+//            System.out.println(s.nextLine());
+//        }
     }
 
 }

@@ -30,7 +30,7 @@ public class OSSpecific {
 		if (isWindows()) {
 			return "cmd /C ";
 		} else if (isMac()) {
-			//TODO
+			return "/bin/zsh -c ";
 		} else if (isUnix()) {
 			return "";
 		} else if (isSolaris()) {

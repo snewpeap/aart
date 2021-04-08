@@ -342,9 +342,9 @@ public class AndroidRipperStarter {
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "AVD X86 does not exist!");
 				}
 
-				if (!checkAVD(avd_name_arm)) {
-					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "AVD ARM does not exist!");
-				}
+//				if (!checkAVD(avd_name_arm)) {
+//					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "AVD ARM does not exist!");
+//				}
 
 				try {
 					// TODO 考虑使用Android 11，arm avd性能惨不忍睹
@@ -616,7 +616,11 @@ public class AndroidRipperStarter {
 
 	protected boolean validateCommand(String cmd) {
 		try {
-			Process proc = Runtime.getRuntime().exec(cmd);
+			Process proc;
+			if(OSSpecific.isMac()||OSSpecific.isUnix())
+			 	proc = Runtime.getRuntime().exec(shell_CMD + cmd);
+			else
+				proc = Runtime.getRuntime().exec(cmd);
 			try {
 				proc.destroy();
 			} catch (Exception ignored) {
@@ -736,7 +740,7 @@ public class AndroidRipperStarter {
 					}
 					input.close();
 				} catch (Exception ex) {
-					 ex.printStackTrace();
+					ex.printStackTrace();
 				}
 			});
 			t.start();
@@ -752,7 +756,12 @@ public class AndroidRipperStarter {
 		ret[1] = null;
 
 		try {
-			final Process p = Runtime.getRuntime().exec("aapt dump badging " + apk);
+			final Process p;
+			if(OSSpecific.isMac()){
+				String c = "'aapt dump badging " + apk+"'";
+				p = Runtime.getRuntime().exec("/bin/zsh -c "+c);
+			}
+			else p = Runtime.getRuntime().exec("aapt dump badging " + apk);
 
 			String line;
 			BufferedReader aaptReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -786,7 +795,11 @@ public class AndroidRipperStarter {
 			}
 
 			if (ret[1] == null) {
-				final Process p2 = Runtime.getRuntime().exec("aapt dump xmltree " + apk + " AndroidManifest.xml");
+				final Process p2;
+				if(OSSpecific.isMac()){
+					p2 = Runtime.getRuntime().exec(new String[]{"/bin/zsh","-c" ,"aapt dump xmltree " + apk + " AndroidManifest.xml"});
+				}
+				else p2 = Runtime.getRuntime().exec("aapt dump xmltree " + apk + " AndroidManifest.xml");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p2.getInputStream()));
 				String mainActivity = null;
 				while ((line = reader.readLine()) != null) { //TODO LOW 用DOM会不会更好？此情况是否足够常见以值得优化

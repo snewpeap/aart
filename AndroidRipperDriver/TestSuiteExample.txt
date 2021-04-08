@@ -146,7 +146,7 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 
     <TEST_TRACE_ID>
 
-	// Generated from trace 0
+/*	// Generated from trace 0
 	public void testTrace00000 () {
 
 		// Testing base activity
@@ -165,7 +165,7 @@ public class <TEST_NAME> extends ActivityInstrumentationTestCase2 {
 		doTestWidget(16908298, "android.widget.ListView", "");
 
 		solo.sleep (SLEEP_AFTER_TASK);
-	}
+	}*/
 
 
 	//Helper methods for doing the actual work with instrumentation
