@@ -64,7 +64,6 @@ import java.util.Properties;
  *
  * @author Nicola Amatucci - REvERSE
  */
-@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class AndroidRipperStarter {
 
 	public static String shell_CMD = OSSpecific.getShellCommand();
@@ -266,7 +265,7 @@ public class AndroidRipperStarter {
 			String myPath = sanitizePath(Paths.get("").toAbsolutePath().toString() + "/tools/");
 
 			String debugKeyStorePath = myPath + "/";// conf.getProperty("android_keystore_path", null);
-			String testSuitePath = myPath + "/app-debug/";// conf.getProperty("testsuite_path", null);
+			String testSuitePath = myPath + "/AndroidRipper/";// conf.getProperty("testsuite_path", null);
 			String serviceApkPath = myPath + "/AndroidRipperService.apk";// conf.getProperty("service_apk_path", null);
 			String toolsPath = myPath + "/";// conf.getProperty("tools_path", null);
 
@@ -347,7 +346,6 @@ public class AndroidRipperStarter {
 //				}
 
 				try {
-					// TODO 考虑使用Android 11，arm avd性能惨不忍睹
 					if (ZipUtils.containsDirectory(aut_apk, "lib")) {
 						if (ZipUtils.containsDirectory(aut_apk, "lib/x86")
 								|| ZipUtils.containsDirectory(aut_apk, "lib/x86_64")) {
@@ -373,9 +371,9 @@ public class AndroidRipperStarter {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", toolsPath + " does not exist or is not a directory!");
 			}
 
-			if (!new File(testSuitePath).exists() || !new File(testSuitePath).isDirectory()) {
-				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", testSuitePath + " does not exist or is not a directory!");
-			}
+//			if (!new File(testSuitePath).exists() || !new File(testSuitePath).isDirectory()) {
+//				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", testSuitePath + " does not exist or is not a directory!");
+//			}
 
 			if (!new File(debugKeyStorePath + "/debug.keystore").exists()) {
 				throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", debugKeyStorePath + "/debug.keystore does not exist!");
@@ -634,34 +632,38 @@ public class AndroidRipperStarter {
 
 	protected void createAPKs(String testSuitePath, String appPackage, String appMainActivity, String extractorClass,
 							  String toolsPath, String debugKeyStorePath, String autAPK, String tempPath) {
-		//TODO 更换为repack，用v1和v2签名
+		//repack
+		println("Repacking Ripper apk (using apktool)");
+		Path unpackedRipperPath = Paths.get(tempPath, "unpacked");
+		execCommand(String.format("java -jar %s --quiet d -o %s %s",
+				Paths.get(toolsPath, "apktool.jar").toAbsolutePath(),
+				unpackedRipperPath,
+				Paths.get(toolsPath, "ar.apk")));
 		// replace strings
+		testSuitePath = unpackedRipperPath.toAbsolutePath().toString();
 		println("Editing 'Configuration.java'");
 		replaceStringsInFile(
-				testSuitePath + "/smali/it/unina/android/ripper/configuration/Configuration.smali.template",
-				testSuitePath + "/smali/it/unina/android/ripper/configuration/Configuration.smali", appPackage,
-				appMainActivity);
+//				testSuitePath + "/smali/it/unina/android/ripper/configuration/Configuration.smali.template",
+				Paths.get(testSuitePath, "/smali/it/unina/android/ripper/configuration/Configuration.smali")
+						.toAbsolutePath().toString(),
+				appPackage, appMainActivity);
 		println("Editing 'AndroidManifest.xml'");
-		replaceStringsInFile(testSuitePath + "/AndroidManifest.xml.template",
-				testSuitePath + "/AndroidManifest.xml",
-				appPackage,
-				appMainActivity);
+		replaceStringsInFile(
+//				testSuitePath + "/AndroidManifest.xml.template",
+				Paths.get(testSuitePath, "/AndroidManifest.xml").toAbsolutePath().toString(),
+				appPackage, appMainActivity);
 
 		try {
-//			println("Cleaning apks...");
-//			println("Building AndroidRipper...");
+			execCommand(String.format("java -jar %sapktool.jar --quiet b %s -o %s/ar.apk", toolsPath, testSuitePath, tempPath));
 
-			//通过smali构建了AndroidRipper插桩应用
-			//smali还是混淆过的，不知道和AndroidRipper项目里的还是不是一个东西
-			execCommand(String.format("java -jar %sapktool.jar b %s -o %s/ar.apk", toolsPath, testSuitePath, tempPath));
+			println("Repacked. Signing AndroidRipper...");
 
-			println("Signing AndroidRipper...");
-
+			//TODO 用v1和v2签名
 			//签名和对齐，ripper.apk是成品
-			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
-					+ "/debug.keystore -storepass android -keypass android " + tempPath + "/ar.apk androiddebugkey");
+//			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
+//					+ "/debug.keystore -storepass android -keypass android " + tempPath + "/ar.apk androiddebugkey");
 			execCommand("zipalign 4 " + tempPath + "/ar.apk " + tempPath + "/ripper.apk");
-//			execCommand(String.format("apksigner sign --ks %s --ks-pass pass:android %s/ripper.apk", debugKeyStorePath, tempPath));
+			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/ripper.apk", debugKeyStorePath, tempPath));
 
 			Files.copy(FileSystems.getDefault().getPath(autAPK),
 					FileSystems.getDefault().getPath(tempPath + "/temp.apk"),
@@ -669,15 +671,25 @@ public class AndroidRipperStarter {
 
 			println("Signing AUT...");
 			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//这是在干嘛//原来是删除META-INF
-			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
-					+ "/debug.keystore -storepass android -keypass android " + tempPath
-					+ "/temp.apk androiddebugkey");
+//			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
+//					+ "/debug.keystore -storepass android -keypass android " + tempPath
+//					+ "/temp.apk androiddebugkey");
 //			execCommand("jarsigner -verify " + tempPath + "/temp.apk");
 			execCommand("zipalign 4 " + tempPath + "/temp.apk " + tempPath + "/aut.apk");
-//			execCommand(String.format("apksigner sign --ks %s --ks-pass pass:android %s/aut.apk", debugKeyStorePath, tempPath));
+			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/aut.apk", debugKeyStorePath, tempPath));
 
 		} catch (Exception t) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "createAPKs", "apk build failed", t);
+		}
+	}
+
+	protected void replaceStringsInFile(String filePath, String appPackage, String appMainActivity) {
+		Path templatePath = Paths.get(filePath + ".template");
+		try {
+			Files.copy(Paths.get(filePath), templatePath);
+			replaceStringsInFile(templatePath.toAbsolutePath().toString(), filePath, appPackage, appMainActivity);
+		} catch (IOException e) {
+			throw new RipperRuntimeException(AndroidRipperStarter.class, "replaceStringsInFile", "", e);
 		}
 	}
 

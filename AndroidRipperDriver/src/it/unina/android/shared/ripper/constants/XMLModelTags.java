@@ -63,6 +63,7 @@ public class XMLModelTags {
 	public static final String WIDGET_COUNT = "co";
 	
 	public static final String WIDGET_R_ID = "rid";
+	public static final String WIDGET_PARENT_INDEX = "parent_in";
 		
 	public static final String EVENT = "ev";
 	public static final String EVENT_INTERACTION = "in";

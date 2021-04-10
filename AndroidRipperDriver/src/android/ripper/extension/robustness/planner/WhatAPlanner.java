@@ -36,7 +36,7 @@ public class WhatAPlanner extends Planner {
 			}
 		}
 		if (widgets != activity.getWidgets()) {
-			activity.setScrollDownAble(false);//FIXME
+			activity.setScrollDownAble(false);
 		}
 		planForActivity(taskList, activity, currentTask);
 		widgets.forEach(wd -> {

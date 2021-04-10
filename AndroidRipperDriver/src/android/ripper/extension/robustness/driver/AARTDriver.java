@@ -59,7 +59,6 @@ public class AARTDriver extends AbstractDriver {
 		startupDevice();
 		setupEnvironment();
 		do {
-			dumpLastLoopLogcat();
 			readyToLoop();
 
 			Task taskJustDone = null;
@@ -100,6 +99,8 @@ public class AARTDriver extends AbstractDriver {
 			endLoop();
 		} while (running && !checkTerminationCriteria());
 
+		//TODO Model output
+
 		if (generateTestSuite)
 			testSuiteGenerator.generate(new TreeSet<>(transitions));
 		notifyRipperEnded();
@@ -113,8 +114,7 @@ public class AARTDriver extends AbstractDriver {
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-		//TODO add CLASS_NAME here
-		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, "TEMP");
+		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
 
 		this.generateTestSuite = generateTestsuite;
@@ -151,7 +151,7 @@ public class AARTDriver extends AbstractDriver {
 			rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
 		else
 			rsSocket.sendEvent(event);
-		waitAck();//FIXME 同步和验证
+		waitAck();
 	}
 
 	private void executeTask(Iterator<IEvent> taskIter) {
@@ -164,6 +164,9 @@ public class AARTDriver extends AbstractDriver {
 	 * Start ripper and AUT, check alive and then create log file.
 	 */
 	private void readyToLoop() {
+		new LogcatDumper(device.getName(),
+				String.format("%slogcat_%s_%d.txt", LOGCAT_PATH, device.getName(), LOGCAT_FILE_NUMBER++),
+				loopStartTime).start();
 		loopStartTime = LOGCAT_TIME_FORMAT.format(new Date());
 		checkSocket();
 		super.startup();
@@ -228,12 +231,6 @@ public class AARTDriver extends AbstractDriver {
 			Actions.redirectPort(SERVICE_HOST_PORT, SERVICE_HOST_PORT);
 	}
 
-	private void dumpLastLoopLogcat() {
-		new LogcatDumper(device.getName(),
-				String.format("%slogcat_%s_%d.txt", LOGCAT_PATH, device.getName(), LOGCAT_FILE_NUMBER++),
-				loopStartTime).start();
-	}
-
 	private void checkSocket() {
 		if (rsSocket == null) {
 			rsSocket = new RipperServiceSocket(device.getIpAddress(), SERVICE_HOST_PORT);
@@ -288,11 +285,17 @@ public class AARTDriver extends AbstractDriver {
 		public ListIterator<IEvent> nextTaskIterator() {
 			ListIterator<IEvent> nextTask = null;
 			if (back) {	//have to go back to pivot
-				TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
-				//learn from former transitions then make recommend
-				nextTask = transitionInfo.learnToBack(transitions).backRecommend();
-				notifyRipperLog("Going back...");
-				back = false;
+				if (currState.equals(pivot.getKey())) {
+					notifyRipperLog("A loop at pivot, continue...");
+					ListIterator<Task> iter = pivot.getValue().getIterator();
+					nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
+				} else {
+					TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
+					//learn from former transitions then make recommend
+					nextTask = transitionInfo.learnToBack(transitions).backRecommend();
+					notifyRipperLog("Going back...");
+					back = false;
+				}
 			} else {	//at pivot, or need to recover to pivot
 				if (pivot == null) {
 					pivot = Pair.of(currState, schedule.get(currState));

@@ -19,49 +19,6 @@
 
 package it.unina.android.shared.ripper.output;
 
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_CLASS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_HANDLES_KEYPRESS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_HANDLES_LONG_KEYPRESS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_ID;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_IS_ROOT_ACTIVITY;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_IS_TABACTIVITY;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_MENU;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_NAME;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_TABS_COUNT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_TITLE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.ACTIVITY_UID;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.DESCRIPTION;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.EVENT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.EVENT_INTERACTION;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.EVENT_UID;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.EVENT_VALUE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.EXTRACTED_EVENTS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.FIRED_EVENT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.FIRST_STEP;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.INPUT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.INPUT_TYPE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.INPUT_VALUE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.LISTENER;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.LISTENER_CLASS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.LISTENER_PRESENT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.STEP;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.SUPPORTED_EVENT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.SUPPORTED_EVENT_TYPE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.TASK;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_CLASS;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_COUNT;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_ENABLED;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_ID;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_INDEX;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_NAME;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_R_ID;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_SIMPLE_TYPE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_TEXT_TYPE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_VALUE;
-import static it.unina.android.shared.ripper.constants.XMLModelTags.WIDGET_VISIBLE;
-
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +43,8 @@ import it.unina.android.shared.ripper.model.task.TaskList;
 import it.unina.android.shared.ripper.model.transition.Event;
 import it.unina.android.shared.ripper.model.transition.IEvent;
 import it.unina.android.shared.ripper.model.transition.Input;
+
+import static it.unina.android.shared.ripper.constants.XMLModelTags.*;
 
 public class XMLRipperOutput implements RipperOutput
 {
@@ -256,6 +215,8 @@ public class XMLRipperOutput implements RipperOutput
 			widget.setAttribute(WIDGET_INDEX, wd.getIndex().toString());
 		else
 			widget.setAttribute(WIDGET_INDEX, "");
+
+		widget.setAttribute(WIDGET_PARENT_INDEX, wd.getParentIndex().toString());
 		
 		widget.setAttribute(WIDGET_ENABLED, (wd.isEnabled() != null && wd.isEnabled())?"TRUE":"FALSE");
 		widget.setAttribute(WIDGET_VISIBLE, (wd.isVisible() != null && wd.isVisible())?"TRUE":"FALSE");

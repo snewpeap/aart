@@ -9,11 +9,30 @@ android {
         applicationId "it.unina.android.ripper"
     }
 
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+    }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.each {
+                output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk'))
+                        copy {
+                            from outputFile
+                            into getRootDir().getParent() + '/tools/2pack/'
+                            rename {'ar.apk'}
+                        }
+            }
     }
 }
 
@@ -21,6 +40,5 @@ dependencies {
     implementation project(path: ':robotium')
     //compile 'com.jayway.android.robotium:robotium-solo:5.6.3'
     implementation files('libs/custom_gson_2.8.1.jar')
-    implementation files('libs/ripper_shared.jar')
-//    compile files('libs/robotium_5.6.3_custom.jar')
+    implementation files('../../intermediate/ripper_shared.jar')
 }

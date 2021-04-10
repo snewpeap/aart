@@ -35,6 +35,7 @@ public class TransitionHelper {
 					e -> e.is(SWAP_TAB) && fromState.isTabActivity() && toState.isTabActivity(),
 					e -> new Event(SWAP_TAB, null, Integer.toString(fromState.getCurrentTab()))
 			);
+			//TODO for fromState that is tap to popup, put event=input[back, tap]
 
 			Event tail = (Event) task.getLast();
 			for (Map.Entry<Predicate<Event>, Function<Event, Event>> e : backs.entrySet())

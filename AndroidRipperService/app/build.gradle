@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "27.0.1"
+//    buildToolsVersion "27.0.1"
 
     defaultConfig {
         applicationId "it.unina.android.ripper_service"
@@ -14,6 +14,20 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+    }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.each {
+                output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk'))
+                        copy {
+                            from outputFile
+                            into getRootDir().getParent() + '/tools/2pack/'
+                            rename {'AndroidRipperService.apk'}
+                        }
+            }
     }
 }
 

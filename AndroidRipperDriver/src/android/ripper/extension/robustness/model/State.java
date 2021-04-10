@@ -21,16 +21,16 @@ public class State extends ActivityDescription {
 		if (obj instanceof State) {
 			State s = (State) obj;
 			if (StringUtils.isEmpty(getUid()) || StringUtils.isEmpty(s.getUid())) {
-				boolean widgetsEquality = //TODO may have to be shallower
+				boolean widgetsEquality =
 						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
-								getWidgets().containsAll(s.getWidgets())) || (getWidgets() == s.getWidgets());
+								getWidgets().containsAll(s.getWidgets())) ||
+						hierarchyEquals(s) ||
+						getWidgets() == s.getWidgets(); //null case
 				Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
-				return widgetsEquality && propEquals(su, State::getTitle) &&
+				return widgetsEquality &&
 						propEquals(su, State::getName) &&
 						propEquals(su, State::getClassName) &&
 						propEquals(su, State::hasMenu) &&
-						propEquals(su, State::handlesKeyPress) &&
-						propEquals(su, State::handlesLongKeyPress) &&
 						(isTabActivity() ?
 								s.isTabActivity() &&
 								propEquals(su, State::getTabsCount) &&
@@ -41,6 +41,20 @@ public class State extends ActivityDescription {
 				return Objects.equals(getUid(), s.getUid());
 		} else
 			return false;
+	}
+
+	/**
+	 * Test if the state is hierarchically equals to given state
+	 * In compared states' view trees, define hierarchically equation:
+	 * 1. Corresponding node has identical capabilities set and enable/visible status
+	 * 2. Subtree of corresponding nodes should have same height
+	 *
+	 * @param state state compared to this
+	 * @return if two states are considered hierarchically equal
+	 */
+	public boolean hierarchyEquals(State state) {
+
+		return false;//TODO
 	}
 
 	public State(ActivityDescription activityDescription) {

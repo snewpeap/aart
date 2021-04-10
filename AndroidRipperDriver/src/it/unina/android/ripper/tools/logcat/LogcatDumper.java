@@ -71,8 +71,7 @@ public class LogcatDumper extends Thread {
 	public LogcatDumper(String device, String filename, String afterTime) {
 		this.device = device;
 		this.filename = filename;
-		if (!StringUtils.isEmpty(afterTime))
-			this.timeOption = String.format("-t '%s'", afterTime);
+		this.timeOption = afterTime;
 	}
 
 	@Override
@@ -83,7 +82,11 @@ public class LogcatDumper extends Thread {
 			FileOutputStream fos = new FileOutputStream(filename, true);
 			PrintStream ps = new PrintStream(fos);
 			//明明是dump，却不加-d参数，无语
-			AndroidTools.adb("-s", device, "logcat", timeOption).connectStderr(ps).connectStdout(ps).waitForSuccess();
+			if (StringUtils.isEmpty(timeOption))
+				AndroidTools.adb("-s", device, "logcat").connectStderr(ps).connectStdout(ps).waitForSuccess();
+			else
+				AndroidTools.adb("-s", device, "logcat", "-t", timeOption).connectStderr(ps).connectStdout(ps)
+						.waitForSuccess();
 
 			try { ps.close(); } catch (Exception ex) {}
 			try { fos.close(); } catch (Exception ex) {}

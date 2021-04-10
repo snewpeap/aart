@@ -43,7 +43,8 @@ public class WidgetDescription implements Serializable
 	Boolean enabled;
 	Boolean visible;
 	String value;
-	Integer count;
+	public static final int NO_COUNT = -1;
+	Integer count = NO_COUNT;
 	String textualId;
 	Integer index;
 	Integer parentId;
@@ -51,8 +52,8 @@ public class WidgetDescription implements Serializable
 	String parentType;
 	Integer ancestorId; //first ancestor with id set
 	String ancestorType; //first ancestor with id set
-	
-	Integer parentIndex;
+	public static final int NO_PARENT_INDEX = Integer.MIN_VALUE;
+	Integer parentIndex = NO_PARENT_INDEX;
 
 	//TODO: riccio
 	Integer scrollViewX;
@@ -73,13 +74,17 @@ public class WidgetDescription implements Serializable
 			return id != null && id.equals(wd.id) &&
 					simpleType != null && simpleType.equals(wd.simpleType) &&
 					Objects.equals(name, wd.name) &&
-					Objects.equals(enabled, wd.enabled) &&
-					Objects.equals(visible, wd.visible) &&
-					Objects.equals(parentId, wd.parentId) &&
-					Objects.equals(ancestorId, wd.ancestorId);
-			//TODO Not compared props need specify condition
+					Objects.equals(parentIndex, wd.parentIndex) &&
+					Objects.equals(count, wd.count) &&
+					capabilitiesEquals(wd);
 		} else
 			return false;
+	}
+
+	public boolean capabilitiesEquals(WidgetDescription wd) {
+		return Objects.equals(listeners, wd.listeners) &&
+				Objects.equals(enabled, wd.enabled) &&
+				Objects.equals(visible, wd.visible);
 	}
 
 	@Override
@@ -324,7 +329,10 @@ public class WidgetDescription implements Serializable
 	{
 		/*return 	"[id="+this.id+"]" +
 				"[type="+((this.type!=null)?this.type.getCanonicalName():className)+"]";*/
-		return ((this.type!=null)?this.type.getCanonicalName():className);
+		return String.format("[parent_index=%d]%s[index=%d, id=%d]",
+				parentIndex,
+				(this.type != null) ? this.type.getCanonicalName() : className,
+				index, id);
 	}
 	
 	public String toXMLString()
