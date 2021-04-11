@@ -45,6 +45,16 @@ public class ActivityDescription implements Serializable
 	Boolean scrollUpAble;
 	Boolean scrollDownAble;
 
+	Boolean isPopupShowing = false;
+
+	public Boolean getPopupShowing() {
+		return isPopupShowing;
+	}
+
+	public void setPopupShowing(Boolean popupShowing) {
+		isPopupShowing = popupShowing;
+	}
+
 	public Boolean getScrollUpAble() {
 		return scrollUpAble;
 	}

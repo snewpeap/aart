@@ -19,7 +19,6 @@
 
 package it.unina.android.shared.ripper.model.transition;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -71,7 +70,7 @@ public class Event implements Serializable, IEvent {
 	}
 
 	public boolean is(String interaction) {
-		return this.getInteraction().equals(interaction);
+		return Objects.equals(this.getInteraction(), interaction);
 	}
 
 	public void setInteraction(String interaction) {

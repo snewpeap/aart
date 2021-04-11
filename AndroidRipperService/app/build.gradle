@@ -24,7 +24,7 @@ android {
                     if (outputFile != null && outputFile.name.endsWith('.apk'))
                         copy {
                             from outputFile
-                            into getRootDir().getParent() + '/tools/2pack/'
+                            into getRootDir().getParent() + '/2pack/tools/'
                             rename {'AndroidRipperService.apk'}
                         }
             }

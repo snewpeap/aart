@@ -246,5 +246,7 @@ obj/
 
 !/gradle/wrapper/gradle-wrapper.jar
 # End of https://www.toptal.com/developers/gitignore/api/java,java-web,code-java,jetbrains+all,macos,windows
+2pack/**
 !intermediate/**
-!2pack/**
+!2pack/tools/**
+!2pack/default.properties

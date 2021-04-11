@@ -30,12 +30,13 @@ public class WhatAPlanner extends Planner {
 		ArrayList<WidgetDescription> widgets = activity.getWidgets();
 		ListIterator<WidgetDescription> iter = activity.getWidgets().listIterator();
 		while (iter.hasNext()) {
-			if (iter.next().getClassName().endsWith("DecorView") && iter.hasNext()) {
+			if (iter.next().getClassName().endsWith(".DecorView") && iter.hasNext()) {
 				widgets = new ArrayList<>(widgets.size() - iter.nextIndex());
 				iter.forEachRemaining(widgets::add);
 			}
 		}
 		if (widgets != activity.getWidgets()) {
+			activity.setPopupShowing(true);
 			activity.setScrollDownAble(false);
 		}
 		planForActivity(taskList, activity, currentTask);

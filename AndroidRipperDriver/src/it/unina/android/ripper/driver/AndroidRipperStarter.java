@@ -19,7 +19,6 @@
 
 package it.unina.android.ripper.driver;
 
-import android.ripper.extension.robustness.driver.AARTDriver;
 import it.unina.android.ripper.comparator.ActivityNameComparator;
 import it.unina.android.ripper.comparator.ActivityStructureComparator;
 import it.unina.android.ripper.comparator.IComparator;
@@ -262,7 +261,7 @@ public class AndroidRipperStarter {
 			String extractorClass = "SimpleNoValuesExtractor";
 
 			// myPath是tools文件夹...那为啥不起名toolsPath...差评
-			String myPath = sanitizePath(Paths.get("").toAbsolutePath().toString() + "/tools/");
+			String myPath = sanitizePath(Paths.get("").toAbsolutePath() + "/tools/");
 
 			String debugKeyStorePath = myPath + "/";// conf.getProperty("android_keystore_path", null);
 			String testSuitePath = myPath + "/AndroidRipper/";// conf.getProperty("testsuite_path", null);
@@ -430,6 +429,22 @@ public class AndroidRipperStarter {
 			String schedulerClass = conf.getProperty("scheduler",
 					((driverType.equals(DRIVER_RANDOM)) ? "random" : "breadth"));
 			switch (driverType) {
+				case "AART":
+					boolean generateTestsuite = Boolean.parseBoolean(conf.getProperty("AART.generate_testsuite"));
+					String coverage = conf.getProperty("AART.coverage", "");
+					String perturb = conf.getProperty("AART.perturb", "");
+					try {
+						Class<?> AARTDriverClass = Class.forName("android.ripper.extension.robustness.driver.AARTDriver");
+						driver = (AbstractDriver) AARTDriverClass.getConstructor(RipperInput.class,
+								RipperOutput.class,
+								boolean.class,
+								String.class,
+								String.class).newInstance(ripperInput, ripperOutput, generateTestsuite, coverage, perturb);
+						break;
+					} catch (Exception e) {
+						e.printStackTrace();
+						println("Can't init AART driver instance, fallback to systematic driver.");
+					}
 				case DRIVER_SYSTEMATIC:
 					if (schedulerClass != null && schedulerClass.equals("breadth")) {
 						scheduler = new BreadthScheduler();
@@ -479,12 +494,6 @@ public class AndroidRipperStarter {
 					((RandomDriver) driver).NUM_EVENTS_PER_SESSION = Integer.parseInt(num_events_per_session);
 					((RandomDriver) driver).NEW_LOG_FREQUENCY = Integer.parseInt(newLogFrequency);
 					((RandomDriver) driver).COVERAGE_FREQUENCY = Integer.parseInt(coverageFrequency);
-					break;
-				case "AART":
-					boolean generateTestsuite = Boolean.parseBoolean(conf.getProperty("AART.generate_testsuite"));
-					String coverage = conf.getProperty("AART.coverage", "");
-					String perturb = conf.getProperty("AART.perturb", "");
-					driver = new AARTDriver(ripperInput, ripperOutput, generateTestsuite, coverage, perturb);
 					break;
 				default:
 					throw new RipperRuntimeException(AndroidRipperStarter.class, "startRipping", "Driver Type not supported!");
@@ -633,7 +642,7 @@ public class AndroidRipperStarter {
 	protected void createAPKs(String testSuitePath, String appPackage, String appMainActivity, String extractorClass,
 							  String toolsPath, String debugKeyStorePath, String autAPK, String tempPath) {
 		//repack
-		println("Repacking Ripper apk (using apktool)");
+		println("Unpacking Ripper APK (using apktool)");
 		Path unpackedRipperPath = Paths.get(tempPath, "unpacked");
 		execCommand(String.format("java -jar %s --quiet d -o %s %s",
 				Paths.get(toolsPath, "apktool.jar").toAbsolutePath(),
@@ -654,11 +663,11 @@ public class AndroidRipperStarter {
 				appPackage, appMainActivity);
 
 		try {
+			println("Repacking Ripper APK (using apktool)");
 			execCommand(String.format("java -jar %sapktool.jar --quiet b %s -o %s/ar.apk", toolsPath, testSuitePath, tempPath));
 
 			println("Repacked. Signing AndroidRipper...");
 
-			//TODO 用v1和v2签名
 			//签名和对齐，ripper.apk是成品
 //			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 //					+ "/debug.keystore -storepass android -keypass android " + tempPath + "/ar.apk androiddebugkey");
@@ -670,7 +679,7 @@ public class AndroidRipperStarter {
 					StandardCopyOption.REPLACE_EXISTING);
 
 			println("Signing AUT...");
-			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//这是在干嘛//原来是删除META-INF
+			ZipUtils.deleteFromZip(tempPath + "/temp.apk");//删除META-INF
 //			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 //					+ "/debug.keystore -storepass android -keypass android " + tempPath
 //					+ "/temp.apk androiddebugkey");

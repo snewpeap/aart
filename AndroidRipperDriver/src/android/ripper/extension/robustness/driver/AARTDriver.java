@@ -44,7 +44,7 @@ public class AARTDriver extends AbstractDriver {
 	private static final FastDateFormat LOGCAT_TIME_FORMAT = FastDateFormat.getInstance("MM-dd hh:mm:ss.mmm");
 	private String loopStartTime = LOGCAT_TIME_FORMAT.format(0);
 
-	private final HashMap<State, String> states = new HashMap<>();
+	private final HashMap<State, State> states = new HashMap<>();
 	private final SortedSet<Transition> transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
 	private State prevState = null;
 	private State lastSavedState = null;
@@ -74,7 +74,7 @@ public class AARTDriver extends AbstractDriver {
 						notifyRipperLog("Accidentally exit AUT");
 						break;
 					} else if (states.containsKey(currState)) {	//already occurred state
-						currState.setUid(states.get(currState));
+						currState = states.get(currState);
 					} else {									//brand new state
 						currState.setUid(increaseUid(lastSavedState.getUid()));
 						addNewState();
@@ -143,15 +143,24 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	public void executeEvent(Event event) {
-		if (event == null || StringUtils.isEmpty(event.getInteraction()))
+		if (event == null || (StringUtils.isEmpty(event.getInteraction()) && event.getInputs() == null))
 			throw new RipperIllegalArgException(AARTDriver.class, here(), "event", String.valueOf(event));
 		event.setEventUID(eventsUIDCounter++);
-		notifyRipperLog("executeEvent.event=" + event.toString());
-		if (event.getInputs() != null)
+		notifyRipperLog("executeEvent.event=" + event);
+		if (event.getInputs() != null) {
 			rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
-		else
+			for (int i = event.getInputs().size(); i > 0; i--) {
+				waitAck();
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ignored) {
+			}
+		}
+		else {
 			rsSocket.sendEvent(event);
-		waitAck();
+			waitAck();
+		}
 	}
 
 	private void executeTask(Iterator<IEvent> taskIter) {
@@ -242,7 +251,7 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	private void addNewState() {
-		states.put(currState, currState.getUid());
+		states.put(currState, currState);
 		lastSavedState = currState;
 		notifyRipperLog(String.format("new state %s = %s", currState.getUid(), currState.toString()));
 	}
