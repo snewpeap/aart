@@ -24,19 +24,25 @@ public class RandomPerturb implements Perturb {
         List<Event> events = transition.getEvents();
         for (Event event : events) {
             WidgetDescription wd = event.getWidget();
-            String eventType = event.getInteraction();
-            String widgetType = wd.getSimpleType();
-            int widgetId = wd.getId();
-            int widgetIndex = wd.getIndex();
-            String widgetName = wd.getName();
-            String value = wd.getValue();
+            if(wd != null) {
+                String eventType = getDefault(event.getInteraction());
+                String widgetType = getDefault(wd.getSimpleType());
+                int widgetId = wd.getId();
+                int widgetIndex = wd.getIndex();
+                String widgetName = getDefault(wd.getName());
+                String value = getDefault(wd.getValue());
 
-            testTrace.append(fireEvent.replaceFirst("<widgetId>", String.valueOf(widgetId))
-                    .replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
-                    .replaceFirst("<widgetName>", widgetName)
-                    .replaceFirst("<widgetType>", widgetType)
-                    .replaceFirst("<eventType>", eventType)
-                    .replaceFirst("<value>", value));
+                testTrace.append(fireEvent.replaceFirst("<widgetId>", String.valueOf(widgetId))
+                        .replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
+                        .replaceFirst("<widgetName>", widgetName)
+                        .replaceFirst("<widgetType>", widgetType)
+                        .replaceFirst("<eventType>", eventType)
+                        .replaceFirst("<value>", value)).append(";");
+            }
+            else if(event.getInteraction().equals("back")){
+                //TODO add back event
+                testTrace.append("injectInteraction(null, \"back\", \"null\");");
+            }
         }
 
         if(new Random().nextBoolean()){
@@ -47,9 +53,14 @@ public class RandomPerturb implements Perturb {
         return testTrace.toString();
     }
 
+    private String getDefault(String s){
+        if(s == null || s.length() == 0) return "null";
+        else return s;
+    }
+
     @Override
     public String recover(OperationFactory operationFactory) {
 //        return callRecover.replaceFirst("<ARGS0>", args[0]);
-        return null;
+        return operationFactory.buildCall();
     }
 }

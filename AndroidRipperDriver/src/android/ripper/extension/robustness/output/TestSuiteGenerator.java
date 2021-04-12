@@ -24,6 +24,7 @@ public class TestSuiteGenerator {
     private final Perturb perturb;
     private final String testSuitePath = "TestSuite.java";
     private final String testcase = "<TEST_TRACE_ID>";
+    private final String perturb_ = "<PERTURB_FUNCTION>";
     private final String reportPath = "reportPath.txt";
     private final HashMap<Integer, State> shouldBeState = new HashMap<>();
 
@@ -46,28 +47,32 @@ public class TestSuiteGenerator {
             //check final state: tell the differences/similarity only
             //if unable to reach final state, i.e. stuck at some state
             //report, manually check for true/false positive later
-            testTrace.append("    //Generated from trace " + id + "\n");
-            testTrace.append("    public void testTrace" + id + " () {");
+            testTrace.append("    //Generated from trace ").append(id).append("\n");
+            testTrace.append("    public void testTrace").append(id).append(" () {\n");
             testTrace.append(perturb.recover(recoverFactory));
             testTrace.append(perturb.perturb(transition, perturbFactory));
 
             shouldBeState.put(id, transition.getToState());
 
-            testTrace.append("report(id, transition.getToState().getAd());");
+            testTrace.append("report(id, extractor.extract());\n");
             //TODO check the rate of coverage
-            testTrace.append("}\n").append(testcase);
-            Path path = Paths.get(testSuitePath);
-            try{
-                BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
-                String s = bufferedReader.readLine();
-                s = s.replaceFirst(testcase, testTrace.toString());
-                Files.write(Paths.get(testSuitePath), s.getBytes(StandardCharsets.UTF_8));
-            }catch (IOException e){
-                e.printStackTrace();
-            }
+            testTrace.append("}\n");
+            id++;
         }
+        ReplaceTestFile(testcase, testTrace.toString());
+        ReplaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
 
+    }
 
+    private void ReplaceTestFile(String pattern, String target){
+        Path path = Paths.get(testSuitePath);
+        try {
+            String s = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            s = s.replaceFirst(pattern, target);
+            Files.write(Paths.get(testSuitePath), s.getBytes(StandardCharsets.UTF_8));
+        }catch (IOException io){
+            io.printStackTrace();
+        }
     }
 
     public void ADSerializable(){
@@ -106,6 +111,7 @@ public class TestSuiteGenerator {
         this.coverage = Coverage.of(coverage);
         this.perturb = Perturb.of(perturb);
         String target = "";
+        System.out.println("Starting TestSuiteGenerator...");
         try {
             Path path = Paths.get("TestSuiteExample.txt");
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

@@ -58,6 +58,7 @@ public class AARTDriver extends AbstractDriver {
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
+		int i = 0;
 		do {
 			readyToLoop();
 
@@ -97,7 +98,8 @@ public class AARTDriver extends AbstractDriver {
 			}
 
 			endLoop();
-		} while (running && !checkTerminationCriteria());
+			i++;
+		} while (running && !checkTerminationCriteria() && i < 1);
 
 		//TODO Model output
 
@@ -114,6 +116,7 @@ public class AARTDriver extends AbstractDriver {
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
+		//TODO AUT_PACKAGE and AUT_MAIN_ACTIVITY is none
 		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
 

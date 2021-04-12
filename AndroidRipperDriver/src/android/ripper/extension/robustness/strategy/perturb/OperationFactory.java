@@ -32,7 +32,7 @@ public class OperationFactory {
     private final String THIS = "this.";
     private int methodId = 0; // mark the id of perturb method;
     private List<Object> params;
-    private static List<OperationFactory> perturbFactories = new ArrayList<>();
+    private static int factoryId = 0;
     private final int argc;
 
     public OperationFactory(String soloReference, int argc) {
@@ -41,8 +41,8 @@ public class OperationFactory {
         this.argc = argc;
 //        factory.append("protected void perturb(<PARAM>){");
         params = new ArrayList<>();
-        methodId = perturbFactories.size();
-        perturbFactories.add(this);
+        methodId = factoryId;
+        factoryId++;
     }
 
     public OperationFactory addGetActivityMonitor(List<Integer> paramIndex) {
