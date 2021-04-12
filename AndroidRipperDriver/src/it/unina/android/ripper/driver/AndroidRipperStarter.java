@@ -439,7 +439,15 @@ public class AndroidRipperStarter {
 								RipperOutput.class,
 								boolean.class,
 								String.class,
-								String.class).newInstance(ripperInput, ripperOutput, generateTestsuite, coverage, perturb);
+								String.class,
+								String.class,
+								String.class).newInstance(ripperInput,
+								ripperOutput,
+								generateTestsuite,
+								coverage,
+								perturb,
+								aut_package,
+								aut_main_activity);
 						break;
 					} catch (Exception e) {
 						e.printStackTrace();

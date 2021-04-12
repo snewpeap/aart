@@ -58,7 +58,6 @@ public class AARTDriver extends AbstractDriver {
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
-		int i = 0;
 		do {
 			readyToLoop();
 
@@ -98,7 +97,6 @@ public class AARTDriver extends AbstractDriver {
 			}
 
 			endLoop();
-			i++;
 		} while (running && !checkTerminationCriteria());
 
 		//TODO Model output
@@ -109,17 +107,16 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput, boolean generateTestsuite,
-					  String coverage, String perturb) {
+					  String coverage, String perturb, String AUT_PACKAGE, String AUT_MAIN_ACTIVITY) {
 		this.ripperInput = ripperInput;
 		this.ripperOutput = ripperOutput;
 
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-		//TODO AUT_PACKAGE and AUT_MAIN_ACTIVITY is none
 		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
-
+		addTerminationCriterion(new CheckTimeTerminationCriterion());
 		this.generateTestSuite = generateTestsuite;
 	}
 
@@ -129,7 +126,7 @@ public class AARTDriver extends AbstractDriver {
 		if (device.isStarted())
 			return;
 		device.start();
-		device.waitForDevice(); //TODO LOW 方法没有反馈，加上返回值
+		device.waitForDevice();
 		device.setStarted(true);
 	}
 
