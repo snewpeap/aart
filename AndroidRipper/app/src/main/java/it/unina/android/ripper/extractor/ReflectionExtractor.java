@@ -124,6 +124,7 @@ public class ReflectionExtractor implements IExtractor {
 			ArrayList<Integer> drawerIndexs = new ArrayList<Integer>();
 			if (viewList != null) {
 				int index = 0;
+				HashMap<Integer, Integer> depths = new HashMap<>();
 				for (View v : viewList) {
 					WidgetDescription wd = new WidgetDescription();
 
@@ -218,6 +219,8 @@ public class ReflectionExtractor implements IExtractor {
 
 						Integer parentIndex = objectsMap.get(parent.toString());
 						wd.setParentIndex((parentIndex != null) ? parentIndex : -1);
+						wd.setDepth(wd.getParentIndex().equals(-1) ? 0 : depths.get(parentIndex) + 1);
+						depths.put(wd.getIndex(), wd.getDepth());
 
 						if (parentIndex != null) {
 							for (Integer drawerIndex : drawerIndexs) {
