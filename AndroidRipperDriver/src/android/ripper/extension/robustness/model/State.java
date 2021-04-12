@@ -43,9 +43,11 @@ public class State extends ActivityDescription {
 			return false;
 	}
 
+	private final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
+
 	/**
 	 * Test if the state is hierarchically equals to given state
-	 * In compared states' view trees, define hierarchically equation:
+	 * In compared states' view trees, define hierarchically equation:FIXME
 	 * 1. Corresponding node has identical capabilities set and enable/visible status
 	 * 2. Subtree of corresponding nodes should have same height
 	 *
@@ -53,8 +55,44 @@ public class State extends ActivityDescription {
 	 * @return if two states are considered hierarchically equal
 	 */
 	public boolean hierarchyEquals(State state) {
+		return getHierarchy().equals(state.getHierarchy());
+	}
 
-		return false;//TODO
+	private HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
+		if (hierarchy.isEmpty()) {
+			HashMap<Integer, VirtualWD> indexMap = new HashMap<>();
+			for (WidgetDescription widget : getWidgets()) {
+				if (widget.getDepth() < 0) {
+					continue;
+				}
+				String className = widget.getClassName();
+				if (widget.getDepth() > 0) {
+					className = indexMap.get(widget.getParentIndex()).getClassName() + ">" + className;
+				}
+				indexMap.put(widget.getIndex(), new VirtualWD(className,
+						widget.getListeners(),
+						widget.isEnabled(),
+						widget.isVisible(),
+						widget.getDepth()));
+			}
+			indexMap.values().forEach(vwd -> hierarchy.compute(vwd.getDepth(), (depth, vwds) -> {
+				String className = vwd.getClassName();
+				if (vwds == null) {
+					vwds = new HashMap<>();
+					vwds.put(className, vwd);
+				} else {
+					vwds.merge(className, vwd, (a, b) -> {
+						a.setEnabled(a.getEnabled() | b.getEnabled());
+						a.setVisible(a.getVisible() | b.getVisible());
+						HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
+						lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
+						return a;
+					});
+				}
+				return vwds;
+			}));
+		}
+		return hierarchy;
 	}
 
 	public State(ActivityDescription activityDescription) {
@@ -301,6 +339,16 @@ public class State extends ActivityDescription {
 	@Override
 	public void setIsRootActivity(Boolean isRootActivity) {
 		ad.setIsRootActivity(isRootActivity);
+	}
+
+	@Override
+	public Boolean getPopupShowing() {
+		return ad.getPopupShowing();
+	}
+
+	@Override
+	public void setPopupShowing(Boolean popupShowing) {
+		ad.setPopupShowing(popupShowing);
 	}
 
 	@Override

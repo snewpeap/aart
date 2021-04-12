@@ -217,6 +217,7 @@ public class XMLRipperOutput implements RipperOutput
 			widget.setAttribute(WIDGET_INDEX, "");
 
 		widget.setAttribute(WIDGET_PARENT_INDEX, wd.getParentIndex().toString());
+		widget.setAttribute(WIDGET_DEPTH, wd.getDepth().toString());
 		
 		widget.setAttribute(WIDGET_ENABLED, (wd.isEnabled() != null && wd.isEnabled())?"TRUE":"FALSE");
 		widget.setAttribute(WIDGET_VISIBLE, (wd.isVisible() != null && wd.isVisible())?"TRUE":"FALSE");

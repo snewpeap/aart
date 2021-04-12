@@ -168,6 +168,7 @@ public class XMLRipperInput implements RipperInput {
 			
 			wd.setIndex(Integer.parseInt(e.getAttribute(WIDGET_INDEX)));
 			wd.setParentIndex(Integer.parseInt(e.getAttribute(WIDGET_PARENT_INDEX)));
+			wd.setDepth(Integer.parseInt(e.getAttribute(WIDGET_DEPTH)));
 			
 			if (e.getAttribute(WIDGET_COUNT) != null && !e.getAttribute(WIDGET_COUNT).equals(""))
 				wd.setCount(Integer.parseInt(e.getAttribute(WIDGET_COUNT)));
