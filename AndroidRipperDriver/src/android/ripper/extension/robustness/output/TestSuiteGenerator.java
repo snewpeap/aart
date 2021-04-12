@@ -59,6 +59,7 @@ public class TestSuiteGenerator {
             testTrace.append("}\n");
             id++;
         }
+        //TODO add Serializable here
         ReplaceTestFile(testcase, testTrace.toString());
         ReplaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
 
