@@ -85,7 +85,7 @@ public class OperationFactory {
      * @return
      */
     public String buildMethod() {
-        factory.reverse().append(new StringBuilder().append("protect void operation").append(methodId).append("(").append(buildParam()).append("){").reverse()).reverse();
+        factory.reverse().append(new StringBuilder().append("protected void operation").append(methodId).append("(").append(buildParam()).append("){").reverse()).reverse();
         factory.append("}");
         return factory.toString();
     }

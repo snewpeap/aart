@@ -99,7 +99,7 @@ public class AARTDriver extends AbstractDriver {
 
 			endLoop();
 			i++;
-		} while (running && !checkTerminationCriteria() && i < 1);
+		} while (running && !checkTerminationCriteria());
 
 		//TODO Model output
 
