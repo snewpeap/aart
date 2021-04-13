@@ -86,6 +86,7 @@ public class XMLRipperOutput implements RipperOutput
 		activity.setAttribute(ACTIVITY_UID, (ad.getUid() != null) ? ad.getUid()
 				: "");
 		activity.setAttribute(ACTIVITY_IS_ROOT_ACTIVITY, ((ad.isRootActivity() != null && ad.isRootActivity())  ? "TRUE" : "FALSE") );
+		activity.setAttribute(ACTIVITY_IS_POPUP, (ad.getPopupShowing() ? "TRUE" : "FALSE"));
 		
 		HashMap<String, Boolean> listeners = ad.getListeners();
 		if (listeners != null) {

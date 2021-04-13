@@ -14,7 +14,7 @@ public class CheckTimeTerminationCriterion implements TerminationCriterion {
 
 	@Override
 	public boolean check() {
-		boolean term = --countdown > 0;
+		boolean term = --countdown == 0;
 		if (term) {
 			System.out.printf("Checked %d times. TERMINATE.%n", CHECK_TIME);
 		}

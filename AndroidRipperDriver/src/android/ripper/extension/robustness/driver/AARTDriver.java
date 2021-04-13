@@ -372,8 +372,14 @@ public class AARTDriver extends AbstractDriver {
 			transitions.stream()
 					.filter(t -> {
 						State to = t.getToState();
+						boolean notInDeque = bfsDeque.isEmpty();
+						if (!notInDeque) {
+							notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
+						}
 						return t.getFromState().equals(prevPivot) &&
-								!State.EXIT_STATE.equals(to) && !pivoted.contains(to.getUid());
+								!State.EXIT_STATE.equals(to) &&
+								!pivoted.contains(to.getUid()) &&
+								notInDeque;
 					})//enqueue bfs target, possibly no state enqueue
 					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
 

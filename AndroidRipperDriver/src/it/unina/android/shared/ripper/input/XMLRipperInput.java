@@ -68,6 +68,8 @@ public class XMLRipperInput implements RipperInput {
 					ACTIVITY_IS_TABACTIVITY).equalsIgnoreCase("TRUE"));
 			ret.setIsRootActivity(activityElement.getAttribute(
 					ACTIVITY_IS_ROOT_ACTIVITY).equalsIgnoreCase("TRUE"));
+			ret.setPopupShowing(activityElement.getAttribute(
+					ACTIVITY_IS_POPUP).equalsIgnoreCase("TRUE"));
 			
 			try {
 				ret.setTabsCount( Integer.parseInt(activityElement.getAttribute(ACTIVITY_TABS_COUNT)));

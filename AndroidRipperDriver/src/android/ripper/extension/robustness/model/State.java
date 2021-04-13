@@ -22,8 +22,8 @@ public class State extends ActivityDescription {
 			State s = (State) obj;
 			if (StringUtils.isEmpty(getUid()) || StringUtils.isEmpty(s.getUid())) {
 				boolean widgetsEquality =
-						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
-								getWidgets().containsAll(s.getWidgets())) ||
+//						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
+//								getWidgets().containsAll(s.getWidgets())) ||
 						hierarchyEquals(s) ||
 						getWidgets() == s.getWidgets(); //null case
 				Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
@@ -358,8 +358,8 @@ public class State extends ActivityDescription {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getTitle(), getName(), getClassName(),
+		return Objects.hash(getName(), getClassName(),
 				getHasMenu(), getHandlesKeyPress(), getHandlesLongKeyPress(),
-				getIsTabActivity(), getTabsCount(), getCurrentTab(), getWidgets());
+				getIsTabActivity(), getTabsCount(), getCurrentTab());
 	}
 }

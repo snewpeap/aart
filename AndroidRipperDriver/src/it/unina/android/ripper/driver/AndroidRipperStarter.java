@@ -384,14 +384,12 @@ public class AndroidRipperStarter {
 			// RANDOM CONFIGURATION PARAMETERS
 			String legacyRandomNumEvents = conf.getProperty("events", "50");
 			String randomNumEvents = conf.getProperty("random.events", legacyRandomNumEvents);
-			println("Number of random events : " + randomNumEvents);
 			String randomTime = conf.getProperty("random.time_sec", null);
 
 			// seed
 			String myDefaultSeed = Long.toString(System.currentTimeMillis());
 			String legacyRandomseed = conf.getProperty("seed", myDefaultSeed);
 			String randomSeed = conf.getProperty("random.seed", legacyRandomseed);
-			println("Random Seed = " + randomSeed);
 
 			try {
 				Files.copy(Paths.get(configFile), Paths.get(base_result_dir + "/default.properties"));
@@ -482,6 +480,8 @@ public class AndroidRipperStarter {
 //                terminationCriterion.init(driver);
 					break;
 				case DRIVER_RANDOM:
+					println("Number of random events : " + randomNumEvents);
+					println("Random Seed = " + randomSeed);
 					scheduler = new UniformRandomScheduler(seedLong);
 					if (randomTime == null) {
 						terminationCriterion = new MaxEventsTerminationCriterion(Integer.parseInt(randomNumEvents));
@@ -651,9 +651,10 @@ public class AndroidRipperStarter {
 							  String toolsPath, String debugKeyStorePath, String autAPK, String tempPath) {
 		//repack
 		println("Unpacking Ripper APK (using apktool)");
-		Path unpackedRipperPath = Paths.get(tempPath, "unpacked");
-		execCommand(String.format("java -jar %s --quiet d -o %s %s",
-				Paths.get(toolsPath, "apktool.jar").toAbsolutePath(),
+		Path unpackedRipperPath = Paths.get(tempPath).getParent().getParent().resolve("unpacked");
+		Path apktoolPath = Paths.get(toolsPath, "apktool.jar").toAbsolutePath();
+		execCommand(String.format("java -jar %s --quiet d --force -o %s %s",
+				apktoolPath,
 				unpackedRipperPath,
 				Paths.get(toolsPath, "ar.apk")));
 		// replace strings
@@ -672,7 +673,7 @@ public class AndroidRipperStarter {
 
 		try {
 			println("Repacking Ripper APK (using apktool)");
-			execCommand(String.format("java -jar %sapktool.jar --quiet b %s -o %s/ar.apk", toolsPath, testSuitePath, tempPath));
+			execCommand(String.format("java -jar %s --quiet b %s -o %s/ar.apk", apktoolPath, testSuitePath, tempPath));
 
 			println("Repacked. Signing AndroidRipper...");
 
@@ -680,7 +681,9 @@ public class AndroidRipperStarter {
 //			execCommand("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore " + debugKeyStorePath
 //					+ "/debug.keystore -storepass android -keypass android " + tempPath + "/ar.apk androiddebugkey");
 			execCommand("zipalign 4 " + tempPath + "/ar.apk " + tempPath + "/ripper.apk");
-			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/ripper.apk", debugKeyStorePath, tempPath));
+			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/ripper.apk",
+					debugKeyStorePath,
+					tempPath));
 
 			Files.copy(FileSystems.getDefault().getPath(autAPK),
 					FileSystems.getDefault().getPath(tempPath + "/temp.apk"),
@@ -693,7 +696,9 @@ public class AndroidRipperStarter {
 //					+ "/temp.apk androiddebugkey");
 //			execCommand("jarsigner -verify " + tempPath + "/temp.apk");
 			execCommand("zipalign 4 " + tempPath + "/temp.apk " + tempPath + "/aut.apk");
-			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/aut.apk", debugKeyStorePath, tempPath));
+			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/aut.apk",
+					debugKeyStorePath,
+					tempPath));
 
 		} catch (Exception t) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "createAPKs", "apk build failed", t);
@@ -703,7 +708,7 @@ public class AndroidRipperStarter {
 	protected void replaceStringsInFile(String filePath, String appPackage, String appMainActivity) {
 		Path templatePath = Paths.get(filePath + ".template");
 		try {
-			Files.copy(Paths.get(filePath), templatePath);
+			Files.copy(Paths.get(filePath), templatePath, StandardCopyOption.REPLACE_EXISTING);
 			replaceStringsInFile(templatePath.toAbsolutePath().toString(), filePath, appPackage, appMainActivity);
 		} catch (IOException e) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "replaceStringsInFile", "", e);
