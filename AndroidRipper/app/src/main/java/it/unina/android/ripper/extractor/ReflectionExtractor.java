@@ -42,6 +42,7 @@ import it.unina.android.ripper.constants.RipperSimpleType;
 import it.unina.android.ripper.extractor.helper.ReflectionHelper;
 import it.unina.android.ripper.log.Debug;
 import it.unina.android.shared.ripper.constants.InteractionType;
+import it.unina.android.shared.ripper.constants.SimpleType;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
@@ -123,9 +124,21 @@ public class ReflectionExtractor implements IExtractor {
 			HashMap<String, Boolean> objectsVisibilityMap = new HashMap<String, Boolean>();
 			ArrayList<Integer> drawerIndexs = new ArrayList<Integer>();
 			if (viewList != null) {
-				int index = 0;
+				int i;
+				for (i = viewList.size() - 2; i >= 0; i--) {
+					if (viewList.get(i).getClass().getName().endsWith("DecorView")) {
+						break;
+					}
+				}
+				if (i > 0) {
+					ret.setPopupShowing(true);
+				}
 				HashMap<Integer, Integer> depths = new HashMap<>();
-				for (View v : viewList) {
+				for (int i1 = 0, viewListSize = viewList.size(); i1 < viewListSize; i1++) {
+					if (i1 <= i) {
+						continue;
+					}
+					View v = viewList.get(i1);
 					WidgetDescription wd = new WidgetDescription();
 
 					Debug.info(this, "Found widget: id=" + v.getId() + " (" + v.toString() + ")");
@@ -134,8 +147,8 @@ public class ReflectionExtractor implements IExtractor {
 					wd.setType(v.getClass());
 					wd.setName(this.detectName(v));
 
-					wd.setIndex(index++);
-					objectsMap.put(v.toString(), index - 1);
+					wd.setIndex(i1);
+					objectsMap.put(v.toString(), i1);
 
 					this.setViewListeners(ret, wd, v);
 
@@ -147,7 +160,7 @@ public class ReflectionExtractor implements IExtractor {
 					objectsVisibilityMap.put(v.toString(), v.getVisibility() == View.VISIBLE);
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
-					if (v.getId() > 0 && activity.getResources() != null) {
+					if (v.getId() != View.NO_ID && activity.getResources() != null) {
 						try {
 							String debugMe = activity.getResources().getResourceEntryName(v.getId());
 							wd.setTextualId(debugMe);
@@ -166,9 +179,9 @@ public class ReflectionExtractor implements IExtractor {
 					}
 
 					if (v instanceof ImageView) {
-						
+
 					}
-					
+
 					setCount(v, wd);
 
 					// ripper like
@@ -188,7 +201,7 @@ public class ReflectionExtractor implements IExtractor {
 
 								if (wd.getSimpleType() != null && wd.getSimpleType().equals("")) {
 									wd.setSimpleType(
-											it.unina.android.shared.ripper.constants.SimpleType.SCRIM_INSETS_FRAME_LAYOUT);
+											SimpleType.SCRIM_INSETS_FRAME_LAYOUT);
 								}
 
 							}
@@ -226,8 +239,8 @@ public class ReflectionExtractor implements IExtractor {
 							for (Integer drawerIndex : drawerIndexs) {
 								if (drawerIndex != null && parentIndex.equals(drawerIndex)) {
 									if (wd.getSimpleType() != null && wd.getSimpleType()
-											.equals(it.unina.android.shared.ripper.constants.SimpleType.LIST_VIEW)) {
-										wd.setSimpleType(it.unina.android.shared.ripper.constants.SimpleType.DRAWER_LIST_VIEW);
+											.equals(SimpleType.LIST_VIEW)) {
+										wd.setSimpleType(SimpleType.DRAWER_LIST_VIEW);
 									} else {
 										drawerIndexs.add(wd.getIndex());
 									}
@@ -240,7 +253,7 @@ public class ReflectionExtractor implements IExtractor {
 						wd.setParentType(parent.getClass().getCanonicalName());
 						wd.setParentName(this.detectName(parent));
 
-						if (parent.getId() < 0) {
+						if (parent.getId() == View.NO_ID) {
 							View ancestor = detectFirstAncestorWithId(parent);
 
 							if (ancestor != null) {
@@ -284,7 +297,7 @@ public class ReflectionExtractor implements IExtractor {
 		if (parentView != null && View.class.isInstance(parentView)) {
 			View parent = (View) parentView;
 
-			if (parent != null && parent.getId() > 0) {
+			if (parent != null && parent.getId() != View.NO_ID) {
 				return parent;
 			} else {
 				return detectFirstAncestorWithId(parent);
