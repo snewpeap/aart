@@ -4,6 +4,7 @@ import it.unina.android.ripper.planner.HandlerBasedPlanner;
 import it.unina.android.ripper.planner.Planner;
 import it.unina.android.ripper.planner.widget_events.*;
 import it.unina.android.ripper.planner.widget_inputs.EditTextInputPlanner;
+import it.unina.android.ripper.tools.actions.Actions;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import it.unina.android.shared.ripper.model.task.Task;
@@ -26,7 +27,7 @@ public class WhatAPlanner extends Planner {
 	@Override
 	public TaskList plan(Task currentTask, ActivityDescription activity, String... options) {
 		TaskList taskList = new TaskList();
-		if (activity.getPopupShowing()) {
+		if (activity.getPopupShowing() || Actions.softKeyboardShowing()) {
 			activity.setScrollDownAble(false);
 		}
 		planForActivity(taskList, activity, currentTask);

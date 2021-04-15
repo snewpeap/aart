@@ -122,7 +122,6 @@ public class AARTDriver extends AbstractDriver {
 
 	@Override
 	public void startupDevice() {
-		//TODO LOW 需要监控线程
 		if (device.isStarted())
 			return;
 		device.start();
@@ -390,14 +389,19 @@ public class AARTDriver extends AbstractDriver {
 				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
 				Transition lastTransitionToNewPivot = null;
-				for (Transition t : transitions)
-					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot))
+				for (Transition t : transitions) {
+					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot)) {
 						lastTransitionToNewPivot = t;
+						break;
+					}
+				}
 				if (lastTransitionToNewPivot == null) {
 					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
 							prevPivot.getUid(), newPivot.getUid()));
-					return null;
-				} else task = lastTransitionToNewPivot.getTask();
+					task = null;
+				} else {
+					task = lastTransitionToNewPivot.getTask();
+				}
 			} else {
 				pivot = null;
 			}

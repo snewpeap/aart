@@ -175,11 +175,9 @@ public class Actions {
 					adb.waitFor();
 
 					ripperActive = false;
-				} catch (InterruptedException e) {
+				} catch (InterruptedException | IOException e) {
 					// e.printStackTrace();
-				} catch (IOException e) {
-					// e.printStackTrace();
-				} // .connectStdout(System.out).connectStderr(System.err);
+				}  // .connectStdout(System.out).connectStderr(System.err);
 			}
 		}.start();
 
@@ -221,7 +219,7 @@ public class Actions {
 	 *            Port of the emulator
 	 */
 	public static void startEmulatorNoSnapshotLoadWipeData(final String AVD_NAME, final int EMULATOR_PORT) {
-		(new Thread() {
+		new Thread() {
 			public void run() {
 				try {
 					// AndroidTools.emulator("@"+AVD_NAME,"-partition-size","129","-no-snapshot-load",
@@ -234,7 +232,7 @@ public class Actions {
 					// e.printStackTrace();
 				}
 			}
-		}).start();
+		}.start();
 
 		sleepSeconds(START_EMULATOR_NO_SNAPSHOOT_WAIT_SECONDS);
 	}
@@ -398,7 +396,7 @@ public class Actions {
 	 */
 	public static void waitForProcessToEnd(String AUT_PACKAGE) {
 
-		boolean found = false;
+		boolean found;
 
 		do {
 
@@ -408,7 +406,7 @@ public class Actions {
 				final Process p = Runtime.getRuntime().exec("adb -s " + DEVICE + " shell ps");
 
 				try {
-					String line = "";
+					String line;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 					while ((line = input.readLine()) != null) {
@@ -442,7 +440,7 @@ public class Actions {
 	 * 
 	 * @param AUT_PACKAGE
 	 *            Package of the AUT
-	 * @return
+	 * @return killed
 	 */
 	public static boolean killProcessByPackage(String AUT_PACKAGE) {
 		String pid = getProcessPID(AUT_PACKAGE);
@@ -454,7 +452,7 @@ public class Actions {
 	 * 
 	 * @param PID
 	 *            Process ID
-	 * @return
+	 * @return killed
 	 */
 	public static boolean killProcess(String PID) {
 		if (PID != null) {
@@ -484,7 +482,7 @@ public class Actions {
 			final Process p = Runtime.getRuntime().exec("adb -s " + DEVICE + " shell ps " + AUT_PACKAGE);
 
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 				while ((line = input.readLine()) != null) {
@@ -576,10 +574,10 @@ public class Actions {
 	 *            Package of the AUT
 	 * @param maxIter
 	 *            Max Retry
-	 * @return
+	 * @return end correctly
 	 */
 	public static boolean waitForProcessToEndMaxIterations(String AUT_PACKAGE, int maxIter) {
-		boolean found = false;
+		boolean found;
 
 		int iter = 0;
 
@@ -591,7 +589,7 @@ public class Actions {
 				final Process p = Runtime.getRuntime().exec("adb -s " + DEVICE + " shell ps " + AUT_PACKAGE);
 
 				try {
-					String line = "";
+					String line;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 					while ((line = input.readLine()) != null) {
@@ -631,7 +629,7 @@ public class Actions {
 				p = AndroidTools.adb("-s", DEVICE, "install", "-f", "-g", apk);
 			}
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 
 				while ((line = input.readLine()) != null) {
@@ -736,7 +734,7 @@ public class Actions {
 					"shell", "dumpsys activity | grep top-activity"});
 			
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 				while ((line = input.readLine()) != null) {
@@ -802,7 +800,7 @@ public class Actions {
 			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "ifconfig", "rndis0");
 
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 
 				while ((line = input.readLine()) != null) {
@@ -870,7 +868,7 @@ public class Actions {
 			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "pm", "path", pack);
 
 			try {
-				String line = "";
+				String line;
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 
 				while ((line = input.readLine()) != null) {
@@ -905,11 +903,11 @@ public class Actions {
 		boolean displayOn = false;
 		boolean unlocked = false;
 
-		int status = -1;
+		int status;
 
 		try {
 			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "dumpsys", "power");
-			String line = "";
+			String line;
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 
 			while ((line = input.readLine()) != null) {
@@ -930,7 +928,7 @@ public class Actions {
 
 		if (displayOn && unlocked)
 			status = 2;
-		else if (displayOn && !unlocked)
+		else if (displayOn)
 			status = 1;
 		else
 			status = 0;
@@ -939,8 +937,8 @@ public class Actions {
 	}
 	
 	public static void adbShell(String ... strings) {
-		String shell[] = {"shell"};
-		String[] both = (String[])ArrayUtils.addAll(shell, strings);
+		String[] shell = {"shell"};
+		String[] both = ArrayUtils.addAll(shell, strings);
 		try {
 			AndroidTools.adb(both).waitFor();
 		} catch (InterruptedException | IOException e) {
@@ -949,8 +947,8 @@ public class Actions {
 	}
 	
 	public static void adbSuShell(String ... strings) {
-		String shell[] = {"shell", "sudo", "-c"};
-		String[] both = (String[])ArrayUtils.addAll(shell, strings);
+		String[] shell = {"shell", "sudo", "-c"};
+		String[] both = ArrayUtils.addAll(shell, strings);
 		try {
 			AndroidTools.adb(both).waitFor();
 		} catch (InterruptedException | IOException e) {
@@ -962,9 +960,7 @@ public class Actions {
 	public static void pull(String src, String dest) {
 		try {
 			AndroidTools.adb("-s", DEVICE, "pull", src, dest).connectStderr(System.out).connectStdout(System.out).waitFor();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -974,11 +970,9 @@ public class Actions {
 			WrapProcess p;
 			p = AndroidTools.adb("-s", DEVICE, "push", string, "/sdcard/").connectStderr(System.out).connectStdout(System.out);
 			p.waitFor();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}		
+		}
 	}
 	
 	public static void push(String string, String dest) {
@@ -986,11 +980,9 @@ public class Actions {
 			WrapProcess p;
 			p = AndroidTools.adb("-s", DEVICE, "push", string, dest).connectStderr(System.out).connectStdout(System.out);
 			p.waitFor();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}		
+		}
 	}
 	
 	public static void installFromSD(String string) {
@@ -1004,9 +996,7 @@ public class Actions {
 			}
 			p.waitFor();
 			System.out.println(string +" installed!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -1017,6 +1007,26 @@ public class Actions {
 		} catch (Exception e) {
 			//// e.printStackTrace();
 		}
+	}
+
+	public static boolean softKeyboardShowing() {
+		boolean has = false;
+		try	{
+			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "dumpsys", "window", "InputMethod");
+			BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
+			String line;
+			while ((line = input.readLine()) != null) {
+				if (line.contains("mHasSurface=true")) {
+					has = true;
+					break;
+				}
+			}
+			input.close();
+			p.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return has;
 	}
 	
 }

@@ -47,9 +47,10 @@ public class State extends ActivityDescription {
 
 	/**
 	 * Test if the state is hierarchically equals to given state
-	 * In compared states' view trees, define hierarchically equation:FIXME
-	 * 1. Corresponding node has identical capabilities set and enable/visible status
-	 * 2. Subtree of corresponding nodes should have same height
+	 * In compared states' view trees, define hierarchically equation:
+	 * 1. Their VWDs (Virtual WidgetDescription, abstraction of views that are same class
+	 *    and share same parents, recursively) have same layers and same VWD in each layer
+	 * 1. Same VWD have identical capabilities set and enable/visible status
 	 *
 	 * @param state state compared to this
 	 * @return if two states are considered hierarchically equal
@@ -82,6 +83,7 @@ public class State extends ActivityDescription {
 					vwds.put(className, vwd);
 				} else {
 					vwds.merge(className, vwd, (a, b) -> {
+						//Fusing views capability into VWD by simply logical OR them
 						a.setEnabled(a.getEnabled() | b.getEnabled());
 						a.setVisible(a.getVisible() | b.getVisible());
 						HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
@@ -360,6 +362,6 @@ public class State extends ActivityDescription {
 	public int hashCode() {
 		return Objects.hash(getName(), getClassName(),
 				getHasMenu(), getHandlesKeyPress(), getHandlesLongKeyPress(),
-				getIsTabActivity(), getTabsCount(), getCurrentTab());
+				getIsTabActivity(), getTabsCount(), getCurrentTab(), getHierarchy());
 	}
 }
