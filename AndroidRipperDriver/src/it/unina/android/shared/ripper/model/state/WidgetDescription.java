@@ -54,6 +54,7 @@ public class WidgetDescription implements Serializable
 	String ancestorType; //first ancestor with id set
 	public static final int NO_PARENT_INDEX = Integer.MIN_VALUE;
 	Integer parentIndex = NO_PARENT_INDEX;
+	Integer depth = -1;
 
 	//TODO: riccio
 	Integer scrollViewX;
@@ -304,6 +305,14 @@ public class WidgetDescription implements Serializable
 		this.parentIndex = parentIndex;
 	}
 
+	public Integer getDepth() {
+		return depth;
+	}
+
+	public void setDepth(Integer depth) {
+		this.depth = depth;
+	}
+
 	public Boolean getVisible() {
 		return visible;
 	}
@@ -329,15 +338,12 @@ public class WidgetDescription implements Serializable
 	{
 		/*return 	"[id="+this.id+"]" +
 				"[type="+((this.type!=null)?this.type.getCanonicalName():className)+"]";*/
-		return String.format("[parent_index=%d]%s[index=%d, id=%d]",
-				parentIndex,
-				(this.type != null) ? this.type.getCanonicalName() : className,
-				index, id);
+		return String.format("[parent_index=%d]%s[index=%d, id=%d]", parentIndex, getClassName(), index, id);
 	}
 	
 	public String toXMLString()
 	{
-		String xml = new String("");
+		String xml = "";
 		
 		xml += "<widget " +					
 					"id=\""+this.id+"\" " +

@@ -4,6 +4,7 @@ import it.unina.android.ripper.planner.HandlerBasedPlanner;
 import it.unina.android.ripper.planner.Planner;
 import it.unina.android.ripper.planner.widget_events.*;
 import it.unina.android.ripper.planner.widget_inputs.EditTextInputPlanner;
+import it.unina.android.ripper.tools.actions.Actions;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import it.unina.android.shared.ripper.model.task.Task;
@@ -13,7 +14,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -27,20 +27,11 @@ public class WhatAPlanner extends Planner {
 	@Override
 	public TaskList plan(Task currentTask, ActivityDescription activity, String... options) {
 		TaskList taskList = new TaskList();
-		ArrayList<WidgetDescription> widgets = activity.getWidgets();
-		ListIterator<WidgetDescription> iter = activity.getWidgets().listIterator();
-		while (iter.hasNext()) {
-			if (iter.next().getClassName().endsWith(".DecorView") && iter.hasNext()) {
-				widgets = new ArrayList<>(widgets.size() - iter.nextIndex());
-				iter.forEachRemaining(widgets::add);
-			}
-		}
-		if (widgets != activity.getWidgets()) {
-			activity.setPopupShowing(true);
+		if (activity.getPopupShowing() || Actions.softKeyboardShowing()) {
 			activity.setScrollDownAble(false);
 		}
 		planForActivity(taskList, activity, currentTask);
-		widgets.forEach(wd -> {
+		activity.getWidgets().forEach(wd -> {
 			if (ArrayUtils.contains(HandlerBasedPlanner.inputWidgetList, wd.getSimpleType()))
 				planForInput(taskList, wd, currentTask);
 			else
@@ -53,7 +44,7 @@ public class WhatAPlanner extends Planner {
 	}
 
 	private void planForActivity(TaskList taskList, ActivityDescription ad, Task t) {
-		if (ad.getScrollDownAble() != null && ad.getScrollDownAble())
+		if (ad.getScrollDownAble() == null || ad.getScrollDownAble())
 			taskList.addNewTaskForActivity(t, SCROLL_DOWN);
 		if (ad.isTabActivity())
 			for (int i = 0; i < ad.getTabsCount(); i++)

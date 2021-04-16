@@ -86,6 +86,7 @@ public class XMLRipperOutput implements RipperOutput
 		activity.setAttribute(ACTIVITY_UID, (ad.getUid() != null) ? ad.getUid()
 				: "");
 		activity.setAttribute(ACTIVITY_IS_ROOT_ACTIVITY, ((ad.isRootActivity() != null && ad.isRootActivity())  ? "TRUE" : "FALSE") );
+		activity.setAttribute(ACTIVITY_IS_POPUP, (ad.getPopupShowing() ? "TRUE" : "FALSE"));
 		
 		HashMap<String, Boolean> listeners = ad.getListeners();
 		if (listeners != null) {
@@ -217,6 +218,7 @@ public class XMLRipperOutput implements RipperOutput
 			widget.setAttribute(WIDGET_INDEX, "");
 
 		widget.setAttribute(WIDGET_PARENT_INDEX, wd.getParentIndex().toString());
+		widget.setAttribute(WIDGET_DEPTH, wd.getDepth().toString());
 		
 		widget.setAttribute(WIDGET_ENABLED, (wd.isEnabled() != null && wd.isEnabled())?"TRUE":"FALSE");
 		widget.setAttribute(WIDGET_VISIBLE, (wd.isVisible() != null && wd.isVisible())?"TRUE":"FALSE");

@@ -68,6 +68,8 @@ public class XMLRipperInput implements RipperInput {
 					ACTIVITY_IS_TABACTIVITY).equalsIgnoreCase("TRUE"));
 			ret.setIsRootActivity(activityElement.getAttribute(
 					ACTIVITY_IS_ROOT_ACTIVITY).equalsIgnoreCase("TRUE"));
+			ret.setPopupShowing(activityElement.getAttribute(
+					ACTIVITY_IS_POPUP).equalsIgnoreCase("TRUE"));
 			
 			try {
 				ret.setTabsCount( Integer.parseInt(activityElement.getAttribute(ACTIVITY_TABS_COUNT)));
@@ -168,6 +170,7 @@ public class XMLRipperInput implements RipperInput {
 			
 			wd.setIndex(Integer.parseInt(e.getAttribute(WIDGET_INDEX)));
 			wd.setParentIndex(Integer.parseInt(e.getAttribute(WIDGET_PARENT_INDEX)));
+			wd.setDepth(Integer.parseInt(e.getAttribute(WIDGET_DEPTH)));
 			
 			if (e.getAttribute(WIDGET_COUNT) != null && !e.getAttribute(WIDGET_COUNT).equals(""))
 				wd.setCount(Integer.parseInt(e.getAttribute(WIDGET_COUNT)));

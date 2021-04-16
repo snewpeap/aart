@@ -22,8 +22,8 @@ public class State extends ActivityDescription {
 			State s = (State) obj;
 			if (StringUtils.isEmpty(getUid()) || StringUtils.isEmpty(s.getUid())) {
 				boolean widgetsEquality =
-						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
-								getWidgets().containsAll(s.getWidgets())) ||
+//						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
+//								getWidgets().containsAll(s.getWidgets())) ||
 						hierarchyEquals(s) ||
 						getWidgets() == s.getWidgets(); //null case
 				Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
@@ -43,18 +43,58 @@ public class State extends ActivityDescription {
 			return false;
 	}
 
+	private final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
+
 	/**
 	 * Test if the state is hierarchically equals to given state
 	 * In compared states' view trees, define hierarchically equation:
-	 * 1. Corresponding node has identical capabilities set and enable/visible status
-	 * 2. Subtree of corresponding nodes should have same height
+	 * 1. Their VWDs (Virtual WidgetDescription, abstraction of views that are same class
+	 *    and share same parents, recursively) have same layers and same VWD in each layer
+	 * 1. Same VWD have identical capabilities set and enable/visible status
 	 *
 	 * @param state state compared to this
 	 * @return if two states are considered hierarchically equal
 	 */
 	public boolean hierarchyEquals(State state) {
+		return getHierarchy().equals(state.getHierarchy());
+	}
 
-		return false;//TODO
+	private HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
+		if (hierarchy.isEmpty()) {
+			HashMap<Integer, VirtualWD> indexMap = new HashMap<>();
+			for (WidgetDescription widget : getWidgets()) {
+				if (widget.getDepth() < 0) {
+					continue;
+				}
+				String className = widget.getClassName();
+				if (widget.getDepth() > 0) {
+					className = indexMap.get(widget.getParentIndex()).getClassName() + ">" + className;
+				}
+				indexMap.put(widget.getIndex(), new VirtualWD(className,
+						widget.getListeners(),
+						widget.isEnabled(),
+						widget.isVisible(),
+						widget.getDepth()));
+			}
+			indexMap.values().forEach(vwd -> hierarchy.compute(vwd.getDepth(), (depth, vwds) -> {
+				String className = vwd.getClassName();
+				if (vwds == null) {
+					vwds = new HashMap<>();
+					vwds.put(className, vwd);
+				} else {
+					vwds.merge(className, vwd, (a, b) -> {
+						//Fusing views capability into VWD by simply logical OR them
+						a.setEnabled(a.getEnabled() | b.getEnabled());
+						a.setVisible(a.getVisible() | b.getVisible());
+						HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
+						lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
+						return a;
+					});
+				}
+				return vwds;
+			}));
+		}
+		return hierarchy;
 	}
 
 	public State(ActivityDescription activityDescription) {
@@ -304,14 +344,24 @@ public class State extends ActivityDescription {
 	}
 
 	@Override
+	public Boolean getPopupShowing() {
+		return ad.getPopupShowing();
+	}
+
+	@Override
+	public void setPopupShowing(Boolean popupShowing) {
+		ad.setPopupShowing(popupShowing);
+	}
+
+	@Override
 	public String toString() {
 		return ad.toString();//TODO LOW
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getTitle(), getName(), getClassName(),
+		return Objects.hash(getName(), getClassName(),
 				getHasMenu(), getHandlesKeyPress(), getHandlesLongKeyPress(),
-				getIsTabActivity(), getTabsCount(), getCurrentTab(), getWidgets());
+				getIsTabActivity(), getTabsCount(), getCurrentTab(), getHierarchy());
 	}
 }

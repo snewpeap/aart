@@ -58,7 +58,6 @@ public class AARTDriver extends AbstractDriver {
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
-		int i = 0;
 		do {
 			readyToLoop();
 
@@ -98,7 +97,6 @@ public class AARTDriver extends AbstractDriver {
 			}
 
 			endLoop();
-			i++;
 		} while (running && !checkTerminationCriteria());
 
 		//TODO Model output
@@ -109,27 +107,25 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput, boolean generateTestsuite,
-					  String coverage, String perturb) {
+					  String coverage, String perturb, String AUT_PACKAGE, String AUT_MAIN_ACTIVITY) {
 		this.ripperInput = ripperInput;
 		this.ripperOutput = ripperOutput;
 
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-		//TODO AUT_PACKAGE and AUT_MAIN_ACTIVITY is none
 		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
-
+		addTerminationCriterion(new CheckTimeTerminationCriterion());
 		this.generateTestSuite = generateTestsuite;
 	}
 
 	@Override
 	public void startupDevice() {
-		//TODO LOW 需要监控线程
 		if (device.isStarted())
 			return;
 		device.start();
-		device.waitForDevice(); //TODO LOW 方法没有反馈，加上返回值
+		device.waitForDevice();
 		device.setStarted(true);
 	}
 
@@ -375,8 +371,14 @@ public class AARTDriver extends AbstractDriver {
 			transitions.stream()
 					.filter(t -> {
 						State to = t.getToState();
+						boolean notInDeque = bfsDeque.isEmpty();
+						if (!notInDeque) {
+							notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
+						}
 						return t.getFromState().equals(prevPivot) &&
-								!State.EXIT_STATE.equals(to) && !pivoted.contains(to.getUid());
+								!State.EXIT_STATE.equals(to) &&
+								!pivoted.contains(to.getUid()) &&
+								notInDeque;
 					})//enqueue bfs target, possibly no state enqueue
 					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
 
@@ -387,14 +389,19 @@ public class AARTDriver extends AbstractDriver {
 				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
 				Transition lastTransitionToNewPivot = null;
-				for (Transition t : transitions)
-					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot))
+				for (Transition t : transitions) {
+					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot)) {
 						lastTransitionToNewPivot = t;
+						break;
+					}
+				}
 				if (lastTransitionToNewPivot == null) {
 					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
 							prevPivot.getUid(), newPivot.getUid()));
-					return null;
-				} else task = lastTransitionToNewPivot.getTask();
+					task = null;
+				} else {
+					task = lastTransitionToNewPivot.getTask();
+				}
 			} else {
 				pivot = null;
 			}

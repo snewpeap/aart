@@ -39,7 +39,8 @@ public class XMLModelTags {
 	public static final String ACTIVITY_TABS_COUNT = "tb_c";
 	public static final String ACTIVITY_ID = "id";
 	public static final String ACTIVITY_UID = "uid";
-	public static final String ACTIVITY_IS_ROOT_ACTIVITY = "root";	
+	public static final String ACTIVITY_IS_ROOT_ACTIVITY = "root";
+	public static final String ACTIVITY_IS_POPUP = "pop";
 	
 	public static final String LISTENER = "ls";
 	public static final String LISTENER_CLASS = "c";
@@ -64,6 +65,7 @@ public class XMLModelTags {
 	
 	public static final String WIDGET_R_ID = "rid";
 	public static final String WIDGET_PARENT_INDEX = "parent_in";
+	public static final String WIDGET_DEPTH = "depth";
 		
 	public static final String EVENT = "ev";
 	public static final String EVENT_INTERACTION = "in";
