@@ -439,7 +439,8 @@ public class AndroidRipperStarter {
 								RipperOutput.class,
 								boolean.class,
 								String.class,
-								String.class).newInstance(ripperInput, ripperOutput, generateTestsuite, coverage, perturb);
+								String.class,
+								String.class).newInstance(ripperInput, ripperOutput, generateTestsuite, coverage, perturb, aut_main_activity);
 						break;
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -505,12 +506,13 @@ public class AndroidRipperStarter {
 				driver.SERVICE_APK_PATH = serviceApkPath;
 				driver.TEMP_PATH = tempPath;
 				driver.RESULTS_PATH = base_result_dir;
-
 				// apply common configuration parameters
 				driver.REPORT_FILE = reportFile;
 				driver.LOG_FILE_PREFIX = logFilePrefix;
 				driver.AUT_PACKAGE = aut_package;
+				System.out.println("TARGET_PACKAGE:" + aut_package);
 				driver.AUT_MAIN_ACTIVITY = aut_main_activity;
+				System.out.println("TARGET_CLASS:"+ aut_main_activity);
 				driver.SLEEP_AFTER_TASK = Integer.parseInt(sleep_after_task);
 				driver.SLEEP_AFTER_EVENT = Integer.parseInt(sleep_after_event);
 				driver.PING_MAX_RETRY = Integer.parseInt(ping_max_retry);

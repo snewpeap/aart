@@ -54,7 +54,7 @@ public class TestSuiteGenerator {
 
             shouldBeState.put(id, transition.getToState());
 
-            testTrace.append("report(id, extractor.extract());\n");
+            testTrace.append("report(").append(id).append(", extractor.extract());\n");
             //TODO check the rate of coverage
             testTrace.append("}\n");
             id++;
@@ -62,7 +62,7 @@ public class TestSuiteGenerator {
         //TODO add Serializable here
         ReplaceTestFile(testcase, testTrace.toString());
         ReplaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
-
+        ADSerializable();
     }
 
     private void ReplaceTestFile(String pattern, String target){
@@ -116,8 +116,7 @@ public class TestSuiteGenerator {
         try {
             Path path = Paths.get("TestSuiteExample.txt");
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-            target = target.replaceAll("<PACKAGE_NAME>", AUT_PACKAGE);
-            target = target.replaceAll("<CLASS_NAME>", CLASS_NAME);
+            target = target.replaceAll("<CLASS_NAME>", "\"" + CLASS_NAME + "\"");
             Files.write(Paths.get(testSuitePath), target.getBytes(StandardCharsets.UTF_8));
         } catch (IOException ioException) {
             ioException.printStackTrace();
@@ -137,10 +136,6 @@ public class TestSuiteGenerator {
         testSuiteGenerator.ADSerializable();
         HashMap hashMap = testSuiteGenerator.ADDeserialized();
         hashMap.containsKey("123");
-//        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec("/bin/zsh -c 'aapt dump badging ./diary.apk'").getInputStream()).useDelimiter("\\A");
-//        while(s.hasNext()){
-//            System.out.println(s.nextLine());
-//        }
     }
 
 }

@@ -39,9 +39,9 @@ public class RandomPerturb implements Perturb {
                         .replaceFirst("<eventType>", eventType)
                         .replaceFirst("<value>", value)).append(";");
             }
-            else if(event.getInteraction().equals("back")){
+            else if(event.getInteraction() != null){
                 //TODO add back event
-                testTrace.append("injectInteraction(null, \"back\", \"null\");");
+                testTrace.append("injectInteraction(null, \"").append(event.getInteraction()).append("\", null);");
             }
         }
 
@@ -55,7 +55,7 @@ public class RandomPerturb implements Perturb {
 
     private String getDefault(String s){
         if(s == null || s.length() == 0) return "null";
-        else return s;
+        else return "\"" + s + "\"";
     }
 
     @Override

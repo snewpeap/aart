@@ -1,4 +1,4 @@
-package <PACKAGE_NAME>.test
+package android.ripper.extension.test;
 
 /*	Add package and import declarations. Try CTRL+SHIFT+O if you're using Eclipse.
 //	Robotium must be in the build path!!! Otherwise, Solo cannot be resolved to a class.
@@ -9,24 +9,40 @@ import android.app.Activity;
 import android.content.ContextWrapper;
 import android.content.Intent;
 
-import com.jayway.android.robotium.solo.Solo;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.robotium.solo.Solo;
+
+import android.ripper.extension.test.extractor.IExtractor;
+import android.ripper.extension.test.extractor.ReflectionExtractor;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.*;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import com.alibaba.fastjson.JSONObject;
+
 import android.test.ActivityInstrumentationTestCase2;
+
+import it.unina.android.shared.ripper.model.state.ActivityDescription;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static android.view.Surface.*;
 
 @SuppressWarnings("rawtypes")
-public class test extends ActivityInstrumentationTestCase2 {
+public class TestSuite extends ActivityInstrumentationTestCase2 {
 
 	// Attributes
 	private Activity theActivity;
@@ -36,7 +52,6 @@ public class test extends ActivityInstrumentationTestCase2 {
 	private TabHost	tabs;
 	private int tabNum;
 
-	public final static String PACKAGE_NAME = <PACKAGE_NAME>;
 	public final static String CLASS_NAME = <CLASS_NAME>;
 	public final static int SLEEP_AFTER_EVENT = 1000;
 	public final static int SLEEP_AFTER_RESTART = 1000;
@@ -105,7 +120,8 @@ public class test extends ActivityInstrumentationTestCase2 {
 	public final static String RELATIVE_LAYOUT = "relativeLayout";
 	public final static String FOCUSABLE_EDIT_TEXT = "focusableEditText";
 	public final static String[] PRECRAWLING = {};
-	private final static HashMap<Integer, ActivityDescription> map;
+	private IExtractor extractor;
+	private HashMap<Integer, ActivityDescription> shouldBeState;
 	private static Class<?> theClass;
 	static {
 		try {
@@ -116,20 +132,21 @@ public class test extends ActivityInstrumentationTestCase2 {
 	}
 
 	@SuppressWarnings("unchecked")
-	public TomdroidGuiTest () {
-		super(PACKAGE_NAME,theClass);
+	public TestSuite () {
+		super(theClass);
 		this.theViews = new HashMap<Integer,View>();
+		shouldBeState = ADDeserialized();
 	}
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		this.solo = new Solo (getInstrumentation(), getActivity());
-		map = ADDeserialized();
-		restart();
-		afterRestart();
-		refreshCurrentActivity();
-	}
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        this.solo = new Solo (getInstrumentation(), getActivity());
+        this.extractor = new ReflectionExtractor(solo);
+        restart();
+        afterRestart();
+        refreshCurrentActivity();
+    }
 
 	@Override
 	protected void tearDown() throws Exception {
@@ -240,7 +257,7 @@ public class test extends ActivityInstrumentationTestCase2 {
 		boolean flag;
 		do {
 			flag = false;
-			ArrayList<ProgressBar> bars = solo.getCurrentProgressBars();
+            ArrayList<ProgressBar> bars = solo.getCurrentViews(ProgressBar.class);
 			for (ProgressBar b: bars) {
 				if (b.isShown() && b.isIndeterminate()) {
 					Log.d("nofatclips", "Waiting on Progress Bar #" + b.getId());
@@ -416,7 +433,7 @@ public class test extends ActivityInstrumentationTestCase2 {
 		} else if (widgetType.equals(MENU_ITEM)) {
 			v = solo.getText(widgetName);
 		} else if (widgetType.equals(LIST_VIEW)) {
-			v = solo.getCurrentListViews().get(0);
+            v = solo.getCurrentViews(ListView.class).get(0);
 		}
 		if (v == null) {
 			for (View w: getAllWidgets()) {
@@ -604,7 +621,7 @@ public class test extends ActivityInstrumentationTestCase2 {
 		Log.i("nofatclips", "Clicking the spinner view");
 		click(s);
 		sync();
-		selectListItem(solo.getCurrentListViews().get(0), num, false);
+        selectListItem(solo.getCurrentViews(ListView.class).get(0), num, false);
 	}
 
 	protected void click (View v) {
@@ -619,7 +636,7 @@ public class test extends ActivityInstrumentationTestCase2 {
 	public void home () {
 
 		// Scroll listviews up
-		final ArrayList<ListView> viewList = solo.getCurrentListViews();
+		final ArrayList<ListView> viewList = solo.getCurrentViews(ListView.class);
 		if (viewList.size() > 0) {
 			getActivity().runOnUiThread(new Runnable() {
 				public void run() {
@@ -629,7 +646,7 @@ public class test extends ActivityInstrumentationTestCase2 {
 		}
 
 		// Scroll scrollviews up
-		final ArrayList<ScrollView> viewScroll = solo.getCurrentScrollViews();
+        final ArrayList<ScrollView> viewScroll = solo.getCurrentViews(ScrollView.class);
 		if (viewScroll.size() > 0) {
 			getActivity().runOnUiThread(new Runnable() {
 				public void run() {
@@ -751,7 +768,7 @@ public class test extends ActivityInstrumentationTestCase2 {
                 BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
                 writer.append("REPORT The State in testTrace" + id + "is not equal the final state.\n");
                 writer.append("It should be :\n" + shouldBeState.get(id)+"\n");
-                writer.append("But actually is :\n"+ad.toString()+"\n\n")
+                writer.append("But actually is :\n"+ad.toString()+"\n\n");
                 writer.close();
             }
         }catch (Exception e){
