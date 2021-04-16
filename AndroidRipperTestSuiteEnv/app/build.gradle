@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "android.ripper.extension.test"
+        minSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    //compile 'com.jayway.android.robotium:robotium-solo:5.6.3'
+    implementation 'com.jayway.android.robotium:robotium-solo:5.6.0'
+    implementation files('libs/fastjson-1.2.75.jar')
+    implementation files('../../intermediate/ripper_shared.jar')
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
