@@ -106,6 +106,22 @@ public class TestSuiteGenerator {
         }
     }
 
+    public void report(int id, ActivityDescription ad){
+        //TODO
+        //1. get state from shouldBeState
+        //2. judge whether equals
+        //3. report!
+        try{
+            if(shouldBeState.get(id).equals(ad)){
+                System.out.println("REPORT The State in testTrace" + id + "is not equal the final state.");
+                System.out.println("It should be :\n" + shouldBeState.get(id));
+                System.out.println("But actually is :\n"+ ad);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     public TestSuiteGenerator(String AUT_PACKAGE, String coverage, String perturb, String CLASS_NAME) {
         this.AUT_PACKAGE = AUT_PACKAGE;

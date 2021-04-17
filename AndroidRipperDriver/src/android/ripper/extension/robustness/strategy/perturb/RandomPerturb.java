@@ -12,7 +12,7 @@ public class RandomPerturb implements Perturb {
 
     private final static String callRecover = "recover(<ARGS0>);";
     private final static String fireEvent = "fireEvent (<widgetId>, <widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
-
+    private final static String fireEventWithoutWidgetId = "fireEvent(<widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
     /**
      * call perturb function in test suite generator.
      * @return
@@ -31,13 +31,22 @@ public class RandomPerturb implements Perturb {
                 int widgetIndex = wd.getIndex();
                 String widgetName = getDefault(wd.getName());
                 String value = getDefault(wd.getValue());
-
-                testTrace.append(fireEvent.replaceFirst("<widgetId>", String.valueOf(widgetId))
-                        .replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
-                        .replaceFirst("<widgetName>", widgetName)
-                        .replaceFirst("<widgetType>", widgetType)
-                        .replaceFirst("<eventType>", eventType)
-                        .replaceFirst("<value>", value)).append(";");
+                if(widgetId != -1)
+                {
+                    testTrace.append(fireEvent.replaceFirst("<widgetId>", String.valueOf(widgetId))
+                            .replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
+                            .replaceFirst("<widgetName>", widgetName)
+                            .replaceFirst("<widgetType>", widgetType)
+                            .replaceFirst("<eventType>", eventType)
+                            .replaceFirst("<value>", value)).append(";");
+                }
+                else{
+                    testTrace.append(fireEventWithoutWidgetId.replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
+                            .replaceFirst("<widgetName>", widgetName)
+                            .replaceFirst("<widgetType>", widgetType)
+                            .replaceFirst("<eventType>", eventType)
+                            .replaceFirst("<value>", value)).append(";");
+                }
             }
             else if(event.getInteraction() != null){
                 //TODO add back event

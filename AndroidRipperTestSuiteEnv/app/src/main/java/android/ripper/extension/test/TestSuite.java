@@ -46,10 +46,10 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 
     // Attributes
     private Activity theActivity;
-    private Map<Integer,View> theViews;
+    private Map<Integer, View> theViews;
     private ArrayList<View> allViews = new ArrayList<View>(); // A list of all widgets
     private Solo solo;
-    private TabHost	tabs;
+    private TabHost tabs;
     private int tabNum;
 
     public final static String CLASS_NAME = "org.billthefarmer.diary.Diary";
@@ -59,7 +59,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     public final static int SLEEP_AFTER_TASK = 1000;
     public final static boolean FORCE_RESTART = false;
 
-    public final static boolean IN_AND_OUT_FOCUS= true;
+    public final static boolean IN_AND_OUT_FOCUS = true;
 
     public final static String CLICK = "click";
     public final static String BACK = "back";
@@ -123,6 +123,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     private IExtractor extractor;
     private HashMap<Integer, ActivityDescription> shouldBeState;
     private static Class<?> theClass;
+
     static {
         try {
             theClass = Class.forName(CLASS_NAME);
@@ -132,16 +133,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     }
 
     @SuppressWarnings("unchecked")
-    public TestSuite () {
+    public TestSuite() {
         super(theClass);
-        this.theViews = new HashMap<Integer,View>();
+        this.theViews = new HashMap<Integer, View>();
         shouldBeState = ADDeserialized();
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        this.solo = new Solo (getInstrumentation(), getActivity());
+        this.solo = new Solo(getInstrumentation(), getActivity());
         this.extractor = new ReflectionExtractor(solo);
         restart();
         afterRestart();
@@ -162,48 +163,96 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     // Test Cases
 
     //Generated from trace 0
-    public void testTrace0 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);operation0(false);report(0, extractor.extract());
+    public void testTrace0() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        operation0(false);
+        report(0, extractor.extract());
     }
+
     //Generated from trace 1
-    public void testTrace1 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);injectInteraction(null, "back", null);operation0(false);report(1, extractor.extract());
+    public void testTrace1() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        injectInteraction(null, "back", null);
+        operation0(false);
+        report(1, extractor.extract());
     }
+
     //Generated from trace 2
-    public void testTrace2 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "longClick", null);operation0(false);report(2, extractor.extract());
+    public void testTrace2() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "longClick", null);
+        operation0(false);
+        report(2, extractor.extract());
     }
+
     //Generated from trace 3
-    public void testTrace3 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "longClick", null);injectInteraction(null, "back", null);operation0(false);report(3, extractor.extract());
+    public void testTrace3() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "longClick", null);
+        injectInteraction(null, "back", null);
+        operation0(false);
+        report(3, extractor.extract());
     }
+
     //Generated from trace 4
-    public void testTrace4 () {
-        operation1(true);fireEvent (-1, 13, null, "button", "click", null);operation0(false);report(4, extractor.extract());
+    public void testTrace4() {
+        operation1(true);
+        fireEvent(-1, 13, null, "button", "click", null);
+        operation0(false);
+        report(4, extractor.extract());
     }
+
     //Generated from trace 5
-    public void testTrace5 () {
-        operation1(true);fireEvent (-1, 13, null, "button", "click", null);injectInteraction(null, "back", null);report(5, extractor.extract());
+    public void testTrace5() {
+        operation1(true);
+        fireEvent(-1, 13, null, "button", "click", null);
+        injectInteraction(null, "back", null);
+        report(5, extractor.extract());
     }
+
     //Generated from trace 6
-    public void testTrace6 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);report(6, extractor.extract());
+    public void testTrace6() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        report(6, extractor.extract());
     }
+
     //Generated from trace 7
-    public void testTrace7 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);fireEvent (2131427338, 6, null, "button", "click", null);report(7, extractor.extract());
+    public void testTrace7() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        fireEvent(2131427338, 6, null, "button", "click", null);
+        report(7, extractor.extract());
     }
+
     //Generated from trace 8
-    public void testTrace8 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);fireEvent (2131427338, 6, null, "button", "click", null);fireEvent (2131427342, 5, null, "button", "click", null);operation0(false);report(8, extractor.extract());
+    public void testTrace8() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        fireEvent(2131427338, 6, null, "button", "click", null);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        operation0(false);
+        report(8, extractor.extract());
     }
+
     //Generated from trace 9
-    public void testTrace9 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);fireEvent (2131427338, 6, null, "button", "longClick", null);report(9, extractor.extract());
+    public void testTrace9() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        fireEvent(2131427338, 6, null, "button", "longClick", null);
+        report(9, extractor.extract());
     }
+
     //Generated from trace 10
-    public void testTrace10 () {
-        operation1(true);fireEvent (2131427342, 5, null, "button", "click", null);fireEvent (2131427338, 6, null, "button", "longClick", null);injectInteraction(null, "back", null);operation0(false);report(10, extractor.extract());
+    public void testTrace10() {
+        operation1(true);
+        fireEvent(2131427342, 5, null, "button", "click", null);
+        fireEvent(2131427338, 6, null, "button", "longClick", null);
+        injectInteraction(null, "back", null);
+        operation0(false);
+        report(10, extractor.extract());
     }
 
 
@@ -235,7 +284,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         solo.setActivityOrientation(Solo.PORTRAIT);
         solo.sleep(SLEEP_AFTER_RESTART);
         waitOnThrobber();
-        if (PRECRAWLING.length>0) {
+        if (PRECRAWLING.length > 0) {
             refreshCurrentActivity();
             retrieveWidgets();
             processPrecrawling();
@@ -247,28 +296,30 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     private void processPrecrawling() {
         Log.i("nofatclips", "Processing precrawling");
         String[] params = new String[3];
-        int paramCount=0;
-        for (String s: PRECRAWLING) {
+        int paramCount = 0;
+        for (String s : PRECRAWLING) {
             if (s == null) {
                 switch (paramCount) {
-                    case 0: continue;
+                    case 0:
+                        continue;
                     case 1: {
-                        Log.i ("nofatclips", "Firing event " + params[0]);
+                        Log.i("nofatclips", "Firing event " + params[0]);
                         fireEventOnView(null, params[0], null);
                         break;
                     }
                     case 2: {
-                        Log.i ("nofatclips", "Firing event " + params[0] + " with value: " + params[1]);
+                        Log.i("nofatclips", "Firing event " + params[0] + " with value: " + params[1]);
                         fireEventOnView(null, params[0], params[1]);
                         break;
                     }
                     case 3: {
                         View v = getWidget(Integer.parseInt(params[1]));
-                        Log.i ("nofatclips", "Firing event " + params[0] + " on widget #" + params[1] + " with value: " + params[2]);
+                        Log.i("nofatclips", "Firing event " + params[0] + " on widget #" + params[1] + " with value: " + params[2]);
                         fireEventOnView(v, params[0], params[2]);
                         break;
                     }
-                };
+                }
+                ;
                 paramCount = 0;
             } else {
                 params[paramCount] = s;
@@ -296,60 +347,60 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     */
     public void waitOnThrobber() {
         int sleepTime = SLEEP_ON_THROBBER;
-        if (sleepTime==0) return;
+        if (sleepTime == 0) return;
 
         boolean flag;
         do {
             flag = false;
             ArrayList<ProgressBar> bars = solo.getCurrentViews(ProgressBar.class);
-            for (ProgressBar b: bars) {
+            for (ProgressBar b : bars) {
                 if (b.isShown() && b.isIndeterminate()) {
                     Log.d("nofatclips", "Waiting on Progress Bar #" + b.getId());
                     flag = true;
                     solo.sleep(500);
-                    sleepTime-=500;
+                    sleepTime -= 500;
                 }
             }
-        } while (flag && (sleepTime>0));
+        } while (flag && (sleepTime > 0));
         sync();
     }
 
-    public void retrieveWidgets () {
+    public void retrieveWidgets() {
         home();
         clearWidgetList();
-        ArrayList<View> viewList = (isInAndOutFocusEnabled())?solo.getViews():solo.getCurrentViews();
-        for (View w: viewList) {
-            String text = (w instanceof TextView)?": "+((TextView)w).getText().toString():"";
-            Log.d("nofatclips", "Found widget: id=" + w.getId() + " ("+ w.toString() + ")" + text); // + " in window at [" + xy[0] + "," + xy[1] + "] on screen at [" + xy2[0] + "," + xy2[1] +"]");
+        ArrayList<View> viewList = (isInAndOutFocusEnabled()) ? solo.getViews() : solo.getCurrentViews();
+        for (View w : viewList) {
+            String text = (w instanceof TextView) ? ": " + ((TextView) w).getText().toString() : "";
+            Log.d("nofatclips", "Found widget: id=" + w.getId() + " (" + w.toString() + ")" + text); // + " in window at [" + xy[0] + "," + xy[1] + "] on screen at [" + xy2[0] + "," + xy2[1] +"]");
 
             //
             allViews.add(w);
             //
 
-            if (w.getId()>0) {
+            if (w.getId() > 0) {
                 theViews.put(w.getId(), w); // Add only if the widget has a valid ID
             }
             if (w instanceof TabHost) {
-                setTabs((TabHost)w);
+                setTabs((TabHost) w);
             }
         }
     }
 
-    public void setTabs (TabHost t) {
+    public void setTabs(TabHost t) {
         this.tabs = t;
         this.tabNum = t.getTabWidget().getTabCount();
     }
 
-    public Map<Integer,View> getWidgets () {
+    public Map<Integer, View> getWidgets() {
         return this.theViews;
     }
 
-    public View getWidget (int key) {
+    public View getWidget(int key) {
         return getWidgets().get(key);
     }
 
-    public View getWidget (int theId, String theType, String theName) {
-        for (View testee: getWidgetsById(theId)) {
+    public View getWidget(int theId, String theType, String theName) {
+        for (View testee : getWidgetsById(theId)) {
             if (checkWidgetEquivalence(testee, theId, theType, theName)) {
                 return testee;
             }
@@ -357,8 +408,8 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         return null;
     }
 
-    public View getWidget (String theType, String theName) {
-        for (View testee: getWidgetsByType(theType)) {
+    public View getWidget(String theType, String theName) {
+        for (View testee : getWidgetsByType(theType)) {
             if (checkWidgetEquivalence(testee, theType, theName)) {
                 return testee;
             }
@@ -366,35 +417,35 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         return null;
     }
 
-    public boolean checkWidgetEquivalence (View testee, int theId, String theType, String theName) {
-        return ((theId == testee.getId()) && checkWidgetEquivalence (testee, theType, theName));
+    public boolean checkWidgetEquivalence(View testee, int theId, String theType, String theName) {
+        return ((theId == testee.getId()) && checkWidgetEquivalence(testee, theType, theName));
     }
 
-    public boolean checkWidgetEquivalence (View testee, String theType, String theName) {
+    public boolean checkWidgetEquivalence(View testee, String theType, String theName) {
         Log.i("nofatclips", "Retrieved from return list id=" + testee.getId());
         String testeeSimpleType = getSimpleType(testee);
         String testeeType = testee.getClass().getName();
         Log.i("nofatclips", "Testing for type (" + testeeType + ") against the original (" + theType + ")");
-        String testeeText = (testee instanceof TextView)?(((TextView)testee).getText().toString()):"";
+        String testeeText = (testee instanceof TextView) ? (((TextView) testee).getText().toString()) : "";
 
         String testeeName = testeeText;
         if (testee instanceof EditText) {
-            CharSequence hint = ((EditText)testee).getHint();
-            testeeName = (hint==null)?"":hint.toString();
+            CharSequence hint = ((EditText) testee).getHint();
+            testeeName = (hint == null) ? "" : hint.toString();
         }
 
         //		String testeeName = (testee instanceof EditText)?(((EditText)testee).getHint().toString()):testeeText;
         Log.i("nofatclips", "Testing for name (" + testeeName + ") against the original (" + theName + ")");
-        if ( ((theType.equals(testeeType)) || (theType.equals(testeeSimpleType)) ) && (theName.equals(testeeName)) ) {
+        if (((theType.equals(testeeType)) || (theType.equals(testeeSimpleType))) && (theName.equals(testeeName))) {
             return true;
         }
         return false;
     }
 
 
-    public ArrayList<View> getWidgetsById (int id) {
+    public ArrayList<View> getWidgetsById(int id) {
         ArrayList<View> theList = new ArrayList<View>();
-        for (View theView: getAllWidgets()) {
+        for (View theView : getAllWidgets()) {
             if (theView.getId() == id) {
                 Log.i("nofatclips", "Added to return list id=" + id);
                 theList.add(theView);
@@ -403,9 +454,9 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         return theList;
     }
 
-    public ArrayList<View> getWidgetsByType (String type) {
+    public ArrayList<View> getWidgetsByType(String type) {
         ArrayList<View> theList = new ArrayList<View>();
-        for (View theView: getAllWidgets()) {
+        for (View theView : getAllWidgets()) {
             if (theView.getClass().getName().equals(type)) {
                 Log.i("nofatclips", "Added to return list " + type + " with id=" + theView.getId());
                 theList.add(theView);
@@ -414,7 +465,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         return theList;
     }
 
-    public ArrayList<View> getAllWidgets () {
+    public ArrayList<View> getAllWidgets() {
         return this.allViews;
     }
 
@@ -423,35 +474,35 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         allViews.clear();
     }
 
-    public void doTestWidget (int theId, String theType, String theName) {
+    public void doTestWidget(int theId, String theType, String theName) {
         if (theId == -1) return;
         assertNotNull("Testing for id #" + theId + " (" + theType + "): " + theName, getWidget(theId, theType, theName));
     }
 
-    public void doTestWidget (String theType, String theName) {
+    public void doTestWidget(String theType, String theName) {
         assertNotNull("Testing for type " + theType + "): " + theName, getWidget(theType, theName));
     }
 
-    public void fireEvent (int widgetId, int widgetIndex, String widgetType, String eventType) {
+    public void fireEvent(int widgetId, int widgetIndex, String widgetType, String eventType) {
         //fireEvent(widgetId, widgetIndex, widgetType, eventType, null);
         fireEvent(widgetId, widgetIndex, "", widgetType, eventType);
     }
 
-    public void fireEvent (int widgetId, int widgetIndex, String widgetName, String widgetType, String eventType) {
+    public void fireEvent(int widgetId, int widgetIndex, String widgetName, String widgetType, String eventType) {
         fireEvent(widgetId, widgetIndex, widgetName, widgetType, eventType, null);
     }
 
-    public void fireEvent (int widgetIndex, String widgetName, String widgetType, String eventType) {
+    public void fireEvent(int widgetIndex, String widgetName, String widgetType, String eventType) {
         fireEvent(widgetIndex, widgetName, widgetType, eventType, null);
     }
 
-    public void fireEvent (int widgetId, int widgetIndex, String widgetName, String widgetType, String eventType, String value) {
+    public void fireEvent(int widgetId, int widgetIndex, String widgetName, String widgetType, String eventType, String value) {
 
         View v = null;
-        if (widgetIndex<getAllWidgets().size()) {
+        if (widgetIndex < getAllWidgets().size()) {
             v = getAllWidgets().get(widgetIndex); // Search widget by index
         }
-        if ((v!=null) && !checkWidgetEquivalence(v, widgetId, widgetType, widgetName)) {
+        if ((v != null) && !checkWidgetEquivalence(v, widgetId, widgetType, widgetName)) {
             v = getWidget(widgetId, widgetType, widgetName);
         }
         if (v == null) {
@@ -460,10 +511,10 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         if (v == null) {
             v = theActivity.findViewById(widgetId);
         }
-        fireEventOnView (v, eventType, value);
+        fireEventOnView(v, eventType, value);
     }
 
-    public void fireEvent (int widgetIndex, String widgetName, String widgetType, String eventType, String value) {
+    public void fireEvent(int widgetIndex, String widgetName, String widgetType, String eventType, String value) {
         View v = null;
         if (eventType.equals(BACK) || eventType.equals(SCROLL_DOWN)) {
             fireEventOnView(null, eventType, null);
@@ -480,27 +531,30 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             v = solo.getCurrentViews(ListView.class).get(0);
         }
         if (v == null) {
-            for (View w: getAllWidgets()) {
+            for (View w : getAllWidgets()) {
                 if (w instanceof Button) {
                     Button candidate = (Button) w;
                     if (candidate.getText().equals(widgetName)) {
                         v = candidate;
                     }
                 }
-                if (v!=null) break;
+                if (v != null) break;
             }
         }
-        fireEventOnView (v, eventType, value);
+        System.out.println("fire event in view:" + v);
+        System.out.println("eventType is:" + eventType);
+        System.out.println("value is:"+value);
+        fireEventOnView(v, eventType, value);
     }
 
-    private void fireEventOnView (View v, String eventType, String value) {
+    private void fireEventOnView(View v, String eventType, String value) {
         injectInteraction(v, eventType, value);
         solo.sleep(SLEEP_AFTER_EVENT);
         waitOnThrobber();
         refreshCurrentActivity();
     }
 
-    public void setInput (int widgetId, String inputType, String value) {
+    public void setInput(int widgetId, String inputType, String value) {
         View v = getWidget(widgetId);
         if (v == null) {
             v = theActivity.findViewById(widgetId);
@@ -508,12 +562,12 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         injectInteraction(v, inputType, value);
     }
 
-    private void injectInteraction (View v, String interactionType, String value) {
-        if (v!=null) {
+    private void injectInteraction(View v, String interactionType, String value) {
+        if (v != null) {
             requestView(v);
         }
         if (interactionType.equals(CLICK)) {
-            click (v);
+            click(v);
         } else if (interactionType.equals(LONG_CLICK)) {
             longClick(v);
         } else if (interactionType.equals(BACK)) {
@@ -528,51 +582,51 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             solo.sendKey(Solo.MENU);
         } else if (interactionType.equals(SCROLL_DOWN)) {
             solo.scrollDown();
-        } else if (interactionType.equals(SWAP_TAB) && (value!=null)) {
+        } else if (interactionType.equals(SWAP_TAB) && (value != null)) {
             if (v instanceof TabHost) {
-                swapTab ((TabHost)v, value);
+                swapTab((TabHost) v, value);
             } else {
-                swapTab (this.tabs, value);
+                swapTab(this.tabs, value);
             }
         } else if (interactionType.equals(LIST_SELECT)) {
-            selectListItem((ListView)v, value);
+            selectListItem((ListView) v, value);
         } else if (interactionType.equals(LIST_LONG_SELECT)) {
-            selectListItem((ListView)v, value, true);
+            selectListItem((ListView) v, value, true);
         } else if (interactionType.equals(SPINNER_SELECT)) {
-            selectSpinnerItem((Spinner)v, value);
+            selectSpinnerItem((Spinner) v, value);
         } else if (interactionType.equals(TYPE_TEXT)) {
-            typeText((EditText)v, value);
+            typeText((EditText) v, value);
         } else if (interactionType.equals(WRITE_TEXT)) {
-            writeText((EditText)v, value);
+            writeText((EditText) v, value);
         } else if (interactionType.equals(SET_BAR)) {
-            solo.setProgressBar((ProgressBar)v, Integer.parseInt(value));
+            solo.setProgressBar((ProgressBar) v, Integer.parseInt(value));
         } else {
             return;
         }
     }
 
-    protected void typeText (EditText v, String value) {
+    protected void typeText(EditText v, String value) {
         solo.enterText(v, value);
     }
 
-    protected void writeText (EditText v, String value) {
-        typeText (v, "");
-        typeText (v, value);
+    protected void writeText(EditText v, String value) {
+        typeText(v, "");
+        typeText(v, value);
     }
 
     public void changeOrientation() {
         Display display = ((WindowManager) getInstrumentation().getContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
         int angle = display.getRotation();
-        int newAngle = ((angle==ROTATION_0)||(angle==ROTATION_180))?Solo.LANDSCAPE:Solo.PORTRAIT;
+        int newAngle = ((angle == ROTATION_0) || (angle == ROTATION_180)) ? Solo.LANDSCAPE : Solo.PORTRAIT;
         solo.setActivityOrientation(newAngle);
     }
 
-    private void swapTab (TabHost t, String tab) {
-        swapTab (t, Integer.valueOf(tab));
+    private void swapTab(TabHost t, String tab) {
+        swapTab(t, Integer.valueOf(tab));
     }
 
-    private void swapTab (final TabHost t, int num) {
-        final int n = Math.min(this.tabNum, Math.max(1,num))-1;
+    private void swapTab(final TabHost t, int num) {
+        final int n = Math.min(this.tabNum, Math.max(1, num)) - 1;
         Log.i("nofatclips", "Swapping to tab " + num);
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
@@ -582,20 +636,20 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         sync();
     }
 
-    private void clickOnText (String text) {
-        solo.clickOnText (text);
+    private void clickOnText(String text) {
+        solo.clickOnText(text);
     }
 
-    private void selectListItem (ListView l, String item) {
-        selectListItem (l, Integer.valueOf(item), false);
+    private void selectListItem(ListView l, String item) {
+        selectListItem(l, Integer.valueOf(item), false);
     }
 
-    private void selectListItem (ListView l, String item, boolean longClick) {
-        selectListItem (l, Integer.valueOf(item), longClick);
+    private void selectListItem(ListView l, String item, boolean longClick) {
+        selectListItem(l, Integer.valueOf(item), longClick);
     }
 
-    private void selectListItem (final ListView l, int num, boolean longClick) {
-        final int n = Math.min(l.getCount(), Math.max(1,num))-1;
+    private void selectListItem(final ListView l, int num, boolean longClick) {
+        final int n = Math.min(l.getCount(), Math.max(1, num)) - 1;
         requestFocus(l);
         Log.i("nofatclips", "Swapping to listview item " + num);
         solo.sendKey(Solo.DOWN);
@@ -605,7 +659,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             }
         });
         sync();
-        if (n<l.getCount()/2) {
+        if (n < l.getCount() / 2) {
             solo.sendKey(Solo.DOWN);
             solo.sendKey(Solo.UP);
         } else {
@@ -614,17 +668,17 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         }
         sync();
         if (longClick) {
-            longClick (l.getSelectedView());
+            longClick(l.getSelectedView());
         } else {
-            click (l.getSelectedView());
+            click(l.getSelectedView());
         }
     }
 
-    public static boolean isInAndOutFocusEnabled () {
+    public static boolean isInAndOutFocusEnabled() {
         return IN_AND_OUT_FOCUS;
     }
 
-    protected void requestFocus (final View v) {
+    protected void requestFocus(final View v) {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 v.requestFocus();
@@ -633,16 +687,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         sync();
     }
 
-    public void pressKey (String keyCode) {
-        pressKey (Integer.parseInt(keyCode));
+    public void pressKey(String keyCode) {
+        pressKey(Integer.parseInt(keyCode));
     }
 
-    public void pressKey (int keyCode) {
+    public void pressKey(int keyCode) {
         solo.sendKey(keyCode);
     }
 
     // Scroll until the view is on the screen if IN_AND_OUT_OF_FOCUS is enabled or if the force parameter is true
-    protected void requestView (final View v, boolean force) {
+    protected void requestView(final View v, boolean force) {
         if (force || isInAndOutFocusEnabled()) {
             home();
             solo.sendKey(Solo.UP); // Solo.waitForView() requires a widget to be focused
@@ -651,16 +705,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         requestFocus(v);
     }
 
-    protected void requestView (final View v) {
+    protected void requestView(final View v) {
         requestView(v, false);
     }
 
 
-    private void selectSpinnerItem (Spinner l, String item) {
-        selectSpinnerItem (l, Integer.valueOf(item));
+    private void selectSpinnerItem(Spinner l, String item) {
+        selectSpinnerItem(l, Integer.valueOf(item));
     }
 
-    private void selectSpinnerItem (final Spinner s, int num) {
+    private void selectSpinnerItem(final Spinner s, int num) {
         assertNotNull(s, "Cannon press spinner item: the spinner does not exist");
         Log.i("nofatclips", "Clicking the spinner view");
         click(s);
@@ -668,16 +722,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         selectListItem(solo.getCurrentViews(ListView.class).get(0), num, false);
     }
 
-    protected void click (View v) {
+    protected void click(View v) {
         // TouchUtils.clickView(this, v);
         solo.clickOnView(v);
     }
 
-    protected void longClick (View v) {
+    protected void longClick(View v) {
         solo.clickLongOnView(v);
     }
 
-    public void home () {
+    public void home() {
 
         // Scroll listviews up
         final ArrayList<ListView> viewList = solo.getCurrentViews(ListView.class);
@@ -705,8 +759,8 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     public void restart() {
         if (FORCE_RESTART) {
             ContextWrapper main = new ContextWrapper(solo.getCurrentActivity());
-            Intent i = main.getBaseContext().getPackageManager().getLaunchIntentForPackage(main.getBaseContext().getPackageName() );
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
+            Intent i = main.getBaseContext().getPackageManager().getLaunchIntentForPackage(main.getBaseContext().getPackageName());
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             main.startActivity(i);
         }
     }
@@ -741,18 +795,18 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         if (type.endsWith("EditText"))
             return EDIT_TEXT;
         if (type.endsWith("Spinner")) {
-            Spinner s = (Spinner)v;
+            Spinner s = (Spinner) v;
             if (s.getCount() == 0) return EMPTY_SPINNER;
             return SPINNER;
         }
         if (type.endsWith("SeekBar"))
             return SEEK_BAR;
-        if (v instanceof RatingBar && (!((RatingBar)v).isIndicator()))
+        if (v instanceof RatingBar && (!((RatingBar) v).isIndicator()))
             return RATING_BAR;
         if (type.endsWith("TabHost"))
             return TAB_HOST;
         if (type.endsWith("ListView") || type.endsWith("ExpandedMenuView")) {
-            ListView l = (ListView)v;
+            ListView l = (ListView) v;
             if (l.getCount() == 0) return EMPTY_LIST;
 
             if (l.getAdapter().getClass().getName().endsWith("PreferenceGroupAdapter")) {
@@ -760,9 +814,12 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             }
 
             switch (l.getChoiceMode()) {
-                case ListView.CHOICE_MODE_NONE: return LIST_VIEW;
-                case ListView.CHOICE_MODE_SINGLE: return SINGLE_CHOICE_LIST;
-                case ListView.CHOICE_MODE_MULTIPLE: return MULTI_CHOICE_LIST;
+                case ListView.CHOICE_MODE_NONE:
+                    return LIST_VIEW;
+                case ListView.CHOICE_MODE_SINGLE:
+                    return SINGLE_CHOICE_LIST;
+                case ListView.CHOICE_MODE_MULTIPLE:
+                    return MULTI_CHOICE_LIST;
             }
         }
         if (type.endsWith("TextView"))
@@ -778,11 +835,11 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         return "";
     }
 
-    protected void assertNotNull (final View v) {
+    protected void assertNotNull(final View v) {
         ActivityInstrumentationTestCase2.assertNotNull(v);
     }
 
-    protected void assertNotNull (final View v, String errorMessage) {
+    protected void assertNotNull(final View v, String errorMessage) {
         ActivityInstrumentationTestCase2.assertNotNull(errorMessage, v);
     }
 
@@ -790,32 +847,32 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         getInstrumentation().waitForIdleSync();
     }
 
-    public void debug (String msg) {
-        Log.d("nofatclips",msg);
-        for (View x: getWidgets().values()) {
+    public void debug(String msg) {
+        Log.d("nofatclips", msg);
+        for (View x : getWidgets().values()) {
             if (x instanceof TextView) {
-                Log.i("nofatclips", ((TextView)x).getText().toString() + "[" + x.toString() + "]: " + x.getId());
+                Log.i("nofatclips", ((TextView) x).getText().toString() + "[" + x.toString() + "]: " + x.getId());
             } else {
                 Log.i("nofatclips", "[" + x.toString() + "]: " + x.getId());
             }
         }
     }
 
-    public String report(int id, ActivityDescription ad){
+    public String report(int id, ActivityDescription ad) {
         //TODO
         //1. get state from shouldBeState
         //2. judge whether equals
         //3. report!
-        try{
-            if(shouldBeState.get(id).equals(ad)){
+        try {
+            if (shouldBeState.get(id).equals(ad)) {
                 Path path = Paths.get("reportPath.txt");
                 BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
                 writer.append("REPORT The State in testTrace" + id + "is not equal the final state.\n");
-                writer.append("It should be :\n" + shouldBeState.get(id)+"\n");
-                writer.append("But actually is :\n"+ad.toString()+"\n\n");
+                writer.append("It should be :\n" + shouldBeState.get(id) + "\n");
+                writer.append("But actually is :\n" + ad.toString() + "\n\n");
                 writer.close();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -823,26 +880,32 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 
     }
 
-    public HashMap ADDeserialized(){
+    public HashMap ADDeserialized() {
 
         Path path = Paths.get("SerializableState.txt");
-        try{
+        try {
             BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
             String s = bufferedReader.readLine();
             JSONObject jsonObject = JSON.parseObject(s);
             HashMap<Integer, ActivityDescription> map = new HashMap<>();
-            for(String key : jsonObject.keySet()){
+            for (String key : jsonObject.keySet()) {
                 ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
                 map.put(Integer.parseInt(key), ad);
             }
             return map;
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    protected void operation0(Boolean obj_0){this.solo.setMobileData(obj_0);}protected void operation1(Boolean obj_0){this.solo.setMobileData(obj_0);}
+    protected void operation0(Boolean obj_0) {
+        this.solo.setMobileData(obj_0);
+    }
+
+    protected void operation1(Boolean obj_0) {
+        this.solo.setMobileData(obj_0);
+    }
 
 }
 
