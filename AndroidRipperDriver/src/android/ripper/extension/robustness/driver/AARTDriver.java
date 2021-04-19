@@ -151,14 +151,14 @@ public class AARTDriver extends AbstractDriver {
 			for (int i = event.getInputs().size(); i > 0; i--) {
 				waitAck();
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ignored) {
-			}
 		}
 		else {
 			rsSocket.sendEvent(event);
 			waitAck();
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException ignored) {
 		}
 	}
 
