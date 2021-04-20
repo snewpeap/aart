@@ -23,6 +23,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
+
 import android.annotation.SuppressLint;
 import android.util.Log;
 
@@ -64,7 +66,7 @@ public class ReflectionHelper
 	{
 		for (Class<?> myInterface : myClass.getInterfaces())
 		{
-			if (myInterface.getCanonicalName().equals(interfaceName))
+			if (Objects.equals(myInterface.getCanonicalName(), interfaceName))
 				return true;
 		}
 		return false;
@@ -110,7 +112,7 @@ public class ReflectionHelper
 				return true;
 			}
 			
-			if (fieldClass.getCanonicalName().equals(interfaceName))
+			if (Objects.equals(fieldClass.getCanonicalName(), interfaceName))
 			{
 				Log.v(TAG, "Found field inline definition : " + interfaceName  + " in " + fieldClass.getCanonicalName());
 				return true;
