@@ -4,7 +4,7 @@
     <property name="shared_dist" value="../intermediate"/>
     <target name="build_ripper_shared_jar">
         <jar destfile="${shared_dist}/ripper_shared.jar">
-            <fileset dir="bin" includes="it/unina/android/shared/**"/>
+            <fileset dir="bin" includes="**/it/unina/android/shared/**"/>
         </jar>
     </target>
 </project>

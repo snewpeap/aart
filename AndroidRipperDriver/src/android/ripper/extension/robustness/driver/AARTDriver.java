@@ -30,8 +30,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
+//import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
 
 /**
@@ -45,10 +46,11 @@ public class AARTDriver extends AbstractDriver {
 	private String loopStartTime = LOGCAT_TIME_FORMAT.format(0);
 
 	private final HashMap<State, State> states = new HashMap<>();
-	private final SortedSet<Transition> transitions = new TreeSet<>(Comparator.comparing(Transition::getId));
+	private final HashMap<Transition, Transition> transitions = new HashMap<>();
 	private State prevState = null;
 	private State lastSavedState = null;
 	private State currState;
+	private Transition lastTransition;
 
 	private final SchedulerEnhancement yabScheduler;
 	private final TestSuiteGenerator testSuiteGenerator;
@@ -64,25 +66,31 @@ public class AARTDriver extends AbstractDriver {
 			Task taskJustDone = null;
 			while (true) {
 				currState = getCurrentDescriptionAsState();
-				if (states.isEmpty()) {					//the beginning of everything
+				if (states.isEmpty()) {                    //the beginning of everything
 					currState.setUid(State.LOWEST_UID);
 					addNewState();
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
 					if (State.EXIT_STATE.equals(currState)) {
-						transitions.add(TransitionHelper.v(prevState, currState, taskJustDone));
+						Transition transition = TransitionHelper.v(prevState, currState, taskJustDone);
+						if ((lastTransition = transitions.putIfAbsent(transition, transition)) == null) {
+							lastTransition = transition;
+						}
 						notifyRipperLog("Accidentally exit AUT");
 						break;
-					} else if (states.containsKey(currState)) {	//already occurred state
+					} else if (states.containsKey(currState)) {    //already occurred state
 						currState = states.get(currState);
-					} else {									//brand new state
+					} else {                                    //brand new state
 						currState.setUid(increaseUid(lastSavedState.getUid()));
 						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
-					if (prevState != null && taskJustDone != null && !taskJustDone.isEmpty())	//normal transition
-						transitions.add(TransitionHelper.v(prevState, currState, taskJustDone));
-					else					//null prevState and nonempty states set mean accident
+					if (prevState != null && taskJustDone != null && !taskJustDone.isEmpty()) {
+						Transition transition = TransitionHelper.v(prevState, currState, taskJustDone);
+						if ((lastTransition = transitions.putIfAbsent(transition, transition)) == null) {
+							lastTransition = transition;
+						}
+					} else                    //null prevState and nonempty states set mean accident
 						yabScheduler.needRecovery();
 				}
 				ListIterator<IEvent> taskTodo = yabScheduler.nextTaskIterator();
@@ -102,7 +110,7 @@ public class AARTDriver extends AbstractDriver {
 		//TODO Model output
 
 		if (generateTestSuite)
-			testSuiteGenerator.generate(new TreeSet<>(transitions));
+			testSuiteGenerator.generate(new HashSet<>(transitions.values()));
 		notifyRipperEnded();
 	}
 
@@ -136,9 +144,11 @@ public class AARTDriver extends AbstractDriver {
 			try {
 				if ((message = rsSocket.readMessage(1000, false)) != null)
 					return message;
-			} catch (SocketException ignored) {}
+			} catch (SocketException ignored) {
+			}
 		}
-		throw new RipperNullMsgException(AARTDriver.class, caller() + "->" + here(), "readMessage()");
+		return null;
+//		throw new RipperNullMsgException(AARTDriver.class, caller() + "->" + here(), "readMessage()");
 	}
 
 	public void executeEvent(Event event) {
@@ -151,14 +161,13 @@ public class AARTDriver extends AbstractDriver {
 			for (int i = event.getInputs().size(); i > 0; i--) {
 				waitAck();
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ignored) {
-			}
-		}
-		else {
+		} else {
 			rsSocket.sendEvent(event);
 			waitAck();
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException ignored) {
 		}
 	}
 
@@ -198,6 +207,15 @@ public class AARTDriver extends AbstractDriver {
 		waitAck();
 
 		uninstallAPKs(false);
+	}
+
+	@Override
+	public boolean checkTerminationCriteria() {
+		for (TerminationCriterion tc : terminationCriteria) {
+			if (tc.check())
+				return true;
+		}
+		return false;
 	}
 
 	public final State getCurrentDescriptionAsState() {
@@ -288,23 +306,25 @@ public class AARTDriver extends AbstractDriver {
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
 		private Task pathToPivot = null;
+		private static final int MAX_FAIL = 3;
+		private int fail = MAX_FAIL;
 
 		@Override
 		public ListIterator<IEvent> nextTaskIterator() {
 			ListIterator<IEvent> nextTask = null;
-			if (back) {	//have to go back to pivot
+			if (back) {    //have to go back to pivot
 				if (currState.equals(pivot.getKey())) {
 					notifyRipperLog("A loop at pivot, continue...");
 					ListIterator<Task> iter = pivot.getValue().getIterator();
 					nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
 				} else {
-					TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
+					TransitionInfo transitionInfo = (TransitionInfo) lastTransition;
 					//learn from former transitions then make recommend
-					nextTask = transitionInfo.learnToBack(transitions).backRecommend();
+					nextTask = transitionInfo.learnToBack(transitions.values()).backRecommend();
 					notifyRipperLog("Going back...");
 					back = false;
 				}
-			} else {	//at pivot, or need to recover to pivot
+			} else {    //at pivot, or need to recover to pivot
 				if (pivot == null) {
 					pivot = Pair.of(currState, schedule.get(currState));
 					ListIterator<Task> iter = pivot.getValue().getIterator();
@@ -312,24 +332,29 @@ public class AARTDriver extends AbstractDriver {
 						nextTask = nextTaskAtPivot(iter);
 					}
 				} else {
-					TransitionInfo transitionInfo = (TransitionInfo) transitions.last();
-					if (currState.equals(pivot.getKey())) {	//current state should be pivot state if back as expected
-						recovery = false;                	//if not, null would be returned
+					TransitionInfo transitionInfo = (TransitionInfo) lastTransition;
+					if (currState.equals(pivot.getKey())) {    //current state should be pivot state if back as expected
+						recovery = false;                    //if not, null would be returned
 						notifyRipperLog("We're at pivot!");
-						transitionInfo.goodFeedback();   	//last back was done great
+						transitionInfo.goodFeedback();    //last back was done great
 						ListIterator<Task> iter = pivot.getValue().getIterator();
 						//hasNext() == true: current pivot has remaining task to execute
 						//else: pivot has been completely searched, so choose a "downstream" state as the new pivot
 						nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
-					} else if (recovery) {    			//need recovery...
+					} else if (recovery) {                //need recovery...
 						notifyRipperLog("Recovering...");
-						transitionInfo.poorFeedback();	//...because last back event is not the right one
-						if (pathToPivot == null) {
+						transitionInfo.poorFeedback();    //...because last back event is not the right one
+						if (fail == 0) {
+							recovery = false;
+							nextTask = newPivotAndNextTask();
+						} else if (pathToPivot == null) {
 							recovery = false;
 							ListIterator<Task> iter = pivot.getValue().getIterator();
 							nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
-						} else
+						} else {
+							fail -= 1;
 							nextTask = pathToPivot.listIterator(0);
+						}
 					}
 				}
 			}
@@ -342,7 +367,8 @@ public class AARTDriver extends AbstractDriver {
 		}
 
 		@Override
-		public void addTask(Task t) {}
+		public void addTask(Task t) {
+		}
 
 		@Override
 		public void addTasks(TaskList taskList) {
@@ -356,7 +382,8 @@ public class AARTDriver extends AbstractDriver {
 		}
 
 		@Override
-		public void clear() {}
+		public void clear() {
+		}
 
 		/**
 		 * Assign pivot to a "downstream" state of the current state, meanwhile current state is marked pivoted,
@@ -366,30 +393,33 @@ public class AARTDriver extends AbstractDriver {
 		 * @return latest transition task to new pivot state, or null when no new pivot
 		 */
 		private Task assignNextPivot() {
-			State prevPivot = this.pivot.getKey();
+			State prevPivot = pivot.getKey();
 			pivoted.add(prevPivot.getUid());
-			transitions.stream()
-					.filter(t -> {
-						State to = t.getToState();
-						boolean notInDeque = bfsDeque.isEmpty();
-						if (!notInDeque) {
-							notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
-						}
-						return t.getFromState().equals(prevPivot) &&
-								!State.EXIT_STATE.equals(to) &&
-								!pivoted.contains(to.getUid()) &&
-								notInDeque;
-					})//enqueue bfs target, possibly no state enqueue
+			List<Transition> collect = transitions.values().stream()
+					.sorted(Comparator.comparing(t -> t.getToState().getUid(), Comparator.comparingInt(Integer::parseInt)))
+					.collect(Collectors.toList());
+			collect.stream().filter(t -> {
+				State to = t.getToState();
+				boolean notInDeque = bfsDeque.isEmpty();
+				if (!notInDeque) {
+					notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
+				}
+				return notInDeque &&
+						!pivoted.contains(to.getUid()) &&
+						!State.EXIT_STATE.equals(to) &&
+						t.getFromState().equals(prevPivot);
+			})//enqueue bfs target, possibly no state enqueue
 					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
 
 			Task task = new Task();
 			if (!bfsDeque.isEmpty()) {
+				fail = MAX_FAIL;
 				State newPivot = bfsDeque.removeLast();
-				this.pivot = Pair.of(newPivot, schedule.get(newPivot));
+				pivot = Pair.of(newPivot, schedule.get(newPivot));
 				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
 				Transition lastTransitionToNewPivot = null;
-				for (Transition t : transitions) {
+				for (Transition t : collect) {
 					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot)) {
 						lastTransitionToNewPivot = t;
 						break;

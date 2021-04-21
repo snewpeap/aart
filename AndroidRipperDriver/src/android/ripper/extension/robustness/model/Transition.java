@@ -35,9 +35,9 @@ public class Transition {
 		return task;
 	}
 
-	public List<Event> getEvents(){
+	public List<Event> getEvents() {
 		List<Event> events = new ArrayList<>();
-		for(IEvent iEvent : task){
+		for (IEvent iEvent : task) {
 			events.add((Event) iEvent);
 		}
 		return events;

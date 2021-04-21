@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Diary" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="it.unina.android.ripper.boundary.AndroidRipper" />
+    <module name="AndroidRipperNewDriver" />
+    <option name="PROGRAM_PARAMETERS" value="./Diary_v1.26.apk ./my.properties" />
+    <option name="WORKING_DIRECTORY" value="../2pack" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/androidripperdriver.xml" target="build" />
+    </method>
+  </configuration>
+</component>

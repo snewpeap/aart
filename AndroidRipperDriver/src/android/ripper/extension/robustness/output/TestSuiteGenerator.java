@@ -11,9 +11,12 @@ import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Set;
 
 public class TestSuiteGenerator {
@@ -130,11 +133,13 @@ public class TestSuiteGenerator {
         String target = "";
         System.out.println("Starting TestSuiteGenerator...");
         try {
-            Path path = Paths.get("TestSuiteExample.txt");
+            URI templatePath = Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("TestSuiteExample.txt")).toURI();
+            Path path = Paths.get(templatePath);
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             target = target.replaceAll("<CLASS_NAME>", "\"" + CLASS_NAME + "\"");
             Files.write(Paths.get(testSuitePath), target.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException ioException) {
+        } catch (IOException | URISyntaxException ioException) {
             ioException.printStackTrace();
         }
     }
