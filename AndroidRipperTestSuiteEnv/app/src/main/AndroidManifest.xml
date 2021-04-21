@@ -5,6 +5,8 @@
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
         android:targetPackage="org.billthefarmer.diary"/>
-
+    <application android:icon="@mipmap/ic_launcher" android:label="@string/app_name">
+        <uses-library android:name="android.test.runner"/>
+    </application>
 
 </manifest>
