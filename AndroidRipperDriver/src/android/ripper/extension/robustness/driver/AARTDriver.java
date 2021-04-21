@@ -166,7 +166,7 @@ public class AARTDriver extends AbstractDriver {
 			waitAck();
 		}
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException ignored) {
 		}
 	}
@@ -220,6 +220,7 @@ public class AARTDriver extends AbstractDriver {
 
 	public final State getCurrentDescriptionAsState() {
 		try {
+			Thread.sleep(500);
 			String cd;
 			try {
 				cd = getCurrentDescription();
@@ -228,7 +229,7 @@ public class AARTDriver extends AbstractDriver {
 			}
 			return new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
 					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			throw new RipperRuntimeException(AARTDriver.class, here(), e.getMessage(), e);
 		}
 	}
@@ -239,8 +240,8 @@ public class AARTDriver extends AbstractDriver {
 			Actions.pushToSD(Paths.get(TEMP_PATH, "aut.apk").toAbsolutePath().toString());
 			Actions.pushToSD(Paths.get(TEMP_PATH, "ripper.apk").toAbsolutePath().toString());
 		}
-		if (device.isVirtualDevice())
-			device.unlockDevice();
+//		if (device.isVirtualDevice())
+//			device.unlockDevice();
 
 		//install and start service
 		if (Actions.checkApplicationInstalled(RIPPER_SERVICE_PKG))
@@ -372,7 +373,7 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public void addTasks(TaskList taskList) {
-			if (taskList != null)
+			if (taskList != null && !taskList.isEmpty())
 				schedule.putIfAbsent(currState, taskList);
 		}
 
@@ -405,9 +406,10 @@ public class AARTDriver extends AbstractDriver {
 					notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
 				}
 				return notInDeque &&
+						t.getFromState().equals(prevPivot) &&
 						!pivoted.contains(to.getUid()) &&
 						!State.EXIT_STATE.equals(to) &&
-						t.getFromState().equals(prevPivot);
+						schedule.containsKey(to);
 			})//enqueue bfs target, possibly no state enqueue
 					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
 
