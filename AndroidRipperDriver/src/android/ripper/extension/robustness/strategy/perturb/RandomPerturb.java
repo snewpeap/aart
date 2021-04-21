@@ -11,50 +11,56 @@ import java.util.Random;
 public class RandomPerturb implements Perturb {
 
     private final static String callRecover = "recover(<ARGS0>);";
-    private final static String fireEvent = "fireEvent (<widgetId>, <widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
-    private final static String fireEventWithoutWidgetId = "fireEvent(<widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
+    private final static String WIDGETINDEX = "<widgetIndex>";
+    private final static String WIDGETID = "<widgetId>";
+    private final static String WIDGETNAME = "<widgetName>";
+    private final static String WIDGETTYPE = "<widgetType>";
+    private final static String EVENTTYPE = "<eventType>";
+    private final static String VALUE = "<value>";
+    private final static String fireEvent1 = "fireEvent(<widgetId>, <widgetIndex>, <widgetType>, <eventType>, <value>)";
+    private final static String fireEvent2 = "fireEvent (<widgetId>, <widgetIndex>, <widgetName>, <widgetType>, <eventType>)";
+    private final static String fireEvent3 = "fireEvent(<widgetIndex>,<widgetName>, <widgetType>, <eventType>)";
+    private final static String fireEvent4 = "fireEvent (<widgetId>, <widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
+    private final static String fireEvent5 = "fireEvent (<widgetIndex>, <widgetName>, <widgetType>, <eventType>, <value>)";
+
     /**
      * call perturb function in test suite generator.
-     * @return
+     *
+     * @return TestCase
      */
     @Override
-    public String perturb(Transition transition,  OperationFactory operationFactory){
+    public String perturb(Transition transition, OperationFactory operationFactory) {
 
         StringBuilder testTrace = new StringBuilder();
         List<Event> events = transition.getEvents();
         for (Event event : events) {
             WidgetDescription wd = event.getWidget();
-            if(wd != null) {
-                String eventType = getDefault(event.getInteraction());
-                String widgetType = getDefault(wd.getSimpleType());
+            if (wd != null) {
+                String eventType = event.getInteraction();
+                String widgetType = wd.getSimpleType();
                 int widgetId = wd.getId();
                 int widgetIndex = wd.getIndex();
-                String widgetName = getDefault(wd.getName());
-                String value = getDefault(wd.getValue());
-                if(widgetId != -1)
-                {
-                    testTrace.append(fireEvent.replaceFirst("<widgetId>", String.valueOf(widgetId))
-                            .replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
-                            .replaceFirst("<widgetName>", widgetName)
-                            .replaceFirst("<widgetType>", widgetType)
-                            .replaceFirst("<eventType>", eventType)
-                            .replaceFirst("<value>", value)).append(";");
+                String widgetName = wd.getName();
+                String value = wd.getValue();
+                if (widgetIndex == -1) {
+                    if (value == null)
+                        testTrace.append(fireEvent3.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType));
+                    else
+                        testTrace.append(fireEvent5.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
+                } else {
+                    if (widgetName == null && value != null)
+                        testTrace.append(fireEvent1.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
+                    if (widgetName != null && value == null)
+                        testTrace.append(fireEvent2.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType));
+                    if (widgetName != null && value != null)
+                        testTrace.append(fireEvent4.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
                 }
-                else{
-                    testTrace.append(fireEventWithoutWidgetId.replaceFirst("<widgetIndex>", String.valueOf(widgetIndex))
-                            .replaceFirst("<widgetName>", widgetName)
-                            .replaceFirst("<widgetType>", widgetType)
-                            .replaceFirst("<eventType>", eventType)
-                            .replaceFirst("<value>", value)).append(";");
-                }
-            }
-            else if(event.getInteraction() != null){
-                //TODO add back event
-                testTrace.append("injectInteraction(null, \"").append(event.getInteraction()).append("\", null);");
+            } else if (event.getInteraction() != null) {
+                testTrace.append("injectInteraction(null, \"").append(event.getInteraction()).append("\", ").append("null").append(");");
             }
         }
 
-        if(new Random().nextBoolean()){
+        if (new Random().nextBoolean()) {
             testTrace.append(operationFactory.buildCall());
         }
 
@@ -62,8 +68,13 @@ public class RandomPerturb implements Perturb {
         return testTrace.toString();
     }
 
-    private String getDefault(String s){
-        if(s == null || s.length() == 0) return "null";
+    private String getDefaultUsingNull(String s) {
+        if (s == null || s.length() == 0) return "null";
+        else return "\"" + s + "\"";
+    }
+
+    private String getDefaultUsingEmpty(String s) {
+        if (s == null || s.length() == 0) return "\"\"";
         else return "\"" + s + "\"";
     }
 
