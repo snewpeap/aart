@@ -1028,5 +1028,29 @@ public class Actions {
 		}
 		return has;
 	}
-	
+
+	public static boolean progressingNotificationShowing(String AUT_Package) {
+		boolean has = false;
+		try	{
+			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "dumpsys", "notification");
+			BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
+			String line;
+			while ((line = input.readLine()) != null) {
+				if (line.trim().startsWith("NotificationRecord") && line.contains("pkg=" + AUT_Package)) {
+					while ((line = input.readLine()) != null) {
+						line = line.trim();
+						if ((has = line.startsWith("android.progress")) || !(has = !line.startsWith("mArchive=Archive"))) {
+							break;
+						}
+					}
+					break;
+				}
+			}
+			input.close();
+			p.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return has;
+	}
 }

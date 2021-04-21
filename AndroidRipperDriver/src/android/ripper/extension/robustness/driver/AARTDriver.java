@@ -166,7 +166,7 @@ public class AARTDriver extends AbstractDriver {
 			waitAck();
 		}
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		} catch (InterruptedException ignored) {
 		}
 	}
@@ -220,7 +220,16 @@ public class AARTDriver extends AbstractDriver {
 
 	public final State getCurrentDescriptionAsState() {
 		try {
-			Thread.sleep(500);
+			int i = 0;
+			while (i < 20) {
+				Thread.sleep(1000);
+				if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
+					notifyRipperLog("AUT is doing something in background, waiting...");
+				} else {
+					break;
+				}
+				i++;
+			}
 			String cd;
 			try {
 				cd = getCurrentDescription();

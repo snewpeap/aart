@@ -58,5 +58,6 @@ public class InteractionType {
 	public final static String INCOMING_SMS_EVENT = "incomingSMSEvent";
 	public final static String INCOMING_CALL_EVENT = "incomingCallEvent";
 	public final static String FOCUS = "focus";
-	public final static String DRAG = "drag";	
+	public final static String DRAG = "drag";
+	public static final String IDLE = "idle";
 }

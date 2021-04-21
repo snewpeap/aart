@@ -571,7 +571,7 @@ public abstract class AbstractDriver {
 
 		try {
 			do {
-				notifyRipperLog("Ping...");
+//				notifyRipperLog("Ping...");
 				Message m = rsSocket.ping();
 
 				if (m != null && m.getType().equals(MessageType.PONG_MESSAGE)) {
