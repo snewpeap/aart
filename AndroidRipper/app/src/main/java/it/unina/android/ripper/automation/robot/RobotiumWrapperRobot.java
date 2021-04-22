@@ -33,6 +33,7 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -156,6 +157,17 @@ public class RobotiumWrapperRobot implements IRobot
 	@Override
 	public void typeText (EditText v, String value) {
 		solo.enterText(v, value);
+		int imeOp = v.getImeOptions();
+		if (!value.isEmpty()
+				&& (imeOp == EditorInfo.IME_ACTION_GO ||
+				imeOp == EditorInfo.IME_ACTION_SEARCH)) {
+			solo.clickOnView(v);
+			if (imeOp == EditorInfo.IME_ACTION_GO) {
+				solo.pressSoftKeyboardGoButton();
+			} else {
+				solo.pressSoftKeyboardSearchButton();
+			}
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -164,7 +176,8 @@ public class RobotiumWrapperRobot implements IRobot
 	@Override
 	public void writeText (EditText v, String value) {
 		typeText (v, "");
-		typeText (v, value);
+		if (!value.isEmpty())
+			typeText (v, value);
 	}
 	
 	/* (non-Javadoc)
