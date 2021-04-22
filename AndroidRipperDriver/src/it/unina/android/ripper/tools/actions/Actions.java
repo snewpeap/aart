@@ -1053,4 +1053,14 @@ public class Actions {
 		}
 		return has;
 	}
+
+	public static void turnoffAnimation() {
+		try {
+			AndroidTools.adb("-s", DEVICE, "shell", "settings", "put", "global", "window_animation_scale", "0.0");
+			AndroidTools.adb("-s", DEVICE, "shell", "settings", "put", "global", "transition_animation_scale", "0.0");
+			AndroidTools.adb("-s", DEVICE, "shell", "settings", "put", "global", "animator_duration_scale", "0.0");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 //import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
+import static android.ripper.extension.robustness.model.State.EXIT_STATE;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
 
 /**
@@ -71,7 +72,7 @@ public class AARTDriver extends AbstractDriver {
 					addNewState();
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
-					if (State.EXIT_STATE.equals(currState)) {
+					if (EXIT_STATE.equals(currState)) {
 						Transition transition = TransitionHelper.v(prevState, currState, taskJustDone);
 						if ((lastTransition = transitions.putIfAbsent(transition, transition)) == null) {
 							lastTransition = transition;
@@ -219,31 +220,42 @@ public class AARTDriver extends AbstractDriver {
 	}
 
 	public final State getCurrentDescriptionAsState() {
-		try {
-			int i = 0;
-			while (i < 20) {
-				Thread.sleep(1000);
-				if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
-					notifyRipperLog("AUT is doing something in background, waiting...");
-				} else {
+		State state = EXIT_STATE;
+		for (int j = 0; j < 2; j++) {
+			try {
+				int i = 0;
+				while (i < 20) {
+					Thread.sleep(1000);
+					if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
+						notifyRipperLog("AUT is doing something in background, waiting...");
+					} else {
+						break;
+					}
+					i++;
+				}
+				String cd;
+				try {
+					cd = getCurrentDescription();
+				} catch (RipperRuntimeException e) {
 					break;
 				}
-				i++;
+				state = new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
+						.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
+				if (state.getWidgets().parallelStream().anyMatch(w -> w.getClassName().contains("ProgressBar"))) {
+					Thread.sleep(3000);
+				}
+				if (state.getWidgets().parallelStream().filter(w -> w.getDepth() == 0).count() < 3) {
+					break;
+				}
+			} catch (IOException | InterruptedException e) {
+				throw new RipperRuntimeException(AARTDriver.class, here(), e.getMessage(), e);
 			}
-			String cd;
-			try {
-				cd = getCurrentDescription();
-			} catch (RipperRuntimeException e) {
-				return State.EXIT_STATE;
-			}
-			return new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
-					.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
-		} catch (IOException | InterruptedException e) {
-			throw new RipperRuntimeException(AARTDriver.class, here(), e.getMessage(), e);
 		}
+		return state;
 	}
 
 	private void setupEnvironment() {
+		Actions.turnoffAnimation();
 		endRipperTask(false, false);
 		if (INSTALL_FROM_SDCARD) {
 			Actions.pushToSD(Paths.get(TEMP_PATH, "aut.apk").toAbsolutePath().toString());
@@ -316,8 +328,12 @@ public class AARTDriver extends AbstractDriver {
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
 		private Task pathToPivot = null;
-		private static final int MAX_FAIL = 3;
+		private static final int MAX_FAIL = 2;
 		private int fail = MAX_FAIL;
+
+		public YetAnotherBreadthScheduler() {
+			pivoted.add("0");
+		}
 
 		@Override
 		public ListIterator<IEvent> nextTaskIterator() {
@@ -404,23 +420,20 @@ public class AARTDriver extends AbstractDriver {
 		 */
 		private Task assignNextPivot() {
 			State prevPivot = pivot.getKey();
-			pivoted.add(prevPivot.getUid());
 			List<Transition> collect = transitions.values().stream()
 					.sorted(Comparator.comparing(t -> t.getToState().getUid(), Comparator.comparingInt(Integer::parseInt)))
+					.filter(t -> t.getFromState().equals(prevPivot))
 					.collect(Collectors.toList());
+			//enqueue bfs target, possibly no state enqueue
 			collect.stream().filter(t -> {
 				State to = t.getToState();
-				boolean notInDeque = bfsDeque.isEmpty();
-				if (!notInDeque) {
-					notInDeque = Integer.parseInt(bfsDeque.getFirst().getUid()) < Integer.parseInt(to.getUid());
-				}
-				return notInDeque &&
-						t.getFromState().equals(prevPivot) &&
+				return !EXIT_STATE.equals(to) &&
 						!pivoted.contains(to.getUid()) &&
-						!State.EXIT_STATE.equals(to) &&
 						schedule.containsKey(to);
-			})//enqueue bfs target, possibly no state enqueue
-					.map(Transition::getToState).distinct().forEachOrdered(bfsDeque::push);
+			}).map(Transition::getToState).distinct().forEachOrdered(e -> {
+				pivoted.add(e.getUid());
+				bfsDeque.push(e);
+			});
 
 			Task task = new Task();
 			if (!bfsDeque.isEmpty()) {
@@ -429,19 +442,19 @@ public class AARTDriver extends AbstractDriver {
 				pivot = Pair.of(newPivot, schedule.get(newPivot));
 				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
-				Transition lastTransitionToNewPivot = null;
+				Transition transitionToNewPivot = null;
 				for (Transition t : collect) {
-					if (t.getFromState().equals(prevPivot) && t.getToState().equals(newPivot)) {
-						lastTransitionToNewPivot = t;
+					if (t.getToState().equals(newPivot)) {
+						transitionToNewPivot = t;
 						break;
 					}
 				}
-				if (lastTransitionToNewPivot == null) {
+				if (transitionToNewPivot == null) {
 					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
 							prevPivot.getUid(), newPivot.getUid()));
 					task = null;
 				} else {
-					task = lastTransitionToNewPivot.getTask();
+					task = transitionToNewPivot.getTask();
 				}
 			} else {
 				pivot = null;

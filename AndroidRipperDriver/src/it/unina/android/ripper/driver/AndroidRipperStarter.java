@@ -685,7 +685,7 @@ public class AndroidRipperStarter {
 			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/ripper.apk",
 					debugKeyStorePath,
 					tempPath));
-
+			Files.delete(Paths.get(tempPath, "ar.apk"));
 			Files.copy(FileSystems.getDefault().getPath(autAPK),
 					FileSystems.getDefault().getPath(tempPath + "/temp.apk"),
 					StandardCopyOption.REPLACE_EXISTING);
@@ -700,6 +700,7 @@ public class AndroidRipperStarter {
 			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/aut.apk",
 					debugKeyStorePath,
 					tempPath));
+			Files.delete(Paths.get(tempPath, "temp.apk"));
 
 		} catch (Exception t) {
 			throw new RipperRuntimeException(AndroidRipperStarter.class, "createAPKs", "apk build failed", t);

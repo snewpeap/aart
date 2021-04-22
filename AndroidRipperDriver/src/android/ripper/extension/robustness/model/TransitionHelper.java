@@ -76,7 +76,7 @@ public class TransitionHelper {
 			return recommend.listIterator(index);
 		}
 
-		public LinkedList<Event> getPossibleBackEvents() {
+		protected LinkedList<Event> getPossibleBackEvents() {
 			if (possibleBackEvents.isEmpty()) {
 
 				Map<Predicate<Event>, Function<Event, Event>> backs = new HashMap<>(backKnowledge);
@@ -107,7 +107,6 @@ public class TransitionHelper {
 				for (Map.Entry<Predicate<Event>, Function<Event, Event>> e : backs.entrySet()) {
 					if (e.getKey().test(tail)) {
 						possibleBackEvents.addLast(e.getValue().apply(tail));
-						needLearning = false;
 						break;
 					}
 				}

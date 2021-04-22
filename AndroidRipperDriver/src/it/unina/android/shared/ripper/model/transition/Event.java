@@ -166,10 +166,21 @@ public class Event implements Serializable, IEvent {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Event) {
-			Event e = (Event)o;
-			return ObjectTool.propEquals(widget, e.widget, WidgetDescription::getId) &&
-					Objects.equals(interaction, e.interaction) &&
-					Objects.equals(value, e.value);
+			Event e = (Event) o;
+			boolean equals;
+			if (inputs == null && e.inputs == null) {
+				equals = Objects.equals(widget, e.widget) &&
+						Objects.equals(interaction, e.interaction);
+			} else if (equals = inputs != null && e.inputs != null) {
+				if (equals = inputs.size() == e.inputs.size()) {
+					for (int i = 0; i < inputs.size(); i++) {
+						Input thisInput = inputs.get(i), thatInput = e.inputs.get(i);
+						equals = Objects.equals(thisInput.getInputType(), thatInput.getInputType()) &&
+								Objects.equals(thisInput.getWidget(), thatInput.getWidget());
+					}
+				}
+			}
+			return equals;
 		}
 		return false;
 	}
