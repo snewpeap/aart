@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import com.robotium.solo.Solo;
+import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.test.extractor.IExtractor;
 import android.ripper.extension.test.extractor.ReflectionExtractor;
 import android.view.View;
@@ -19,25 +20,13 @@ import android.view.Display;
 import android.view.WindowManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-
 import android.test.ActivityInstrumentationTestCase2;
-
-import it.unina.android.shared.ripper.model.state.ActivityDescription;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import static android.content.Context.WINDOW_SERVICE;
 import static android.view.Surface.*;
-
 @SuppressWarnings("rawtypes")
 public class TestSuite extends ActivityInstrumentationTestCase2 {
 
@@ -118,8 +107,8 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 	public final static String RELATIVE_LAYOUT = "relativeLayout";
 	public final static String FOCUSABLE_EDIT_TEXT = "focusableEditText";
 	public final static String[] PRECRAWLING = {};
-	public ObjectMapper mapper = new ObjectMapper();
 	private IExtractor extractor;
+	public ObjectMapper objectMapper = new ObjectMapper();
 	private static Class<?> theClass;
 	static {
 		try {
@@ -760,16 +749,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 		}
 	}
 
-    public void report(String shouldBeState, ActivityDescription ad) {
+    public void report(State shouldBeState, State actual, int id) {
         //TODO
         //1. get state from shouldBeState
         //2. judge whether equals
         //3. report!
         try {
-            if (!shouldBeState.equals(ad.toString())) {
-				Log.e(TestTag, "report: State is Different in " + id);
-				Log.e(TestTag, "It should be :\n" + shouldBeState.get(id));
-				Log.e(TestTag, "But actually is :\n" + ad);
+            if (!shouldBeState.equals(actual)) {
+                Log.e(TestTag, "report: State is Different in " + id);
+                Log.e(TestTag, "It should be :\n" + shouldBeState);
+                Log.e(TestTag, "But actually is :\n" + actual);
             }
         } catch (Exception e) {
             e.printStackTrace();

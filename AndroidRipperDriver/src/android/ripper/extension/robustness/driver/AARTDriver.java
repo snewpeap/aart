@@ -61,6 +61,7 @@ public class AARTDriver extends AbstractDriver {
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
+		int i = 0;
 		do {
 			readyToLoop();
 
@@ -104,9 +105,9 @@ public class AARTDriver extends AbstractDriver {
 				taskJustDone = iterToTask(taskTodo);
 				prevState = currState;
 			}
-
+			i++;
 			endLoop();
-		} while (running && !checkTerminationCriteria());
+		} while (running && !checkTerminationCriteria() && i<5);
 
 		//TODO Model output
 

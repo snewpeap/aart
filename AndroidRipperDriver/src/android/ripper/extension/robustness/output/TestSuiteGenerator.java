@@ -6,6 +6,8 @@ import android.ripper.extension.robustness.strategy.Perturb;
 import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +26,9 @@ public class TestSuiteGenerator {
     private final String testcase = "<TEST_TRACE_ID>";
     private final String perturb_ = "<PERTURB_FUNCTION>";
     private final String reportPath = "reportPath.txt";
+    private static int CLASS_INDEX = -1;
+    private static int STATE_INDEX = 0;
+    private static int MAX_CAPACITY = 15;
 
     public void generate(Set<Transition> transitions) {
         //TODO
@@ -45,73 +50,92 @@ public class TestSuiteGenerator {
             //if unable to reach final state, i.e. stuck at some state
             //report, manually check for true/false positive later
             testTrace.append("    //Generated from trace ").append(id).append("\n");
-            testTrace.append("    public void testTrace").append(id).append(" () {\n");
+            testTrace.append("    public void testTrace").append(id).append(" ()   throws JsonProcessingException {\n");
             testTrace.append(perturb.recover(recoverFactory));
             testTrace.append(perturb.perturb(transition, perturbFactory));
             ObjectMapper objectMapper = new ObjectMapper();
-            String shouldBeState="";
-            try
-            {
+            String shouldBeState = "";
+            try {
                 shouldBeState = objectMapper.writeValueAsString(transition.getToState());
-            }catch (JsonProcessingException jsonProcessingException)
-            {
+            } catch (JsonProcessingException jsonProcessingException) {
                 jsonProcessingException.printStackTrace();
             }
-            testTrace.append("String shouldBeStateSer = \"").append(shouldBeState).append("\";");
-            testTrace.append("State shouldBeState = objectMapper.readValue(shouldBeStateSer, State.class);");
+            addIntoStateContainerOrCreate(StringEscapeUtils.escapeJava(shouldBeState));
+            testTrace.append("State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(").append(getStateFromContainer()).append("), State.class);");
 //            shouldBeState.put(id, transition.getToState());
-
-            testTrace.append("report(").append("shouldBeState").append(", new State(extractor.extract()));\n");
+            STATE_INDEX++;
+            testTrace.append("report(").append("shouldBeState").append(", new State(extractor.extract()), ").append(id).append(");\n");
             //TODO check the rate of coverage
             testTrace.append("}\n");
             id++;
         }
         //TODO add Serializable here
-        ReplaceTestFile(testcase, testTrace.toString());
-        ReplaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
+        replaceTestFile(testcase, testTrace.toString());
+        replaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
+        String target;
+        try {
+            Path path = Paths.get("StateContainer" + CLASS_INDEX + ".java");
+            target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            target = target.replaceAll("<STATE_INDEX>", "");
+            Files.write(Paths.get("StateContainer" + CLASS_INDEX + ".java"), target.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
 //        ADSerializable();
     }
 
-    private void ReplaceTestFile(String pattern, String target){
+    private void replaceTestFile(String pattern, String target) {
         Path path = Paths.get(testSuitePath);
         try {
             String s = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             s = s.replaceFirst(pattern, target);
             Files.write(Paths.get(testSuitePath), s.getBytes(StandardCharsets.UTF_8));
-        }catch (IOException io){
+        } catch (IOException io) {
             io.printStackTrace();
         }
     }
 
-//    public void ADSerializable(){
-//        Path path = Paths.get("SerializableState.txt");
-//        try{
-//            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE));
-//            bufferedWriter.write(JSONObject.toJSONString(shouldBeState));
-//            bufferedWriter.close();
-//        }catch (IOException e){
-//            e.printStackTrace();
-//        }
-//    }
+    private void addIntoStateContainerOrCreate(String state) {
+        if (STATE_INDEX % MAX_CAPACITY == 0) {
+            createContainer();
+        }
+        addState(state);
+    }
 
-//    public HashMap ADDeserialized(){
-//
-//        Path path = Paths.get("SerializableState.txt");
-//        try{
-//            BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
-//            String s = bufferedReader.readLine();
-//            JSONObject jsonObject = JSON.parseObject(s);
-//            HashMap<Integer, ActivityDescription> map = new HashMap<>();
-//            for(String key : jsonObject.keySet()){
-//                ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
-//                map.put(Integer.parseInt(key), ad);
-//            }
-//            return map;
-//        }catch (IOException e){
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
+    private void addState(String state) {
+        StringBuilder stringBuilder  = new StringBuilder();
+        stringBuilder.append("public final static String ").append("State").append(STATE_INDEX).append("=\"").append(state).append("\";");
+        if(STATE_INDEX % MAX_CAPACITY != MAX_CAPACITY - 1) stringBuilder.append("<STATE_INDEX>");
+        String target;
+        try {
+            Path path = Paths.get("StateContainer" + CLASS_INDEX + ".java");
+            target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            target = target.replaceAll("<STATE_INDEX>", StringEscapeUtils.escapeJava(stringBuilder.toString()));
+            Files.write(Paths.get("StateContainer" + CLASS_INDEX + ".java"), target.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
+    private String getStateFromContainer()
+    {
+        return "StateContainer" + CLASS_INDEX + "." + "State" + STATE_INDEX;
+    }
+
+    private void createContainer() {
+        String target;
+        try {
+            URI templatePath = Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("StateContainerExample.txt")).toURI();
+            Path path = Paths.get(templatePath);
+            target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            CLASS_INDEX++;
+            target = target.replaceAll("<CLASS_INDEX>", String.valueOf(CLASS_INDEX));
+            Files.write(Paths.get("StateContainer" + CLASS_INDEX + ".java"), target.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException | URISyntaxException ioException) {
+            ioException.printStackTrace();
+        }
+    }
 
 
     public TestSuiteGenerator(String AUT_PACKAGE, String coverage, String perturb, String CLASS_NAME) {
@@ -133,12 +157,7 @@ public class TestSuiteGenerator {
     }
 
 
-    public static void main(String[] args) throws IOException{
-        StringBuilder stringBuilder = new StringBuilder();
-        String s = "aklsjdkl\nlaksdjksa\n\t;kasdka\tlaskjdkals\n";
-        System.out.println("asdjksadjkasldjasld\\nasdasdad");
-        s = s.replaceAll("\\n", "\\\\n").replaceAll("\\t", "\\\\t");
-        stringBuilder.append(s);
-        System.out.println(stringBuilder);
+    public static void main(String[] args) throws IOException {
+
     }
 }
