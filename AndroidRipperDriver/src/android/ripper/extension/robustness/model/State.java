@@ -3,7 +3,6 @@ package android.ripper.extension.robustness.model;
 import android.ripper.extension.robustness.model.compare.Comparand;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static android.ripper.extension.robustness.tools.ObjectTool.propEquals;
+import static android.ripper.extension.robustness.tools.ObjectTool.stringsEmpty;
 
 public class State extends ActivityDescription {
 	public static final String LOWEST_UID = "0";
@@ -20,7 +20,7 @@ public class State extends ActivityDescription {
 	public boolean equals(Object obj) {
 		if (obj instanceof State) {
 			State s = (State) obj;
-			if (StringUtils.isEmpty(getUid()) || StringUtils.isEmpty(s.getUid())) {
+			if (stringsEmpty(getUid()) || stringsEmpty(s.getUid())) {
 				boolean widgetsEquality =
 //						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
 //								getWidgets().containsAll(s.getWidgets())) ||

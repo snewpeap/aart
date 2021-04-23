@@ -214,7 +214,7 @@
         <delete dir="${artifacts.temp.dir}"/>
     </target>
     <include file="build.xml" as="global"/>
-    <target name="build" depends="build.modules, global.build_ripper_shared_jar"
+    <target name="build" depends="build.modules, global.build_aart_shared_jar"
             description="build ard and ripper_shared.jar"/>
     <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
 </project>

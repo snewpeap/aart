@@ -7,4 +7,13 @@
             <fileset dir="bin" includes="**/it/unina/android/shared/**"/>
         </jar>
     </target>
+    <target name="build_aart_shared_jar" depends="build_ripper_shared_jar">
+        <jar destfile="${shared_dist}/aart_shared.jar">
+            <fileset dir="bin">
+                <include name="**/it/unina/android/shared/**"/>
+                <include name="**/android/ripper/extension/robustness/model/**"/>
+                <include name="**/android/ripper/extension/robustness/tools/**"/>
+            </fileset>
+        </jar>
+    </target>
 </project>
