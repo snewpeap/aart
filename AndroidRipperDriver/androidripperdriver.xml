@@ -66,6 +66,19 @@
     </path>
 
 
+    <path id="library.jackson-core-2.12.1.classpath">
+        <pathelement location="${basedir}/jar/jackson-core-2.12.1.jar"/>
+    </path>
+
+    <path id="library.jackson-databind-2.12.1.classpath">
+        <pathelement location="${basedir}/jar/jackson-databind-2.12.1.jar"/>
+    </path>
+
+    <path id="library.jackson-annotations-2.12.1.classpath">
+        <pathelement location="${basedir}/jar/jackson-annotations-2.12.1.jar"/>
+    </path>
+
+
     <!-- Global Libraries -->
 
 
@@ -91,7 +104,10 @@
     <path id="androidrippernewdriver.module.production.classpath">
         <path refid="library.commons-lang3-3.5.classpath"/>
         <path refid="library.custom_gson_2.8.1.classpath"/>
-        <path refid="library.fastjson-1.2.75.classpath"/>
+        <path refid="library.jackson-annotations-2.12.1.classpath"/>
+        <path refid="library.jackson-core-2.12.1.classpath"/>
+        <path refid="library.jackson-databind-2.12.1.classpath"/>
+<!--        <path refid="library.fastjson-1.2.75.classpath"/>-->
     </path>
 
     <path id="androidrippernewdriver.runtime.production.module.classpath">

@@ -1,6 +1,7 @@
 package android.ripper.extension.robustness.model;
 
 import android.ripper.extension.robustness.model.compare.Comparand;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
@@ -13,6 +14,7 @@ import static android.ripper.extension.robustness.tools.ObjectTool.propEquals;
 import static android.ripper.extension.robustness.tools.ObjectTool.stringsEmpty;
 
 public class State extends ActivityDescription {
+	@JsonIgnore
 	public static final String LOWEST_UID = "0";
 	private final ActivityDescription ad;
 
@@ -59,6 +61,14 @@ public class State extends ActivityDescription {
 		return getHierarchy().equals(state.getHierarchy());
 	}
 
+	public static String getLowestUid() {
+		return LOWEST_UID;
+	}
+
+	public static State getExitState() {
+		return EXIT_STATE;
+	}
+
 	private HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
 		if (hierarchy.isEmpty()) {
 			HashMap<Integer, VirtualWD> indexMap = new HashMap<>();
@@ -100,7 +110,7 @@ public class State extends ActivityDescription {
 	public State(ActivityDescription activityDescription) {
 		ad = activityDescription;
 	}
-
+	@JsonIgnore
 	public static final State EXIT_STATE = new State(new ActivityDescription()){
 		@Override
 		public String getUid() {

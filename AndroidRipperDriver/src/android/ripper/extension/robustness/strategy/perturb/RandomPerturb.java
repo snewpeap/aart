@@ -39,7 +39,7 @@ public class RandomPerturb implements Perturb {
         for (Event event : events) {
             if (event.getInputs() != null) {
                 for (Input input : event.getInputs()) {
-                    testTrace.append(setInput.replaceFirst(WIDGETID, String.valueOf(input.getWidget().getId())).replaceFirst(INPUTTYPE, input.getInputType()).replaceFirst(VALUE, input.getValue()));
+                    testTrace.append(setInput.replaceFirst(WIDGETID, String.valueOf(input.getWidget().getId())).replaceFirst(INPUTTYPE, "\""+input.getInputType()+"\"").replaceFirst(VALUE, "\""+input.getValue()+"\"")).append(";");
                 }
             } else {
                 WidgetDescription wd = event.getWidget();
@@ -52,16 +52,16 @@ public class RandomPerturb implements Perturb {
                     String value = wd.getValue();
                     if (widgetIndex == -1) {
                         if (value == null)
-                            testTrace.append(fireEvent3.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType));
+                            testTrace.append(fireEvent3.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, "\""+widgetName+"\"").replaceFirst(WIDGETTYPE, "\""+widgetType+"\"").replaceFirst(EVENTTYPE, "\""+eventType+"\"")).append(";");
                         else
-                            testTrace.append(fireEvent5.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
+                            testTrace.append(fireEvent5.replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, "\""+widgetName+"\"").replaceFirst(WIDGETTYPE, "\""+widgetType+"\"").replaceFirst(EVENTTYPE, "\""+eventType+"\"").replaceFirst(VALUE, "\""+value+"\"")).append(";");
                     } else {
                         if (widgetName == null && value != null)
-                            testTrace.append(fireEvent1.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
+                            testTrace.append(fireEvent1.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, "\""+eventType+"\"").replaceFirst(VALUE, "\""+value+"\"")).append(";");
                         if (widgetName != null && value == null)
-                            testTrace.append(fireEvent2.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType));
+                            testTrace.append(fireEvent2.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, "\""+widgetName+"\"").replaceFirst(WIDGETTYPE, "\""+widgetType+"\"").replaceFirst(EVENTTYPE, "\""+eventType+"\"")).append(";");
                         if (widgetName != null && value != null)
-                            testTrace.append(fireEvent4.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, widgetName).replaceFirst(WIDGETTYPE, widgetType).replaceFirst(EVENTTYPE, eventType).replaceFirst(VALUE, value));
+                            testTrace.append(fireEvent4.replaceFirst(WIDGETID, String.valueOf(widgetId)).replaceFirst(WIDGETINDEX, String.valueOf(widgetIndex)).replaceFirst(WIDGETNAME, "\""+widgetName+"\"").replaceFirst(WIDGETTYPE, "\""+widgetType+"\"").replaceFirst(EVENTTYPE, "\""+eventType+"\"").replaceFirst(VALUE, "\""+value+"\"")).append(";");
                     }
                 } else if (event.getInteraction() != null) {
                     testTrace.append("injectInteraction(null, \"").append(event.getInteraction()).append("\", ").append("null").append(");");

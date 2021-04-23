@@ -1,21 +1,16 @@
 package android.ripper.extension.robustness.output;
 
-import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.strategy.Coverage;
 import android.ripper.extension.robustness.strategy.Perturb;
 import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import it.unina.android.shared.ripper.model.state.ActivityDescription;
-import it.unina.android.shared.ripper.model.state.WidgetDescription;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -29,7 +24,6 @@ public class TestSuiteGenerator {
     private final String testcase = "<TEST_TRACE_ID>";
     private final String perturb_ = "<PERTURB_FUNCTION>";
     private final String reportPath = "reportPath.txt";
-    private final HashMap<Integer, State> shouldBeState = new HashMap<>();
 
     public void generate(Set<Transition> transitions) {
         //TODO
@@ -54,10 +48,20 @@ public class TestSuiteGenerator {
             testTrace.append("    public void testTrace").append(id).append(" () {\n");
             testTrace.append(perturb.recover(recoverFactory));
             testTrace.append(perturb.perturb(transition, perturbFactory));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String shouldBeState="";
+            try
+            {
+                shouldBeState = objectMapper.writeValueAsString(transition.getToState());
+            }catch (JsonProcessingException jsonProcessingException)
+            {
+                jsonProcessingException.printStackTrace();
+            }
+            testTrace.append("String shouldBeStateSer = \"").append(shouldBeState).append("\";");
+            testTrace.append("State shouldBeState = objectMapper.readValue(shouldBeStateSer, State.class);");
+//            shouldBeState.put(id, transition.getToState());
 
-            shouldBeState.put(id, transition.getToState());
-
-            testTrace.append("report(").append(id).append(", extractor.extract());\n");
+            testTrace.append("report(").append("shouldBeState").append(", new State(extractor.extract()));\n");
             //TODO check the rate of coverage
             testTrace.append("}\n");
             id++;
@@ -65,7 +69,7 @@ public class TestSuiteGenerator {
         //TODO add Serializable here
         ReplaceTestFile(testcase, testTrace.toString());
         ReplaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
-        ADSerializable();
+//        ADSerializable();
     }
 
     private void ReplaceTestFile(String pattern, String target){
@@ -79,51 +83,35 @@ public class TestSuiteGenerator {
         }
     }
 
-    public void ADSerializable(){
-        Path path = Paths.get("SerializableState.txt");
-        try{
-            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE));
-            bufferedWriter.write(JSONObject.toJSONString(shouldBeState));
-            bufferedWriter.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
+//    public void ADSerializable(){
+//        Path path = Paths.get("SerializableState.txt");
+//        try{
+//            BufferedWriter bufferedWriter = new BufferedWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE));
+//            bufferedWriter.write(JSONObject.toJSONString(shouldBeState));
+//            bufferedWriter.close();
+//        }catch (IOException e){
+//            e.printStackTrace();
+//        }
+//    }
 
-    public HashMap ADDeserialized(){
-
-        Path path = Paths.get("SerializableState.txt");
-        try{
-            BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
-            String s = bufferedReader.readLine();
-            JSONObject jsonObject = JSON.parseObject(s);
-            HashMap<Integer, ActivityDescription> map = new HashMap<>();
-            for(String key : jsonObject.keySet()){
-                ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
-                map.put(Integer.parseInt(key), ad);
-            }
-            return map;
-        }catch (IOException e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void report(int id, ActivityDescription ad){
-        //TODO
-        //1. get state from shouldBeState
-        //2. judge whether equals
-        //3. report!
-        try{
-            if(shouldBeState.get(id).equals(ad)){
-                System.out.println("REPORT The State in testTrace" + id + "is not equal the final state.");
-                System.out.println("It should be :\n" + shouldBeState.get(id));
-                System.out.println("But actually is :\n"+ ad);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    public HashMap ADDeserialized(){
+//
+//        Path path = Paths.get("SerializableState.txt");
+//        try{
+//            BufferedReader bufferedReader = new BufferedReader(Files.newBufferedReader(path, StandardCharsets.UTF_8));
+//            String s = bufferedReader.readLine();
+//            JSONObject jsonObject = JSON.parseObject(s);
+//            HashMap<Integer, ActivityDescription> map = new HashMap<>();
+//            for(String key : jsonObject.keySet()){
+//                ActivityDescription ad = jsonObject.getObject(key, ActivityDescription.class);
+//                map.put(Integer.parseInt(key), ad);
+//            }
+//            return map;
+//        }catch (IOException e){
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
 
     public TestSuiteGenerator(String AUT_PACKAGE, String coverage, String perturb, String CLASS_NAME) {
@@ -146,17 +134,11 @@ public class TestSuiteGenerator {
 
 
     public static void main(String[] args) throws IOException{
-        TestSuiteGenerator testSuiteGenerator = new TestSuiteGenerator("ABC","A","A","ASB");
-        ActivityDescription ad = new ActivityDescription();
-        ad.addListener("ASD", true);
-        WidgetDescription widgetDescription = new WidgetDescription();
-        widgetDescription.addListener("ASDDE", true);
-        widgetDescription.setId(123123);
-        ad.addWidget(widgetDescription);
-        testSuiteGenerator.shouldBeState.put(1, new State(ad));
-        testSuiteGenerator.ADSerializable();
-        HashMap hashMap = testSuiteGenerator.ADDeserialized();
-        hashMap.containsKey("123");
+        StringBuilder stringBuilder = new StringBuilder();
+        String s = "aklsjdkl\nlaksdjksa\n\t;kasdka\tlaskjdkals\n";
+        System.out.println("asdjksadjkasldjasld\\nasdasdad");
+        s = s.replaceAll("\\n", "\\\\n").replaceAll("\\t", "\\\\t");
+        stringBuilder.append(s);
+        System.out.println(stringBuilder);
     }
-
 }
