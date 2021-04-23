@@ -22,5 +22,7 @@ public class ObjectTool {
 		return propEquals(c.getFirst(), c.getLast(), prop);
 	}
 
-
+	public static boolean stringsEmpty(String s) {
+		return s == null || s.isEmpty();
+	}
 }
