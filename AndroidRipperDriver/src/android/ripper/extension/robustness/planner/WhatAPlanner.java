@@ -5,6 +5,7 @@ import it.unina.android.ripper.planner.Planner;
 import it.unina.android.ripper.planner.widget_events.*;
 import it.unina.android.ripper.planner.widget_inputs.EditTextInputPlanner;
 import it.unina.android.ripper.tools.actions.Actions;
+import it.unina.android.shared.ripper.constants.SimpleType;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import it.unina.android.shared.ripper.model.task.Task;
@@ -23,6 +24,11 @@ import static it.unina.android.shared.ripper.constants.SimpleType.*;
 public class WhatAPlanner extends Planner {
 	public static final String
 			SPAN = "SPAN";//指示优先规划不同类型操作
+	private static final String[] inputWidgetList = {
+			EDIT_TEXT,
+			AUTOCOMPLETE_TEXTVIEW,
+			SEARCH_BAR
+	};
 
 	@Override
 	public TaskList plan(Task currentTask, ActivityDescription activity, String... options) {
@@ -32,7 +38,7 @@ public class WhatAPlanner extends Planner {
 		}
 		planForActivity(taskList, activity, currentTask);
 		activity.getWidgets().forEach(wd -> {
-			if (ArrayUtils.contains(HandlerBasedPlanner.inputWidgetList, wd.getSimpleType()))
+			if (ArrayUtils.contains(inputWidgetList, wd.getSimpleType()))
 				planForInput(taskList, wd, currentTask);
 			else
 				planForWidget(taskList, wd, currentTask);
@@ -53,9 +59,7 @@ public class WhatAPlanner extends Planner {
 
 	private void planForInput(TaskList taskList, WidgetDescription wd, Task t) {
 		ArrayList<Input> inputs = new ArrayList<>(1);
-		if (EDIT_TEXT.equals(wd.getSimpleType()) || AUTOCOMPLETE_TEXTVIEW.equals(wd.getSimpleType()))
-			inputs.add(new EditTextInputPlanner(wd).getInputForWidget());
-		//else else else...
+		inputs.add(new EditTextInputPlanner(wd).getInputForWidget());
 		taskList.add(new Task(t, wd, WRITE_TEXT, inputs));
 	}
 

@@ -696,7 +696,7 @@ public class AndroidRipperStarter {
 //					+ "/debug.keystore -storepass android -keypass android " + tempPath
 //					+ "/temp.apk androiddebugkey");
 //			execCommand("jarsigner -verify " + tempPath + "/temp.apk");
-			execCommand("zipalign 4 " + tempPath + "/temp.apk " + tempPath + "/aut.apk");
+			execCommand(String.format("zipalign 4 %s/temp.apk %s/aut.apk", tempPath, tempPath));
 			execCommand(String.format("apksigner sign --ks %s/debug.keystore --ks-pass pass:android %s/aut.apk",
 					debugKeyStorePath,
 					tempPath));

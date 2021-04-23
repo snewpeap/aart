@@ -25,7 +25,7 @@ public class State extends ActivityDescription {
 //						(propEquals(getWidgets(), s.getWidgets(), ArrayList::size, false) &&
 //								getWidgets().containsAll(s.getWidgets())) ||
 						hierarchyEquals(s) ||
-						getWidgets() == s.getWidgets(); //null case
+								getWidgets() == s.getWidgets(); //null case
 				Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
 				return widgetsEquality &&
 						propEquals(su, State::getName) &&
@@ -33,8 +33,8 @@ public class State extends ActivityDescription {
 						propEquals(su, State::hasMenu) &&
 						(isTabActivity() ?
 								s.isTabActivity() &&
-								propEquals(su, State::getTabsCount) &&
-								propEquals(su, State::getCurrentTab) :
+										propEquals(su, State::getTabsCount) &&
+										propEquals(su, State::getCurrentTab) :
 								!s.isTabActivity()
 						);
 			} else
@@ -49,7 +49,7 @@ public class State extends ActivityDescription {
 	 * Test if the state is hierarchically equals to given state
 	 * In compared states' view trees, define hierarchically equation:
 	 * 1. Their VWDs (Virtual WidgetDescription, abstraction of views that are same class
-	 *    and share same parents, recursively) have same layers and same VWD in each layer
+	 * and share same parents, recursively) have same layers and same VWD in each layer
 	 * 1. Same VWD have identical capabilities set and enable/visible status
 	 *
 	 * @param state state compared to this
@@ -97,11 +97,15 @@ public class State extends ActivityDescription {
 		return hierarchy;
 	}
 
+	public State() {
+		ad = new ActivityDescription();
+	}
+
 	public State(ActivityDescription activityDescription) {
 		ad = activityDescription;
 	}
 
-	public static final State EXIT_STATE = new State(new ActivityDescription()){
+	public static final State EXIT_STATE = new State(new ActivityDescription()) {
 		@Override
 		public String getUid() {
 			return "-1";
@@ -112,6 +116,7 @@ public class State extends ActivityDescription {
 			return obj instanceof State && "-1".equals(((State) obj).getUid());
 		}
 	};
+
 	static {
 		EXIT_STATE.setId("");
 		EXIT_STATE.setName("");
@@ -121,6 +126,11 @@ public class State extends ActivityDescription {
 
 	public ActivityDescription getAd() {
 		return ad;
+	}
+
+	@Override
+	public void setScrollDownAble(Boolean scrollDownAble) {
+		ad.setScrollDownAble(scrollDownAble);
 	}
 
 	@Override
