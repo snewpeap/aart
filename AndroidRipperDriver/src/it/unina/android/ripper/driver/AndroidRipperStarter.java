@@ -765,7 +765,9 @@ public class AndroidRipperStarter {
 
 	public static void execCommand(String cmd, boolean wait) {
 		try {
-			final Process p = Runtime.getRuntime().exec(shell_CMD + cmd);
+			ProcessBuilder pb = new ProcessBuilder((shell_CMD + cmd).split(" "));
+			pb.redirectErrorStream(true);
+			final Process p = pb.start();
 
 			Thread t = new Thread(() -> {
 				try {
