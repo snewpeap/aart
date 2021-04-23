@@ -298,4 +298,20 @@ public class ActivityDescription implements Serializable
 		
 		return ret;
 	}
+
+	public Boolean getTabActivity() {
+		return isTabActivity;
+	}
+
+	public void setTabActivity(Boolean tabActivity) {
+		isTabActivity = tabActivity;
+	}
+
+	public Boolean getRootActivity() {
+		return isRootActivity;
+	}
+
+	public void setRootActivity(Boolean rootActivity) {
+		isRootActivity = rootActivity;
+	}
 }

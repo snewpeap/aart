@@ -244,8 +244,7 @@ public class AARTDriver extends AbstractDriver {
 						.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
 				if (state.getWidgets().parallelStream().anyMatch(w -> w.getClassName().contains("ProgressBar"))) {
 					Thread.sleep(3000);
-				}
-				if (state.getWidgets().parallelStream().filter(w -> w.getDepth() == 0).count() < 3) {
+				} else if (state.getWidgets().parallelStream().filter(w -> w.getDepth() == 0).count() < 3) {
 					break;
 				}
 			} catch (IOException | InterruptedException e) {

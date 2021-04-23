@@ -19,6 +19,8 @@
 
 package it.unina.android.shared.ripper.model.state;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,12 +212,14 @@ public class WidgetDescription implements Serializable
 	public Boolean getEnabled() {
 		return enabled;
 	}
-	
+
+	@JsonIgnore
 	public boolean isClickable()
 	{		
 		return (isListenerActive("OnClickListener"));
 	}
-	
+
+	@JsonIgnore
 	public boolean isLongClickable()
 	{
 		return (isListenerActive("OnLongClickListener"));

@@ -759,6 +759,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
                 Log.e(TestTag, "report: State is Different in " + id);
                 Log.e(TestTag, "It should be :\n" + shouldBeState);
                 Log.e(TestTag, "But actually is :\n" + actual);
+                Assert.fail();
             }
         } catch (Exception e) {
             e.printStackTrace();

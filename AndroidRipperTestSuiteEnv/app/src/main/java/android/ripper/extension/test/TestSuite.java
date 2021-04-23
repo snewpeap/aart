@@ -30,6 +30,8 @@ import java.util.HashMap;
 
 import android.test.ActivityInstrumentationTestCase2;
 
+import junit.framework.Assert;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import static android.content.Context.WINDOW_SERVICE;
@@ -159,7 +161,8 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     //Generated from trace 0
     public void testTrace0() throws JsonProcessingException {
         operation1(true);
-        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "click", "");
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "writeText", "");
         State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State0), State.class);
         report(shouldBeState, new State(extractor.extract()), 0);
     }
@@ -167,8 +170,8 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     //Generated from trace 1
     public void testTrace1() throws JsonProcessingException {
         operation1(true);
-        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "focus", "");
-        operation0(false);
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909227, 14, "", "image", "click", "");
         State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State1), State.class);
         report(shouldBeState, new State(extractor.extract()), 1);
     }
@@ -176,10 +179,93 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     //Generated from trace 2
     public void testTrace2() throws JsonProcessingException {
         operation1(true);
-        fireEvent(2131230856, 20, "", "emptyList", "click", "");
-        operation0(false);
+        setInput(16909232, "writeText", "19");
+        injectInteraction(null, "scrollDown", null);
         State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State2), State.class);
         report(shouldBeState, new State(extractor.extract()), 2);
+    }
+
+    //Generated from trace 3
+    public void testTrace3() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        setInput(16909232, "writeText", "33");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State3), State.class);
+        report(shouldBeState, new State(extractor.extract()), 3);
+    }
+
+    //Generated from trace 4
+    public void testTrace4() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        fireEvent(2131230856, 20, "", "emptyList", "click", "");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State4), State.class);
+        report(shouldBeState, new State(extractor.extract()), 4);
+    }
+
+    //Generated from trace 5
+    public void testTrace5() throws JsonProcessingException {
+        operation1(true);
+        injectInteraction(null, "scrollDown", null);
+        operation0(false);
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State5), State.class);
+        report(shouldBeState, new State(extractor.extract()), 5);
+    }
+
+    //Generated from trace 6
+    public void testTrace6() throws JsonProcessingException {
+        operation1(true);
+        fireEvent(2131230856, 20, "", "emptyList", "click", "");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State6), State.class);
+        report(shouldBeState, new State(extractor.extract()), 6);
+    }
+
+    //Generated from trace 7
+    public void testTrace7() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "writeText", "");
+        setInput(16909232, "writeText", "63");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State7), State.class);
+        report(shouldBeState, new State(extractor.extract()), 7);
+    }
+
+    //Generated from trace 8
+    public void testTrace8() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909227, 14, "", "image", "click", "");
+        injectInteraction(null, "back", null);
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State8), State.class);
+        report(shouldBeState, new State(extractor.extract()), 8);
+    }
+
+    //Generated from trace 9
+    public void testTrace9() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "writeText", "");
+        injectInteraction(null, "scrollDown", null);
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State9), State.class);
+        report(shouldBeState, new State(extractor.extract()), 9);
+    }
+
+    //Generated from trace 10
+    public void testTrace10() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        fireEvent(16909232, 13, "Enter Book Name", "searchBar", "writeText", "");
+        fireEvent(2131230856, 20, "", "emptyList", "click", "");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State10), State.class);
+        report(shouldBeState, new State(extractor.extract()), 10);
+    }
+
+    //Generated from trace 11
+    public void testTrace11() throws JsonProcessingException {
+        operation1(true);
+        setInput(16909232, "writeText", "19");
+        State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(StateContainer0.State11), State.class);
+        report(shouldBeState, new State(extractor.extract()), 11);
     }
 
 
@@ -798,6 +884,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
                 Log.e(TestTag, "report: State is Different in " + id);
                 Log.e(TestTag, "It should be :\n" + shouldBeState);
                 Log.e(TestTag, "But actually is :\n" + actual);
+                Assert.fail();
             }
         } catch (Exception e) {
             e.printStackTrace();
