@@ -38,7 +38,8 @@ android {
 
 dependencies {
     implementation project(path: ':robotium')
-    //compile 'com.jayway.android.robotium:robotium-solo:5.6.3'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
     implementation files('libs/custom_gson_2.8.1.jar')
     implementation files('../../intermediate/ripper_shared.jar')
 }

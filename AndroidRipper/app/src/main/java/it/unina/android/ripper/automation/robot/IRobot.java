@@ -40,6 +40,7 @@ import android.widget.TextView;
  * @author Nicola Amatucci - REvERSE
  *
  */
+@SuppressWarnings("JavadocReference")
 public interface IRobot {
 
 	/**
@@ -441,4 +442,5 @@ public interface IRobot {
 	 */
 	public abstract ArrayList<View> getViews();
 
+	void hideSoftKeyboard();
 }

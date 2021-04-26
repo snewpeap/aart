@@ -53,6 +53,7 @@ import com.robotium.solo.Solo;
  * @author Nicola Amatucci - REvERSE
  *
  */
+@SuppressWarnings("JavadocReference")
 @SuppressLint("NewApi")
 public class RobotiumWrapperRobot implements IRobot
 {
@@ -532,7 +533,7 @@ public class RobotiumWrapperRobot implements IRobot
 			String text = (w instanceof TextView)?": "+((TextView)w).getText().toString():"";
 			Debug.info(this, "Found widget: id=" + w.getId() + " ("+ w.toString() + ")" + text); // + " in window at [" + xy[0] + "," + xy[1] + "] on screen at [" + xy2[0] + "," + xy2[1] +"]");			
 			allViews.add(w);
-			if (w.getId()>0) {
+			if (w.getId() != View.NO_ID) {
 				theViews.put(w.getId(), w); // Add only if the widget has a valid ID
 			}
 			if (w instanceof TabHost) {
@@ -776,5 +777,10 @@ public class RobotiumWrapperRobot implements IRobot
 		} else {
 			return this.solo.getCurrentViews();
 		}
+	}
+
+	@Override
+	public void hideSoftKeyboard() {
+		solo.hideSoftKeyboard();
 	}
 }

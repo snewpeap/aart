@@ -117,6 +117,7 @@ public class ReflectionExtractor implements IExtractor {
 		try {
 
 			robot.home();
+			robot.hideSoftKeyboard();
 
 			// widgets
 			ArrayList<View> viewList = robot.getViews();
