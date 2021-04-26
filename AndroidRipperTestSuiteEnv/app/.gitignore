@@ -1,1 +1,3 @@
 /build
+/src/main/java/android/ripper/extension/test/StateContainer*.java
+/src/main/java/android/ripper/extension/test/TestSuite.java
