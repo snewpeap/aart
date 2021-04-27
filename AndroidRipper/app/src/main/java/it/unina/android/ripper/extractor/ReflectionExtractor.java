@@ -152,7 +152,8 @@ public class ReflectionExtractor implements IExtractor {
 					objectsMap.put(v.toString(), i1);
 
 					this.setViewListeners(ret, wd, v);
-
+					wd.setClickable(v.isClickable());
+					wd.setLongClickable(v.isLongClickable());
 					this.setValue(v, wd);
 
 					wd.setEnabled(v.isEnabled());

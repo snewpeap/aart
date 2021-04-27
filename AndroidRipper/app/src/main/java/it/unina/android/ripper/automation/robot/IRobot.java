@@ -250,6 +250,8 @@ public interface IRobot {
 	 */
 	public abstract void swapTab(TabHost t, int num);
 
+	void selectRecyclerViewItem(int itemIndex, int recyclerViewIndex, boolean longClick);
+
 	/**
 	 * Scroll the view to the top. Only works for ListView and ScrollView.
 	 * Support for GridView and others must be added
@@ -356,6 +358,8 @@ public interface IRobot {
 	 * @return
 	 */
 	public abstract ArrayList<View> getWidgetsByType(String type);
+
+	ArrayList<View> getWidgetsByTypeEndsWith(String postfix);
 
 	/**
 	 * Gets all loaded widgets

@@ -32,6 +32,7 @@ import static it.unina.android.shared.ripper.constants.InteractionType.OPEN_MENU
 import static it.unina.android.shared.ripper.constants.InteractionType.PRESS_KEY;
 import static it.unina.android.shared.ripper.constants.InteractionType.SCROLL_DOWN;
 import static it.unina.android.shared.ripper.constants.InteractionType.SCROLL_UP;
+import static it.unina.android.shared.ripper.constants.InteractionType.SELECT_RECYCLER_VIEW_ITEM;
 import static it.unina.android.shared.ripper.constants.InteractionType.SET_BAR;
 import static it.unina.android.shared.ripper.constants.InteractionType.SPINNER_SELECT;
 import static it.unina.android.shared.ripper.constants.InteractionType.SWAP_TAB;
@@ -40,6 +41,7 @@ import static it.unina.android.shared.ripper.constants.InteractionType.WRITE_TEX
 import static it.unina.android.shared.ripper.constants.SimpleType.BUTTON;
 import static it.unina.android.shared.ripper.constants.SimpleType.LIST_VIEW;
 import static it.unina.android.shared.ripper.constants.SimpleType.MENU_ITEM;
+import static it.unina.android.shared.ripper.constants.SimpleType.RECYCLER_VIEW;
 
 import java.util.ArrayList;
 
@@ -146,7 +148,8 @@ public class RipperAutomation implements IAutomation {
 	protected void injectInteraction (View v, String interactionType, String value) {
 		if (v!=null)
 			this.robot.requestView(v);
-		
+
+		robot.hideSoftKeyboard();
 		if (interactionType.equals(CLICK))
 		{
 			this.robot.click (v);
@@ -224,10 +227,15 @@ public class RipperAutomation implements IAutomation {
 		else if (ProgressBar.class.isInstance(v) && interactionType.equals(SET_BAR))
 		{
 			this.robot.setProgressBar((ProgressBar)v, Integer.parseInt(value));
-		}
-		else
-		{
-			return;
+		} else if (interactionType.equals(SELECT_RECYCLER_VIEW_ITEM)) {
+			ArrayList<View> widgetsByTypeEndsWith = this.robot.getWidgetsByTypeEndsWith(RECYCLER_VIEW);
+			for (int i = 0, widgetsByTypeEndsWithSize = widgetsByTypeEndsWith.size(); i < widgetsByTypeEndsWithSize; i++) {
+				View view = widgetsByTypeEndsWith.get(i);
+				if (view.getId() == v.getId()) {
+					this.robot.selectRecyclerViewItem(i, Integer.parseInt(value), false);
+					break;
+				}
+			}
 		}
 	}
 	
@@ -394,6 +402,10 @@ public class RipperAutomation implements IAutomation {
 		this.robot.updateWidgets();
 		
 		View v = null;
+		if (interactionType.equals(BACK)) {
+			injectInteraction(v, interactionType, value);
+			return;
+		}
 		
 		if (widgetId > 0) {
 			v = this.robot.getWidget(widgetId);

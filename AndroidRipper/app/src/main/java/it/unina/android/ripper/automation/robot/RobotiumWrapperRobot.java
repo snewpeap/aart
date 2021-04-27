@@ -417,6 +417,15 @@ public class RobotiumWrapperRobot implements IRobot
 		Debug.info(this, "Swapping to tab " + num);
 		click (t.getTabWidget().getChildAt(n));
 	}
+
+	@Override
+	public void selectRecyclerViewItem(int itemIndex, int recyclerViewIndex, boolean longClick) {
+		if (longClick) {
+			solo.clickLongInRecycleView(itemIndex, recyclerViewIndex);
+		} else {
+			solo.clickInRecyclerView(itemIndex, recyclerViewIndex);
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see it.unina.android.ripper.automation.robot.IRobot#home()
@@ -642,6 +651,19 @@ public class RobotiumWrapperRobot implements IRobot
 		for (View theView: getAllWidgets()) {
 			if (theView.getClass().getName().equals(type)) {
 				Debug.info(this, "Added to return list " + type + " with id=" + theView.getId());
+				theList.add(theView);
+			}
+		}
+		return theList;
+	}
+
+	@Override
+	public ArrayList<View> getWidgetsByTypeEndsWith(String postfix) {
+		ArrayList<View> theList = new ArrayList<>();
+		for (View theView: getAllWidgets()) {
+			String name = theView.getClass().getName();
+			if (name.endsWith(postfix)) {
+				Debug.info(this, "Added to return list " + name + " with id=" + theView.getId());
 				theList.add(theView);
 			}
 		}
