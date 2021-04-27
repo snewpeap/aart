@@ -16,6 +16,7 @@ import static android.ripper.extension.robustness.tools.ObjectTool.stringsEmpty;
 public class State extends ActivityDescription {
     @JsonIgnore
     public static final String LOWEST_UID = "0";
+    @JsonIgnore
     private final ActivityDescription ad;
 
     @Override
@@ -45,6 +46,10 @@ public class State extends ActivityDescription {
             return false;
     }
 
+    boolean shallowEquals(State s) {
+        return hierarchyEquals(s) || getWidgets() == s.getWidgets();
+    }
+
     private final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
 
     /**
@@ -61,14 +66,6 @@ public class State extends ActivityDescription {
         return getHierarchy().equals(state.getHierarchy());
     }
 
-    public static String getLowestUid() {
-        return LOWEST_UID;
-    }
-
-    public static State getExitState() {
-        return EXIT_STATE;
-    }
-
     private HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
         if (hierarchy.isEmpty()) {
             HashMap<Integer, VirtualWD> indexMap = new HashMap<>();
@@ -81,7 +78,8 @@ public class State extends ActivityDescription {
                     className = indexMap.get(widget.getParentIndex()).getClassName() + ">" + className;
                 }
                 indexMap.put(widget.getIndex(), new VirtualWD(className,
-                        widget.getListeners(),
+                        widget.isClickable(),
+                        widget.isLongClickable(),
                         widget.isEnabled(),
                         widget.isVisible(),
                         widget.getDepth()));
@@ -94,10 +92,12 @@ public class State extends ActivityDescription {
                 } else {
                     vwds.merge(className, vwd, (a, b) -> {
                         //Fusing views capability into VWD by simply logical OR them
-                        a.setEnabled(a.getEnabled() | b.getEnabled());
-                        a.setVisible(a.getVisible() | b.getVisible());
-                        HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
-                        lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
+                        a.setEnabled(a.getEnabled() || b.getEnabled());
+                        a.setVisible(a.getVisible() || b.getVisible());
+                        a.setClickable(a.isClickable() || b.isClickable());
+                        a.setLongClickable(a.isLongClickable() || b.isLongClickable());
+//                        HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
+//                        lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
                         return a;
                     });
                 }
@@ -107,8 +107,18 @@ public class State extends ActivityDescription {
         return hierarchy;
     }
 
-    public State() {
-        ad = new ActivityDescription();
+    private int idle = 0;
+
+    public void updateIdle(int newIdle) {
+        idle = Integer.max(idle, newIdle);
+    }
+
+    public int getIdle() {
+        return idle;
+    }
+
+    public void setIdle(int idle) {
+        this.idle = idle;
     }
 
     public State(ActivityDescription activityDescription) {
@@ -135,8 +145,20 @@ public class State extends ActivityDescription {
         EXIT_STATE.setClassName("");
     }
 
+    public State() {
+        ad = new ActivityDescription();
+    }
+
     public ActivityDescription getAd() {
         return ad;
+    }
+
+    public static String getLowestUid() {
+        return LOWEST_UID;
+    }
+
+    public static State getExitState() {
+        return EXIT_STATE;
     }
 
     @Override

@@ -222,6 +222,8 @@ public class XMLRipperOutput implements RipperOutput
 		
 		widget.setAttribute(WIDGET_ENABLED, (wd.isEnabled() != null && wd.isEnabled())?"TRUE":"FALSE");
 		widget.setAttribute(WIDGET_VISIBLE, (wd.isVisible() != null && wd.isVisible())?"TRUE":"FALSE");
+		widget.setAttribute(WIDGET_CLICKABLE, (wd.getClickable() != null && wd.getClickable())?"TRUE":"FALSE");
+		widget.setAttribute(WIDGET_LONG_CLICKABLE, (wd.getLongClickable() != null && wd.getLongClickable())?"TRUE":"FALSE");
 		
 		HashMap<String, Boolean> listeners = wd.getListeners();
 		if (listeners != null) {

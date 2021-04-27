@@ -85,7 +85,8 @@ public class WidgetDescription implements Serializable
 	}
 
 	public boolean capabilitiesEquals(WidgetDescription wd) {
-		return Objects.equals(listeners, wd.listeners) &&
+		return Objects.equals(isClickable(), wd.isClickable()) &&
+				Objects.equals(isLongClickable(), wd.isLongClickable()) &&
 				Objects.equals(enabled, wd.enabled) &&
 				Objects.equals(visible, wd.visible);
 	}
@@ -213,16 +214,34 @@ public class WidgetDescription implements Serializable
 		return enabled;
 	}
 
+	private Boolean clickable;
+	private Boolean longClickable;
+
+	public Boolean getClickable() {
+		return clickable;
+	}
+
+	public void setClickable(Boolean clickable) {
+		this.clickable = clickable;
+	}
+
+	public Boolean getLongClickable() {
+		return longClickable;
+	}
+
+	public void setLongClickable(Boolean longClickable) {
+		this.longClickable = longClickable;
+	}
+
 	@JsonIgnore
-	public boolean isClickable()
-	{		
-		return (isListenerActive("OnClickListener"));
+	public Boolean isClickable() {
+		return clickable || isListenerActive("OnItemClickListener") || isListenerActive("OnClickListener");
 	}
 
 	@JsonIgnore
 	public boolean isLongClickable()
 	{
-		return (isListenerActive("OnLongClickListener"));
+		return longClickable || isListenerActive("OnItemLongClickListener") || isListenerActive("OnLongClickListener");
 	}
 
 	public boolean hasOnFocusChangeListener()
@@ -342,7 +361,7 @@ public class WidgetDescription implements Serializable
 	{
 		/*return 	"[id="+this.id+"]" +
 				"[type="+((this.type!=null)?this.type.getCanonicalName():className)+"]";*/
-		return String.format("[parent_index=%d]%s[index=%d, id=%d]", parentIndex, getClassName(), index, id);
+		return String.format("[p_idx=%d, idx=%d, id=%d]%s", parentIndex, index, id, getClassName());
 	}
 	
 	public String toXMLString()

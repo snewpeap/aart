@@ -13,6 +13,7 @@ import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.test.extractor.IExtractor;
 import android.ripper.extension.test.extractor.ReflectionExtractor;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
 import android.widget.*;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import junit.framework.Assert;
 import android.test.ActivityInstrumentationTestCase2;
 import org.apache.commons.lang3.StringEscapeUtils;
 import static android.content.Context.WINDOW_SERVICE;
@@ -374,6 +376,13 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 		assertNotNull("Testing for type " + theType + "): " + theName, getWidget(theType, theName));
 	}
 
+	public void idle(int ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException ignored) {
+		}
+	}
+
 	public void fireEvent (int widgetId, int widgetIndex, String widgetType, String eventType) {
 		//fireEvent(widgetId, widgetIndex, widgetType, eventType, null);
 		fireEvent(widgetId, widgetIndex, "", widgetType, eventType);
@@ -449,9 +458,12 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 	}
 
 	public void setInput (int widgetId, String inputType, String value) {
-		View v = getWidget(widgetId);
-		if (v == null) {
-			v = theActivity.findViewById(widgetId);
+		View v = null;
+		if (!inputType.equals(BACK)) {
+			v = getWidget(widgetId);
+			if (v == null) {
+				v = theActivity.findViewById(widgetId);
+			}
 		}
 		injectInteraction(v, inputType, value);
 	}
@@ -501,11 +513,23 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 
 	protected void typeText (EditText v, String value) {
 		solo.enterText(v, value);
+		int imeOp = v.getImeOptions();
+		if (!value.isEmpty()
+				&& (imeOp == EditorInfo.IME_ACTION_GO ||
+				imeOp == EditorInfo.IME_ACTION_SEARCH)) {
+			solo.clickOnView(v);
+			if (imeOp == EditorInfo.IME_ACTION_GO) {
+				solo.pressSoftKeyboardGoButton();
+			} else {
+				solo.pressSoftKeyboardSearchButton();
+			}
+		}
 	}
 
 	protected void writeText (EditText v, String value) {
 		typeText (v, "");
-		typeText (v, value);
+		if (!value.isEmpty())
+			typeText (v, value);
 	}
 
 	public void changeOrientation() {

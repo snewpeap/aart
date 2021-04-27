@@ -18,7 +18,6 @@ import java.util.Set;
 
 public class TestSuiteGenerator {
 
-
     private final String AUT_PACKAGE;
     private final Coverage coverage;
     private final Perturb perturb;
@@ -31,7 +30,6 @@ public class TestSuiteGenerator {
     private static int MAX_CAPACITY = 15;
 
     public void generate(Set<Transition> transitions) {
-        //TODO
         //for each transition, generate testcase
         StringBuilder testTrace = new StringBuilder();
         int id = 0;
@@ -45,7 +43,7 @@ public class TestSuiteGenerator {
 
         for (Transition transition : coverage.cherryPick(transitions)) {
             //always start running from the root state
-            //fire task's events, insert perturbation according to (TODO) strategy
+            //fire task's events, insert perturbation according to strategy
             //check final state: tell the differences/similarity only
             //if unable to reach final state, i.e. stuck at some state
             //report, manually check for true/false positive later
@@ -104,7 +102,7 @@ public class TestSuiteGenerator {
 
     private void addState(String state) {
         StringBuilder stringBuilder  = new StringBuilder();
-        stringBuilder.append("public final static String ").append("State").append(STATE_INDEX).append("=\"").append(state).append("\";");
+        stringBuilder.append("public final static String ").append("State").append(STATE_INDEX).append(" = \"").append(state).append("\";");
         if(STATE_INDEX % MAX_CAPACITY != MAX_CAPACITY - 1) stringBuilder.append("<STATE_INDEX>");
         String target;
         try {
@@ -126,7 +124,7 @@ public class TestSuiteGenerator {
         String target;
         try {
             URI templatePath = Objects.requireNonNull(
-                    getClass().getClassLoader().getResource("StateContainerExample.txt")).toURI();
+                    getClass().getClassLoader().getResource("StateContainerExample.java")).toURI();
             Path path = Paths.get(templatePath);
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             CLASS_INDEX++;
@@ -142,11 +140,11 @@ public class TestSuiteGenerator {
         this.AUT_PACKAGE = AUT_PACKAGE;
         this.coverage = Coverage.of(coverage);
         this.perturb = Perturb.of(perturb);
-        String target = "";
+        String target;
         System.out.println("Starting TestSuiteGenerator...");
         try {
             URI templatePath = Objects.requireNonNull(
-                    getClass().getClassLoader().getResource("TestSuiteExample.txt")).toURI();
+                    getClass().getClassLoader().getResource("TestSuiteExample.java")).toURI();
             Path path = Paths.get(templatePath);
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             target = target.replaceAll("<CLASS_NAME>", "\"" + CLASS_NAME + "\"");
@@ -157,7 +155,4 @@ public class TestSuiteGenerator {
     }
 
 
-    public static void main(String[] args) throws IOException {
-
-    }
 }

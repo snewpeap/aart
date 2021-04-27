@@ -3,11 +3,13 @@
 <!--    想用ant来自动构建ripper_shared.jar，学会了-->
     <property name="shared_dist" value="../intermediate"/>
     <target name="build_ripper_shared_jar">
+        <delete file="${shared_dist}/ripper_shared.jar"/>
         <jar destfile="${shared_dist}/ripper_shared.jar">
             <fileset dir="bin" includes="**/it/unina/android/shared/**"/>
         </jar>
     </target>
     <target name="build_aart_shared_jar" depends="build_ripper_shared_jar">
+        <delete file="${shared_dist}/aart_shared.jar"/>
         <jar destfile="${shared_dist}/aart_shared.jar">
             <fileset dir="bin">
                 <include name="**/it/unina/android/shared/**"/>

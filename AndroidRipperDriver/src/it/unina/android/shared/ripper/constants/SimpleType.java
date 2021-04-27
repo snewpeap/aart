@@ -65,5 +65,6 @@ public class SimpleType {
 	public final static String NUMBER_PICKER = "numberPicker";
 	public final static String AUTOCOMPLETE_TEXTVIEW = "autoCompleteTextView";
 	public final static String SCRIM_INSETS_FRAME_LAYOUT = "ScrimInsetsFrameLayout";
+	public final static String RECYCLER_VIEW = "RecyclerView";
 
 }

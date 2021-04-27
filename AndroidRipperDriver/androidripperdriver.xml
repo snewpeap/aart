@@ -146,7 +146,6 @@
     <path id="androidrippernewdriver.module.sourcepath">
         <dirset dir="${module.androidrippernewdriver.basedir}">
             <include name="src"/>
-            <include name="resources"/>
         </dirset>
     </path>
 
@@ -173,7 +172,6 @@
                 <type type="file"/>
             </fileset>
             <fileset dir="${module.androidrippernewdriver.basedir}/resources">
-                <patternset refid="compiler.resources"/>
                 <type type="file"/>
             </fileset>
         </copy>

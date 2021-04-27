@@ -1063,4 +1063,21 @@ public class Actions {
 			e.printStackTrace();
 		}
 	}
+
+	public static String getDeviceTimeZone() {
+		try	{
+			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "getprop", "persist.sys.timezone");
+			BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
+			String line;
+			while (true) {
+				if ((line = input.readLine()) != null) break;
+			}
+			input.close();
+			p.waitFor();
+			return line;
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 }

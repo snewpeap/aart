@@ -42,6 +42,20 @@ public class Event implements Serializable, IEvent {
 
 	private String beforeExecutionStateUID = "UNDEFINED";
 	private String afterExecutionStateUID = "UNDEFINED";
+	private int idle = 0;
+
+	public void updateIdle(int newIdle) {
+		idle = Integer.max(idle, newIdle);
+	}
+
+	public int getIdle() {
+		return idle;
+	}
+
+	public void setIdle(int idle) {
+		this.idle = idle;
+	}
+
 
 	public Event() {
 		super();
@@ -139,13 +153,11 @@ public class Event implements Serializable, IEvent {
 	}
 
 	@Override
-	public String toString()
-	{
-		return ((widget!=null)?widget.toString()+",":"") + interaction;
+	public String toString() {
+		return String.format("%s%s, idle %d ms", (widget != null) ? widget + "." : "", interaction, idle);
 	}
 
-	public String toXMLString()
-	{
+	public String toXMLString() {
 		StringBuilder xml = new StringBuilder();
 		xml.append(String.format("<event interaction=\"%s\" value=\"%s\" >\n", interaction, value));
 

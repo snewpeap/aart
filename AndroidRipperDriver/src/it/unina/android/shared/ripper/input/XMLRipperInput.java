@@ -174,6 +174,8 @@ public class XMLRipperInput implements RipperInput {
 			
 			if (e.getAttribute(WIDGET_COUNT) != null && !e.getAttribute(WIDGET_COUNT).equals(""))
 				wd.setCount(Integer.parseInt(e.getAttribute(WIDGET_COUNT)));
+			wd.setClickable(Boolean.parseBoolean(e.getAttribute(WIDGET_CLICKABLE)));
+			wd.setLongClickable(Boolean.parseBoolean(e.getAttribute(WIDGET_LONG_CLICKABLE)));
 			
 			NodeList widgetChildNodes = e.getElementsByTagName(LISTENER);
 			//System.out.println(widgetChildNodes.getLength());

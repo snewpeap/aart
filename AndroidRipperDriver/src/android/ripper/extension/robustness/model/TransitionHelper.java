@@ -43,8 +43,7 @@ public class TransitionHelper {
 		}
 
 		private boolean similar(State a, State b) {
-			//TODO can't be too shallow. use distance?
-			return a.equals(b);
+			return a.shallowEquals(b);
 		}
 
 		/**
@@ -84,24 +83,24 @@ public class TransitionHelper {
 						e -> e.is(SWAP_TAB) && getFromState().isTabActivity() && getToState().isTabActivity(),
 						e -> new Event(SWAP_TAB, null, Integer.toString(getFromState().getCurrentTab()))
 				);
-				backs.put(
-						//for fromState that shows popup, put event=input[back, input_cause_popup]
-						e -> getFromState().getPopupShowing() && !State.EXIT_STATE.equals(getToState())
-								&& (e.is(CLICK) || e.is(CLICK_MENU_ITEM)) && getTask().size() > 1,
-						e -> {
-							Event event = new Event();
-							event.addInput(getToState().getWidgets().get(0), BACK, "");
-							Event tapToPopupEvent = (Event) getTask().get(getTask().size() - 2);
-							if (tapToPopupEvent.getInputs() == null) {
-								event.addInput(tapToPopupEvent.getWidget(), tapToPopupEvent.getInteraction(), "");
-							} else {
-								for (Input input : tapToPopupEvent.getInputs()) {
-									event.addInput(input.getWidget(), input.getInputType(), input.getValue());
-								}
-							}
-							return event;
-						}
-				);
+//				backs.put(
+//						//for fromState that shows popup, put event=input[back, input_cause_popup]
+//						e -> getFromState().getPopupShowing() && !State.EXIT_STATE.equals(getToState())
+//								&& (e.is(CLICK) || e.is(CLICK_MENU_ITEM)) && getTask().size() > 1,
+//						e -> {
+//							Event event = new Event();
+//							event.addInput(getToState().getWidgets().get(0), BACK, "");
+//							Event tapToPopupEvent = (Event) getTask().get(getTask().size() - 2);
+//							if (tapToPopupEvent.getInputs() == null) {
+//								event.addInput(tapToPopupEvent.getWidget(), tapToPopupEvent.getInteraction(), "");
+//							} else {
+//								for (Input input : tapToPopupEvent.getInputs()) {
+//									event.addInput(input.getWidget(), input.getInputType(), input.getValue());
+//								}
+//							}
+//							return event;
+//						}
+//				);
 
 				Event tail = (Event) getTask().getLast();
 				for (Map.Entry<Predicate<Event>, Function<Event, Event>> e : backs.entrySet()) {

@@ -5,7 +5,6 @@ import it.unina.android.ripper.planner.Planner;
 import it.unina.android.ripper.planner.widget_events.*;
 import it.unina.android.ripper.planner.widget_inputs.EditTextInputPlanner;
 import it.unina.android.ripper.tools.actions.Actions;
-import it.unina.android.shared.ripper.constants.SimpleType;
 import it.unina.android.shared.ripper.model.state.ActivityDescription;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 import it.unina.android.shared.ripper.model.task.Task;
@@ -76,7 +75,8 @@ public class WhatAPlanner extends Planner {
 
 	private static final Map<String, Function<WidgetDescription, WidgetEventPlanner>> provider = new HashMap<>();
 	static {
-		provider.put(LIST_VIEW, wd -> new ListViewEventPlanner(wd, MAX_INTERACTIONS_FOR_LIST));
+//		provider.put(RECYCLER_VIEW, wd -> new RecyclerViewEventPlanner(wd, MAX_INTERACTIONS_FOR_LIST));
+//		provider.put(LIST_VIEW, wd -> new ListViewEventPlanner(wd, MAX_INTERACTIONS_FOR_LIST));
 		provider.put(DRAWER_LIST_VIEW, DrawerListViewEventPlanner::new);
 		provider.put(PREFERENCE_LIST, wd -> new ListViewEventPlanner(wd, MAX_INTERACTIONS_FOR_PREFERENCES_LIST));
 		provider.put(SINGLE_CHOICE_LIST, wd -> new ListViewEventPlanner(wd, MAX_INTERACTIONS_FOR_SINGLE_CHOICE_LIST));
@@ -90,7 +90,7 @@ public class WhatAPlanner extends Planner {
 		provider.put(MENU_ITEM, MenuItemEventPlanner::new);
 		Function<WidgetDescription, WidgetEventPlanner> nul = wd -> null;
 		provider.put(RELATIVE_LAYOUT, nul);
-		provider.put(LINEAR_LAYOUT, nul);
+//		provider.put(LINEAR_LAYOUT, nul);
 		provider.put(WEB_VIEW, nul);
 		for (String type : HandlerBasedPlanner.inputWidgetList)
 			provider.put(type, nul);

@@ -43,7 +43,8 @@ import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
  */
 public class AARTDriver extends AbstractDriver {
 	private static final String RIPPER_SERVICE_PKG = "it.unina.android.ripper_service";
-	private static final FastDateFormat LOGCAT_TIME_FORMAT = FastDateFormat.getInstance("MM-dd hh:mm:ss.mmm");
+	private static final FastDateFormat LOGCAT_TIME_FORMAT = FastDateFormat.getInstance("MM-dd hh:mm:ss.mmm",
+			TimeZone.getTimeZone(Actions.getDeviceTimeZone()));
 	private String loopStartTime = LOGCAT_TIME_FORMAT.format(0);
 
 	private final HashMap<State, State> states = new HashMap<>();
@@ -52,6 +53,7 @@ public class AARTDriver extends AbstractDriver {
 	private State lastSavedState = null;
 	private State currState;
 	private Transition lastTransition;
+	private int idle;
 
 	private final SchedulerEnhancement yabScheduler;
 	private final TestSuiteGenerator testSuiteGenerator;
@@ -61,12 +63,12 @@ public class AARTDriver extends AbstractDriver {
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
-		int i = 0;
 		do {
 			readyToLoop();
 
 			Task taskJustDone = null;
 			while (true) {
+				boolean noTaskJustDone = (taskJustDone == null) || taskJustDone.isEmpty();
 				currState = getCurrentDescriptionAsState();
 				if (states.isEmpty()) {                    //the beginning of everything
 					currState.setUid(State.LOWEST_UID);
@@ -87,13 +89,18 @@ public class AARTDriver extends AbstractDriver {
 						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
-					if (prevState != null && taskJustDone != null && !taskJustDone.isEmpty()) {
+					if (prevState != null && !noTaskJustDone) {
 						Transition transition = TransitionHelper.v(prevState, currState, taskJustDone);
 						if ((lastTransition = transitions.putIfAbsent(transition, transition)) == null) {
 							lastTransition = transition;
 						}
 					} else                    //null prevState and nonempty states set mean accident
 						yabScheduler.needRecovery();
+				}
+				if (noTaskJustDone) {
+					currState.updateIdle(idle);
+				} else {
+					((Event) taskJustDone.getLast()).updateIdle(idle);
 				}
 				ListIterator<IEvent> taskTodo = yabScheduler.nextTaskIterator();
 				if (taskTodo == null || !taskTodo.hasNext()) {
@@ -105,9 +112,9 @@ public class AARTDriver extends AbstractDriver {
 				taskJustDone = iterToTask(taskTodo);
 				prevState = currState;
 			}
-			i++;
+
 			endLoop();
-		} while (running && !checkTerminationCriteria() && i<5);
+		} while (running && !checkTerminationCriteria());
 
 		//TODO Model output
 
@@ -167,15 +174,21 @@ public class AARTDriver extends AbstractDriver {
 			rsSocket.sendEvent(event);
 			waitAck();
 		}
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException ignored) {
-		}
+		idle(event.getIdle());
 	}
 
 	private void executeTask(Iterator<IEvent> taskIter) {
 		while (taskIter.hasNext()) {
 			executeEvent((Event) taskIter.next());
+		}
+	}
+
+	private void idle(int ms) {
+		if (ms > 0) {
+			try {
+				Thread.sleep(ms);
+			} catch (InterruptedException ignored) {
+			}
 		}
 	}
 
@@ -222,11 +235,12 @@ public class AARTDriver extends AbstractDriver {
 
 	public final State getCurrentDescriptionAsState() {
 		State state = EXIT_STATE;
-		for (int j = 0; j < 2; j++) {
+		idle = 0;
+		for (int j = 0; j < 5; j++) {
 			try {
 				int i = 0;
-				while (i < 20) {
-					Thread.sleep(1000);
+				while (i < 10) {
+					Thread.sleep(2000);
 					if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
 						notifyRipperLog("AUT is doing something in background, waiting...");
 					} else {
@@ -234,6 +248,8 @@ public class AARTDriver extends AbstractDriver {
 					}
 					i++;
 				}
+				idle += (i + 1) * 2000;
+
 				String cd;
 				try {
 					cd = getCurrentDescription();
@@ -243,8 +259,9 @@ public class AARTDriver extends AbstractDriver {
 				state = new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
 						.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
 				if (state.getWidgets().parallelStream().anyMatch(w -> w.getClassName().contains("ProgressBar"))) {
-					Thread.sleep(3000);
-				} else if (state.getWidgets().parallelStream().filter(w -> w.getDepth() == 0).count() < 3) {
+					Thread.sleep(2000);
+					idle += 2000;
+				} else {
 					break;
 				}
 			} catch (IOException | InterruptedException e) {

@@ -2,7 +2,7 @@ package android.ripper.extension.robustness.model;
 
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
-import java.util.HashMap;
+//import java.util.HashMap;
 
 public class VirtualWD extends WidgetDescription {
 	@Override
@@ -15,12 +15,14 @@ public class VirtualWD extends WidgetDescription {
 	}
 
 	public VirtualWD(String className,
-					 HashMap<String, Boolean> listeners,
+					 Boolean isClickable,
+					 Boolean isLongClickable,
 					 Boolean enable,
 					 Boolean visible,
 					 Integer depth) {
 		this.className = className;
-		setListeners(listeners);
+		setClickable(isClickable);
+		setLongClickable(isLongClickable);
 		setEnabled(enable);
 		setVisible(visible);
 		setDepth(depth);

@@ -38,7 +38,7 @@ public class ListViewEventPlanner extends WidgetEventPlanner {
 	/**
 	 * Max list items to be considered
 	 */
-	int MAX_INTERACTIONS = 3;
+	protected int MAX_INTERACTIONS = 3;
 	
 	/**
 	 * Constructor

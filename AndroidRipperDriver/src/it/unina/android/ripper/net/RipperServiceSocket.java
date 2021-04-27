@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 import it.unina.android.ripper.driver.exception.RipperException;
 import it.unina.android.ripper.driver.exception.RipperRuntimeException;
+import it.unina.android.shared.ripper.constants.InteractionType;
 import it.unina.android.shared.ripper.model.transition.Event;
 import it.unina.android.shared.ripper.model.transition.Input;
 import it.unina.android.shared.ripper.net.Message;
@@ -611,14 +612,25 @@ public class RipperServiceSocket {
 			long i = 0;
 			for(Input input : inputs) {
 				String count = Long.toString(i++);
-				this.sendMessage(Message.getInputMessage(Integer.toString(input.getWidget().getId()),
-						Integer.toString(input.getWidget().getIndex()),
-						input.getWidget().getName(),
-						input.getWidget().getSimpleType(),
-						input.getInputType(),
-						input.getValue(),
-						evtUID,
-						count));
+				if (input.getInputType().equals(InteractionType.BACK)) {
+					this.sendMessage(Message.getInputMessage("",
+							"",
+							"",
+							"",
+							InteractionType.BACK,
+							"",
+							evtUID,
+							count));
+				} else {
+					this.sendMessage(Message.getInputMessage(Integer.toString(input.getWidget().getId()),
+							Integer.toString(input.getWidget().getIndex()),
+							input.getWidget().getName(),
+							input.getWidget().getSimpleType(),
+							input.getInputType(),
+							input.getValue(),
+							evtUID,
+							count));
+				}
 			}
 			
 		}

@@ -59,5 +59,5 @@ public class InteractionType {
 	public final static String INCOMING_CALL_EVENT = "incomingCallEvent";
 	public final static String FOCUS = "focus";
 	public final static String DRAG = "drag";
-	public static final String IDLE = "idle";
+	public final static String SELECT_RECYCLER_VIEW_ITEM = "selectRecyclerViewItem";
 }

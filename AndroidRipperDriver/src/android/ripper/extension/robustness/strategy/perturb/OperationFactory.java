@@ -140,16 +140,4 @@ public class OperationFactory {
         return this;
     }
 
-    public static void main(String[] args) {
-        OperationFactory perturbFactory = new OperationFactory("solo", 1);
-        perturbFactory.addParam(false);
-        perturbFactory.setMobileData(new int[]{0});
-        OperationFactory recoverFactory = new OperationFactory("solo", 1);
-        recoverFactory.addParam(true);
-        recoverFactory.setMobileData(new int[]{0});
-        System.out.println(perturbFactory.buildCall());
-        System.out.println(perturbFactory.buildMethod());
-        System.out.println(recoverFactory.buildMethod());
-    }
-
 }
