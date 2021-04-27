@@ -159,6 +159,10 @@ public abstract class AbstractDriver {
 	public String XML_OUTPUT_PATH = "";
 
 	/**
+	 * Storage path of screenshot files
+	 */
+	public String SCREENSHOT_OUTPUT_PATH = "";
+	/**
 	 * Scheduler instance
 	 */
 	public Scheduler scheduler;

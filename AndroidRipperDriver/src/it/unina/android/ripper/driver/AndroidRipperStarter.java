@@ -255,6 +255,7 @@ public class AndroidRipperStarter {
 			String tempPath = base_result_dir + "/temp";
 			String logcatPath = base_result_dir + "/logcat/";
 			String xmlOutputPath = base_result_dir + "/model/";
+			String screenShotPath = base_result_dir + "/screenShot/";
 
 			// installer parameters
 			String aut_apk = apkToTest;
@@ -408,7 +409,7 @@ public class AndroidRipperStarter {
 			ripperInput = new it.unina.android.shared.ripper.input.XMLRipperInput();
 			ripperOutput = new it.unina.android.shared.ripper.output.XMLRipperOutput();
 
-			for (String path : new String[]{tempPath, logcatPath, xmlOutputPath}) {
+			for (String path : new String[]{tempPath, logcatPath, xmlOutputPath, screenShotPath}) {
 				mkdirs(path);
 			}
 
@@ -528,6 +529,7 @@ public class AndroidRipperStarter {
 				driver.PING_FAILURE_THRESHOLD = Integer.parseInt(ping_failure_threshold);
 				driver.LOGCAT_PATH = logcatPath;
 				driver.XML_OUTPUT_PATH = xmlOutputPath;
+				driver.SCREENSHOT_OUTPUT_PATH = screenShotPath;
 				driver.TOOLS_PATH = toolsPath;
 				driver.WAIT_AFTER_INSTALL = Integer.parseInt(wait_after_install);
 				driver.WAIT_BEFORE_INSTALL = Integer.parseInt(wait_before_install);

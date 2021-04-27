@@ -945,7 +945,16 @@ public class Actions {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public static void screenShot(String toWhere){
+		adbShell("/system/bin/screencap", "-p", "/sdcard/screenshot.png");
+		try{
+			AndroidTools.adb("pull","/sdcard/screenshot.png",toWhere).waitFor();
+		}catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void adbSuShell(String ... strings) {
 		String[] shell = {"shell", "sudo", "-c"};
 		String[] both = ArrayUtils.addAll(shell, strings);

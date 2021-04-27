@@ -72,6 +72,7 @@ public class AARTDriver extends AbstractDriver {
 				currState = getCurrentDescriptionAsState();
 				if (states.isEmpty()) {                    //the beginning of everything
 					currState.setUid(State.LOWEST_UID);
+					Actions.screenShot(SCREENSHOT_OUTPUT_PATH + "State_" + State.LOWEST_UID + ".png");
 					addNewState();
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
@@ -85,7 +86,9 @@ public class AARTDriver extends AbstractDriver {
 					} else if (states.containsKey(currState)) {    //already occurred state
 						currState = states.get(currState);
 					} else {                                    //brand new state
+						//TODO add screenshot
 						currState.setUid(increaseUid(lastSavedState.getUid()));
+						Actions.screenShot(SCREENSHOT_OUTPUT_PATH + "State_" + currState.getUid() + ".png");
 						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
