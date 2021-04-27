@@ -53,9 +53,9 @@ public class TextViewEventPlanner extends WidgetEventPlanner {
 	{
 		TaskList t = new TaskList();
 
-		if (mWidget.isClickable() && mWidget.getValue() != null && mWidget.getValue().equals("") == false) {
+		if (mWidget.judgeClickable() && mWidget.getValue() != null && mWidget.getValue().equals("") == false) {
 			t.add(new Task(currentTask, mWidget, InteractionType.CLICK_ON_TEXT, inputs, RipperStringUtils.quoteRegExSpecialChars(mWidget.getValue())));
-		} else if (mWidget.isClickable() && mWidget.getName() != null && mWidget.getName().equals("") == false) {
+		} else if (mWidget.judgeClickable() && mWidget.getName() != null && mWidget.getName().equals("") == false) {
 			t.add(new Task(currentTask, mWidget, InteractionType.CLICK_ON_TEXT, inputs, RipperStringUtils.quoteRegExSpecialChars(mWidget.getName())));
 		}
 

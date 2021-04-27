@@ -78,8 +78,8 @@ public class State extends ActivityDescription {
                     className = indexMap.get(widget.getParentIndex()).getClassName() + ">" + className;
                 }
                 indexMap.put(widget.getIndex(), new VirtualWD(className,
-                        widget.isClickable(),
-                        widget.isLongClickable(),
+                        widget.judgeClickable(),
+                        widget.judgeLongClickable(),
                         widget.isEnabled(),
                         widget.isVisible(),
                         widget.getDepth()));
@@ -94,8 +94,8 @@ public class State extends ActivityDescription {
                         //Fusing views capability into VWD by simply logical OR them
                         a.setEnabled(a.getEnabled() || b.getEnabled());
                         a.setVisible(a.getVisible() || b.getVisible());
-                        a.setClickable(a.isClickable() || b.isClickable());
-                        a.setLongClickable(a.isLongClickable() || b.isLongClickable());
+                        a.setClickable(a.judgeClickable() || b.judgeClickable());
+                        a.setLongClickable(a.judgeLongClickable() || b.judgeLongClickable());
 //                        HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
 //                        lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
                         return a;

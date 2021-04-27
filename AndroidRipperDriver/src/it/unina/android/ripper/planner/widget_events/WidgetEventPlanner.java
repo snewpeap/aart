@@ -88,10 +88,10 @@ public class WidgetEventPlanner {
 		
 		if ( this.canPlanForWidget() )
 		{
-			if (mWidget.isClickable() || mWidget.isListenerActive("OnItemClickListener"))
+			if (mWidget.judgeClickable() || mWidget.isListenerActive("OnItemClickListener"))
 				taskList.addAll(tap(currentTask, inputs, options));
 			
-			if (mWidget.isLongClickable() || mWidget.isListenerActive("OnItemLongClickListener"))
+			if (mWidget.judgeLongClickable() || mWidget.isListenerActive("OnItemLongClickListener"))
 				taskList.addAll(longTap(currentTask, inputs, options));
 			
 			if (mWidget.hasOnFocusChangeListener() || mWidget.isListenerActive("OnFocusListener"))
@@ -116,10 +116,10 @@ public class WidgetEventPlanner {
 		
 		if ( this.canPlanForWidget() )
 		{
-			if (mWidget.isClickable() || configuration.doClick)
+			if (mWidget.judgeClickable() || configuration.doClick)
 				taskList.addAll(tap(currentTask, inputs, options));
 			
-			if (mWidget.isLongClickable() || configuration.doLongClick)
+			if (mWidget.judgeLongClickable() || configuration.doLongClick)
 				taskList.addAll(longTap(currentTask, inputs, options));
 			
 			if (mWidget.hasOnFocusChangeListener() || configuration.doFocus)

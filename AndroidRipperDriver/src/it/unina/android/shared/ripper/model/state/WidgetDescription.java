@@ -85,8 +85,8 @@ public class WidgetDescription implements Serializable
 	}
 
 	public boolean capabilitiesEquals(WidgetDescription wd) {
-		return Objects.equals(isClickable(), wd.isClickable()) &&
-				Objects.equals(isLongClickable(), wd.isLongClickable()) &&
+		return Objects.equals(judgeClickable(), wd.judgeClickable()) &&
+				Objects.equals(judgeLongClickable(), wd.judgeLongClickable()) &&
 				Objects.equals(enabled, wd.enabled) &&
 				Objects.equals(visible, wd.visible);
 	}
@@ -233,13 +233,12 @@ public class WidgetDescription implements Serializable
 		this.longClickable = longClickable;
 	}
 
-	@JsonIgnore
-	public Boolean isClickable() {
+	public boolean judgeClickable() {
 		return clickable || isListenerActive("OnItemClickListener") || isListenerActive("OnClickListener");
 	}
 
-	@JsonIgnore
-	public boolean isLongClickable()
+
+	public boolean judgeLongClickable()
 	{
 		return longClickable || isListenerActive("OnItemLongClickListener") || isListenerActive("OnLongClickListener");
 	}

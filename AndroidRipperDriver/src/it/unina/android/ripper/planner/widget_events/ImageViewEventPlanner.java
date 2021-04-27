@@ -51,7 +51,7 @@ public class ImageViewEventPlanner extends WidgetEventPlanner {
 	protected TaskList tap(Task currentTask, ArrayList<Input> inputs, String... options)
 	{
 		TaskList t = new TaskList();
-		if (mWidget.isClickable()) {
+		if (mWidget.judgeClickable()) {
 			t.add(new Task(currentTask, mWidget, InteractionType.CLICK, inputs));
 		}
 		return t;
