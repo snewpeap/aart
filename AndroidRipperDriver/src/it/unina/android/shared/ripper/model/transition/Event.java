@@ -43,6 +43,7 @@ public class Event implements Serializable, IEvent {
 	private String beforeExecutionStateUID = "UNDEFINED";
 	private String afterExecutionStateUID = "UNDEFINED";
 	private int idle = 0;
+	public static final int IDLE_SIZE = 2000;
 
 	public void updateIdle(int newIdle) {
 		idle = Integer.max(idle, newIdle);
@@ -182,13 +183,15 @@ public class Event implements Serializable, IEvent {
 			boolean equals;
 			if (inputs == null && e.inputs == null) {
 				equals = Objects.equals(widget, e.widget) &&
-						Objects.equals(interaction, e.interaction);
+						Objects.equals(interaction, e.interaction) &&
+						Objects.equals(value, e.value);
 			} else if (equals = inputs != null && e.inputs != null) {
 				if (equals = inputs.size() == e.inputs.size()) {
 					for (int i = 0; i < inputs.size(); i++) {
 						Input thisInput = inputs.get(i), thatInput = e.inputs.get(i);
 						equals = Objects.equals(thisInput.getInputType(), thatInput.getInputType()) &&
-								Objects.equals(thisInput.getWidget(), thatInput.getWidget());
+								Objects.equals(thisInput.getWidget(), thatInput.getWidget()) &&
+								Objects.equals(thisInput.getValue(), thatInput.getValue());
 					}
 				}
 			}

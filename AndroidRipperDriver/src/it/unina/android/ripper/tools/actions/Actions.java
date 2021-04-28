@@ -1073,6 +1073,15 @@ public class Actions {
 		}
 	}
 
+	public static void showTouches() {
+		try {
+			AndroidTools.adb("-s", DEVICE, "shell", "settings", "put", "system", "pointer_location", "1");
+			AndroidTools.adb("-s", DEVICE, "shell", "settings", "put", "system", "show_touches", "1");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static String getDeviceTimeZone() {
 		try	{
 			WrapProcess p = AndroidTools.adb("-s", DEVICE, "shell", "getprop", "persist.sys.timezone");

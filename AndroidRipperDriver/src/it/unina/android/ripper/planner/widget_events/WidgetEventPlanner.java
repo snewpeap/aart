@@ -88,10 +88,10 @@ public class WidgetEventPlanner {
 		
 		if ( this.canPlanForWidget() )
 		{
-			if (mWidget.judgeClickable() || mWidget.isListenerActive("OnItemClickListener"))
+			if (mWidget.judgeClickable())
 				taskList.addAll(tap(currentTask, inputs, options));
 			
-			if (mWidget.judgeLongClickable() || mWidget.isListenerActive("OnItemLongClickListener"))
+			if (mWidget.judgeLongClickable())
 				taskList.addAll(longTap(currentTask, inputs, options));
 			
 			if (mWidget.hasOnFocusChangeListener() || mWidget.isListenerActive("OnFocusListener"))
@@ -137,7 +137,7 @@ public class WidgetEventPlanner {
 	public boolean canPlanForWidget()
 	{
 		//return mWidget != null && mWidget.isEnabled() && mWidget.isVisible(); // && mWidget.getSimpleType() != null && mWidget.getSimpleType().equals("") == false;
-		return mWidget != null && mWidget.getId() != null && mWidget.getId().equals("") == false && mWidget.getId().equals("-1") == false && mWidget.isEnabled() && mWidget.isVisible(); // && mWidget.getSimpleType() != null && mWidget.getSimpleType().equals("") == false;
+		return mWidget != null && mWidget.getId() != null && mWidget.isEnabled() && mWidget.isVisible(); // && mWidget.getSimpleType() != null && mWidget.getSimpleType().equals("") == false;
 	}
 	
 	/**

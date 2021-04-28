@@ -77,8 +77,8 @@ public class WidgetDescription implements Serializable
 			return id != null && id.equals(wd.id) &&
 					simpleType != null && simpleType.equals(wd.simpleType) &&
 					Objects.equals(name, wd.name) &&
+					Objects.equals(textualId, wd.textualId) &&
 					Objects.equals(parentIndex, wd.parentIndex) &&
-					Objects.equals(count, wd.count) &&
 					capabilitiesEquals(wd);
 		} else
 			return false;
@@ -93,7 +93,7 @@ public class WidgetDescription implements Serializable
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, simpleType, name, enabled, visible, parentId, ancestorId);
+		return Objects.hash(id, simpleType, name, textualId, enabled, visible, judgeClickable(), judgeLongClickable());
 	}
 
 	public Integer getId() {
@@ -234,13 +234,13 @@ public class WidgetDescription implements Serializable
 	}
 
 	public boolean judgeClickable() {
-		return clickable || isListenerActive("OnItemClickListener") || isListenerActive("OnClickListener");
+		return clickable || isListenerActive("OnClickListener");
 	}
 
 
 	public boolean judgeLongClickable()
 	{
-		return longClickable || isListenerActive("OnItemLongClickListener") || isListenerActive("OnLongClickListener");
+		return longClickable || isListenerActive("OnLongClickListener");
 	}
 
 	public boolean hasOnFocusChangeListener()

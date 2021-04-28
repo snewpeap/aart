@@ -18,6 +18,16 @@ public class State extends ActivityDescription {
     public static final String LOWEST_UID = "0";
     @JsonIgnore
     private final ActivityDescription ad;
+    @JsonIgnore
+    private boolean reentered = false;
+
+    public void reenter() {
+        reentered = true;
+    }
+
+    public boolean reentered() {
+        return reentered;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -50,7 +60,7 @@ public class State extends ActivityDescription {
         return hierarchyEquals(s) || getWidgets() == s.getWidgets();
     }
 
-    private final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
+    protected final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
 
     /**
      * Test if the state is hierarchically equals to given state
@@ -66,18 +76,18 @@ public class State extends ActivityDescription {
         return getHierarchy().equals(state.getHierarchy());
     }
 
-    private HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
+    public HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
         if (hierarchy.isEmpty()) {
             HashMap<Integer, VirtualWD> indexMap = new HashMap<>();
             for (WidgetDescription widget : getWidgets()) {
                 if (widget.getDepth() < 0) {
                     continue;
                 }
-                String className = widget.getClassName();
+                String parentName = "";
                 if (widget.getDepth() > 0) {
-                    className = indexMap.get(widget.getParentIndex()).getClassName() + ">" + className;
+                    parentName = indexMap.get(widget.getParentIndex()).getClassName();
                 }
-                indexMap.put(widget.getIndex(), new VirtualWD(className,
+                indexMap.put(widget.getIndex(), new VirtualWD(widget.getClassName(), parentName,
                         widget.judgeClickable(),
                         widget.judgeLongClickable(),
                         widget.isEnabled(),
@@ -90,16 +100,7 @@ public class State extends ActivityDescription {
                     vwds = new HashMap<>();
                     vwds.put(className, vwd);
                 } else {
-                    vwds.merge(className, vwd, (a, b) -> {
-                        //Fusing views capability into VWD by simply logical OR them
-                        a.setEnabled(a.getEnabled() || b.getEnabled());
-                        a.setVisible(a.getVisible() || b.getVisible());
-                        a.setClickable(a.judgeClickable() || b.judgeClickable());
-                        a.setLongClickable(a.judgeLongClickable() || b.judgeLongClickable());
-//                        HashMap<String, Boolean> la = a.getListeners(), lb = b.getListeners();
-//                        lb.forEach((key, value) -> la.put(key, la.getOrDefault(key, false) | value));
-                        return a;
-                    });
+                    vwds.merge(className, vwd, VirtualWD::merge);
                 }
                 return vwds;
             }));
@@ -135,6 +136,16 @@ public class State extends ActivityDescription {
         @Override
         public boolean equals(Object obj) {
             return obj instanceof State && "-1".equals(((State) obj).getUid());
+        }
+
+        @Override
+        public boolean hierarchyEquals(State state) {
+            return equals(state);
+        }
+
+        @Override
+        public HashMap<Integer, HashMap<String, VirtualWD>> getHierarchy() {
+            return hierarchy;
         }
     };
 

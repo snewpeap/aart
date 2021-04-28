@@ -1,6 +1,7 @@
 package android.ripper.extension.robustness.strategy;
 
 import android.ripper.extension.robustness.model.Transition;
+import android.ripper.extension.robustness.strategy.perturb.AllPerturb;
 import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
 import android.ripper.extension.robustness.strategy.perturb.RandomPerturb;
 
@@ -12,6 +13,8 @@ public interface Perturb {
 
 	static Perturb of(String s){
 		switch (s) {
+			case "all":
+				return new AllPerturb();
 			case "random":
 			default:
 				return new RandomPerturb();

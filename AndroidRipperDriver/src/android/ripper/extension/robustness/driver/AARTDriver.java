@@ -14,6 +14,7 @@ import it.unina.android.ripper.net.RipperServiceSocket;
 import it.unina.android.ripper.termination.TerminationCriterion;
 import it.unina.android.ripper.tools.actions.Actions;
 import it.unina.android.ripper.tools.logcat.LogcatDumper;
+import it.unina.android.shared.ripper.constants.SimpleType;
 import it.unina.android.shared.ripper.input.RipperInput;
 import it.unina.android.shared.ripper.model.task.Task;
 import it.unina.android.shared.ripper.model.task.TaskList;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 //import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
 import static android.ripper.extension.robustness.model.State.EXIT_STATE;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
+import static it.unina.android.shared.ripper.model.transition.Event.IDLE_SIZE;
 
 /**
  * Android Automated Robustness Test Driver
@@ -72,7 +74,6 @@ public class AARTDriver extends AbstractDriver {
 				currState = getCurrentDescriptionAsState();
 				if (states.isEmpty()) {                    //the beginning of everything
 					currState.setUid(State.LOWEST_UID);
-					Actions.screenShot(SCREENSHOT_OUTPUT_PATH + "State_" + State.LOWEST_UID + ".png");
 					addNewState();
 					yabScheduler.addTasks(planner.plan(taskJustDone, currState, WhatAPlanner.SPAN));
 				} else {
@@ -86,9 +87,7 @@ public class AARTDriver extends AbstractDriver {
 					} else if (states.containsKey(currState)) {    //already occurred state
 						currState = states.get(currState);
 					} else {                                    //brand new state
-						//TODO add screenshot
 						currState.setUid(increaseUid(lastSavedState.getUid()));
-						Actions.screenShot(SCREENSHOT_OUTPUT_PATH + "State_" + currState.getUid() + ".png");
 						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
@@ -136,7 +135,7 @@ public class AARTDriver extends AbstractDriver {
 		this.yabScheduler = yabs;
 		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
-		addTerminationCriterion(new CheckTimeTerminationCriterion());
+//		addTerminationCriterion(new CheckTimeTerminationCriterion());
 		this.generateTestSuite = generateTestsuite;
 	}
 
@@ -177,19 +176,22 @@ public class AARTDriver extends AbstractDriver {
 			rsSocket.sendEvent(event);
 			waitAck();
 		}
-		idle(event.getIdle());
 	}
 
 	private void executeTask(Iterator<IEvent> taskIter) {
 		while (taskIter.hasNext()) {
-			executeEvent((Event) taskIter.next());
+			Event next = ((Event) taskIter.next());
+			executeEvent(next);
+			if (taskIter.hasNext()) {
+				idle(next.getIdle());
+			}
 		}
 	}
 
 	private void idle(int ms) {
 		if (ms > 0) {
 			try {
-				Thread.sleep(ms);
+				Thread.sleep(ms + 4000);
 			} catch (InterruptedException ignored) {
 			}
 		}
@@ -201,7 +203,8 @@ public class AARTDriver extends AbstractDriver {
 	private void readyToLoop() {
 		new LogcatDumper(device.getName(),
 				String.format("%slogcat_%s_%d.txt", LOGCAT_PATH, device.getName(), LOGCAT_FILE_NUMBER++),
-				loopStartTime).start();
+				loopStartTime);
+//				.start();
 		loopStartTime = LOGCAT_TIME_FORMAT.format(new Date());
 		checkSocket();
 		super.startup();
@@ -243,7 +246,7 @@ public class AARTDriver extends AbstractDriver {
 			try {
 				int i = 0;
 				while (i < 10) {
-					Thread.sleep(2000);
+					Thread.sleep(IDLE_SIZE);
 					if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
 						notifyRipperLog("AUT is doing something in background, waiting...");
 					} else {
@@ -251,19 +254,20 @@ public class AARTDriver extends AbstractDriver {
 					}
 					i++;
 				}
-				idle += (i + 1) * 2000;
+				idle += (i + 1) * IDLE_SIZE;
 
 				String cd;
 				try {
 					cd = getCurrentDescription();
-				} catch (RipperRuntimeException e) {
+				} catch (RuntimeException e) {
 					break;
 				}
 				state = new State(ripperInput.inputActivityDescription(Optional.ofNullable(cd)
 						.orElseThrow(() -> new RipperNullMsgException(AARTDriver.class, here(), "getCurrentDescription"))));
-				if (state.getWidgets().parallelStream().anyMatch(w -> w.getClassName().contains("ProgressBar"))) {
-					Thread.sleep(2000);
-					idle += 2000;
+				if (state.getWidgets().parallelStream().anyMatch(w -> w.getClassName().contains("ProgressBar") ||
+						w.getSimpleType().equals(SimpleType.PROGRESS))) {
+					Thread.sleep(IDLE_SIZE);
+					idle += IDLE_SIZE;
 				} else {
 					break;
 				}
@@ -276,6 +280,7 @@ public class AARTDriver extends AbstractDriver {
 
 	private void setupEnvironment() {
 		Actions.turnoffAnimation();
+		Actions.showTouches();
 		endRipperTask(false, false);
 		if (INSTALL_FROM_SDCARD) {
 			Actions.pushToSD(Paths.get(TEMP_PATH, "aut.apk").toAbsolutePath().toString());
@@ -362,7 +367,7 @@ public class AARTDriver extends AbstractDriver {
 				if (currState.equals(pivot.getKey())) {
 					notifyRipperLog("A loop at pivot, continue...");
 					ListIterator<Task> iter = pivot.getValue().getIterator();
-					nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
+					nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAsNextTask();
 				} else {
 					TransitionInfo transitionInfo = (TransitionInfo) lastTransition;
 					//learn from former transitions then make recommend
@@ -382,21 +387,22 @@ public class AARTDriver extends AbstractDriver {
 					if (currState.equals(pivot.getKey())) {    //current state should be pivot state if back as expected
 						recovery = false;                    //if not, null would be returned
 						notifyRipperLog("We're at pivot!");
+						fail = MAX_FAIL;
 						transitionInfo.goodFeedback();    //last back was done great
 						ListIterator<Task> iter = pivot.getValue().getIterator();
 						//hasNext() == true: current pivot has remaining task to execute
 						//else: pivot has been completely searched, so choose a "downstream" state as the new pivot
-						nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
+						nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAsNextTask();
 					} else if (recovery) {                //need recovery...
 						notifyRipperLog("Recovering...");
 						transitionInfo.poorFeedback();    //...because last back event is not the right one
 						if (fail == 0) {
 							recovery = false;
-							nextTask = newPivotAndNextTask();
+							nextTask = newPivotAsNextTask();
 						} else if (pathToPivot == null) {
 							recovery = false;
 							ListIterator<Task> iter = pivot.getValue().getIterator();
-							nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAndNextTask();
+							nextTask = iter.hasNext() ? nextTaskAtPivot(iter) : newPivotAsNextTask();
 						} else {
 							fail -= 1;
 							nextTask = pathToPivot.listIterator(0);
@@ -418,8 +424,10 @@ public class AARTDriver extends AbstractDriver {
 
 		@Override
 		public void addTasks(TaskList taskList) {
-			if (taskList != null && !taskList.isEmpty())
+			if (taskList != null && !taskList.isEmpty()) {
+				notifyRipperLog(taskList.size() + " tasks scheduled for State just found.");
 				schedule.putIfAbsent(currState, taskList);
+			}
 		}
 
 		@Override
@@ -482,7 +490,7 @@ public class AARTDriver extends AbstractDriver {
 			return task;
 		}
 
-		private ListIterator<IEvent> newPivotAndNextTask() {
+		private ListIterator<IEvent> newPivotAsNextTask() {
 			pathToPivot = assignNextPivot();
 			if (pivot == null) {
 				notifyRipperLog("No more new pivot");
@@ -498,6 +506,8 @@ public class AARTDriver extends AbstractDriver {
 
 		private ListIterator<IEvent> nextTaskAtPivot(ListIterator<Task> iter) {
 			back = true;
+			pivot.getKey().reenter();
+			Actions.screenShot(SCREENSHOT_OUTPUT_PATH + "State_" + pivot.getKey().getUid() + ".png");
 			Task t = iter.next();
 			return t.listIterator(t.size() - 1);
 		}

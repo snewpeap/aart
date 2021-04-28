@@ -80,13 +80,17 @@ public class RandomPerturb implements Perturb {
                 testTrace.append("idle(").append(event.getIdle()).append(");");
             }
         }
-        if (new Random().nextBoolean()) {
+        if (random()) {
             testTrace.append(operationFactory.buildCall());
         }
         if (event != null && event.getIdle() > 0) {
             testTrace.append("idle(").append(event.getIdle()).append(");");
         }
         return testTrace.toString();
+    }
+
+    protected boolean random() {
+        return new Random().nextBoolean();
     }
 
     private String getDefaultUsingNull(String s) {

@@ -378,7 +378,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 
 	public void idle(int ms) {
 		try {
-			Thread.sleep(ms);
+			Thread.sleep(ms + 4000);
 		} catch (InterruptedException ignored) {
 		}
 	}
