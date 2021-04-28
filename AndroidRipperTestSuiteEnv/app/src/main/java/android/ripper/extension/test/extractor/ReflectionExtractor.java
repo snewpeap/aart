@@ -20,6 +20,7 @@ package android.ripper.extension.test.extractor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.drawable.Animatable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -106,29 +107,29 @@ public class ReflectionExtractor implements IExtractor {
 
             solo.hideSoftKeyboard();
 
-            // widgets
-//			ArrayList<View> viewList = robot.getViews();
-            ArrayList<View> viewList = solo.getCurrentViews();
-            HashMap<String, Integer> objectsMap = new HashMap<>();
-            HashMap<String, Boolean> objectsVisibilityMap = new HashMap<>();
-            ArrayList<Integer> drawerIndexs = new ArrayList<>();
-            if (viewList != null) {
-                int i;
-                for (i = viewList.size() - 2; i >= 0; i--) {
-                    if (viewList.get(i).getClass().getName().endsWith("DecorView")) {
-                        break;
-                    }
-                }
-                if (i > 0) {
-                    ret.setPopupShowing(true);
-                }
-                HashMap<Integer, Integer> depths = new HashMap<>();
-                for (int i1 = 0, viewListSize = viewList.size(); i1 < viewListSize; i1++) {
-                    if (i1 <= i) {
-                        continue;
-                    }
-                    View v = viewList.get(i1);
-                    WidgetDescription wd = new WidgetDescription();
+			// widgets
+			ArrayList<View> viewList = solo.getViews();
+			HashMap<View, Integer> objectsMap = new HashMap<>();
+			HashMap<View, Boolean> objectsVisibilityMap = new HashMap<>();
+			HashMap<Integer, ArrayList<View>> drawerIndexs = new HashMap<>();
+
+			if (viewList != null) {
+				int i;
+				for (i = viewList.size() - 2; i >= 0; i--) {
+					if (viewList.get(i).getClass().getName().endsWith("DecorView")) {
+						break;
+					}
+				}
+				if (i > 0) {
+					ret.setPopupShowing(true);
+				}
+				HashMap<Integer, Integer> depths = new HashMap<>();
+				for (int i1 = 0, viewListSize = viewList.size(); i1 < viewListSize; i1++) {
+					if (i1 <= i) {
+						continue;
+					}
+					View v = viewList.get(i1);
+					WidgetDescription wd = new WidgetDescription();
 
                     Debug.info(this, "Found widget: id=" + v.getId() + " (" + v.toString() + ")");
 
@@ -136,17 +137,17 @@ public class ReflectionExtractor implements IExtractor {
                     wd.setType(v.getClass());
                     wd.setName(this.detectName(v));
 
-                    wd.setIndex(i1);
-                    objectsMap.put(v.toString(), i1);
+					wd.setIndex(i1);
 
-                    this.setViewListeners(ret, wd, v);
-
-                    this.setValue(v, wd);
+					this.setViewListeners(ret, wd, v);
+					wd.setClickable(v.isClickable());
+					wd.setLongClickable(v.isLongClickable());
+					this.setValue(v, wd);
 
                     wd.setEnabled(v.isEnabled());
 
-                    wd.setVisible(v.getVisibility() == View.VISIBLE);
-                    objectsVisibilityMap.put(v.toString(), v.getVisibility() == View.VISIBLE);
+					wd.setVisible(v.getVisibility() == View.VISIBLE);
+					objectsVisibilityMap.put(v, v.getVisibility() == View.VISIBLE);
 
                     // wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
                     if (v.getId() != View.NO_ID && activity.getResources() != null) {
@@ -169,29 +170,46 @@ public class ReflectionExtractor implements IExtractor {
 
                     if (v instanceof ImageView) {
 
-                    }
+					}
+					wd.setSimpleType(RipperSimpleType.getSimpleType(v));
+
+					if (v.getClass().getName().contains("Progress")) {
+						try {
+							wd.setVisible(((Animatable) v.getBackground()).isRunning());
+							wd.setSimpleType(SimpleType.PROGRESS);
+						} catch (ClassCastException e) {
+							e.printStackTrace();
+						}
+					}
 
                     setCount(v, wd);
 
-                    // ripper like
-                    try {
-                        wd.setSimpleType(RipperSimpleType.getSimpleType(v));
+					// ripper like
+					try {
+						if (wd.getSimpleType() != null && wd.getSimpleType().equals(SimpleType.DRAWER_LAYOUT)) {
+							ViewGroup drawer = ((ViewGroup) v);
+							ArrayList<View> ignore = new ArrayList<>(drawer.getChildCount() - 1);
+						 	for (int j = drawer.getChildCount() - 1; j >= 0; j--) {
+						 		View child = drawer.getChildAt(j);
+								if (child.getVisibility() == View.VISIBLE) {
+									for (int k = j - 1; k >= 0; k--) {
+										ignore.add(drawer.getChildAt(k));
+									}
+									break;
+								}
+						 	}
+						 	drawerIndexs.put(wd.getIndex(), ignore);
+						}
 
-                        // if (wd.getSimpleType() != null &&
-                        // wd.getSimpleType().equals(android.ripper.extension.test.constants.SimpleType.DRAWER_LAYOUT))
-                        // {
-                        // drawerIndexs.add(wd.getIndex());
-                        // }
+						try {
+							Class<?> c = Class.forName("android.support.design.internal.ScrimInsetsFrameLayout");
+							if (c.isAssignableFrom(v.getClass())) {
+								drawerIndexs.put(wd.getIndex(), new ArrayList<>());
 
-                        try {
-                            Class<?> c = Class.forName("android.support.design.internal.ScrimInsetsFrameLayout");
-                            if (c.isAssignableFrom(v.getClass())) {
-                                drawerIndexs.add(wd.getIndex());
-
-                                if (wd.getSimpleType() != null && wd.getSimpleType().equals("")) {
-                                    wd.setSimpleType(
-                                            it.unina.android.shared.ripper.constants.SimpleType.SCRIM_INSETS_FRAME_LAYOUT);
-                                }
+								if (wd.getSimpleType() != null && wd.getSimpleType().equals("")) {
+									wd.setSimpleType(
+											SimpleType.SCRIM_INSETS_FRAME_LAYOUT);
+								}
 
                             }
                         } catch (Throwable t) {
@@ -212,62 +230,80 @@ public class ReflectionExtractor implements IExtractor {
                     if (parentView instanceof View) {
                         View parent = (View) parentView;
 
-                        if (objectsVisibilityMap.containsKey(parent.toString())) {
-                            if (!objectsVisibilityMap.get(parent.toString())) {
-                                wd.setVisible(false);
-                                objectsVisibilityMap.put(v.toString(), false);
-                            }
-                        }
+						if (objectsVisibilityMap.containsKey(parent)) {
+							if (!objectsVisibilityMap.get(parent)) {
+								wd.setVisible(false);
+								objectsVisibilityMap.put(v, false);
+							}
+						}
 
-                        Integer parentIndex = objectsMap.get(parent.toString());
-                        wd.setParentIndex((parentIndex != null) ? parentIndex : -1);
-                        wd.setDepth(wd.getParentIndex().equals(-1) ? 0 : depths.get(parentIndex) + 1);
-                        depths.put(wd.getIndex(), wd.getDepth());
+						Integer parentIndex = objectsMap.get(parent);
+						if (parentIndex == null && i1 != i + 1 && !wd.getSimpleType().equals(SimpleType.PROGRESS)) {
+							continue;
+						}
+						if (parentIndex != null) {
+							boolean cont = false;
+							for (Integer drawerIndex : drawerIndexs.keySet()) {
+								if (parentIndex.equals(drawerIndex)) {
+									if (drawerIndexs.get(drawerIndex).contains(v)) {
+										if (wd.getVisible()) {
+											parentInfo(wd, parentIndex, parent, depths);
+											ret.addWidget(wd);
+										}
+										cont = true;
+									}
+									if (wd.getSimpleType() != null && wd.getSimpleType()
+											.equals(SimpleType.LIST_VIEW)) {
+										wd.setSimpleType(SimpleType.DRAWER_LIST_VIEW);
+									} else {
+										drawerIndexs.put(wd.getIndex(), new ArrayList<>());
+									}
+									break;
+								}
+							}
+							if (cont) continue;
+						}
+						parentInfo(wd, parentIndex, parent, depths);
+						objectsMap.put(v, i1);
 
-                        if (parentIndex != null) {
-                            for (Integer drawerIndex : drawerIndexs) {
-                                if (parentIndex.equals(drawerIndex)) {
-                                    if (wd.getSimpleType() != null && wd.getSimpleType()
-                                            .equals(SimpleType.LIST_VIEW)) {
-                                        wd.setSimpleType(SimpleType.DRAWER_LIST_VIEW);
-                                    } else {
-                                        drawerIndexs.add(wd.getIndex());
-                                    }
-                                    break;
-                                }
-                            }
-                        }
+					} else {
+						wd.setParentType("null");
+					}
 
-                        wd.setParentId(parent.getId());
-                        wd.setParentType(parent.getClass().getCanonicalName());
-                        wd.setParentName(this.detectName(parent));
+					if (wd.getVisible()) {
+						ret.addWidget(wd);
+					}
+				}
+			}
+		} catch (java.lang.Throwable t) {
+			t.printStackTrace();
+		}
+		if (ret.getWidgets().get(0).getType().getName().contains("Popup")) {
+			ret.setPopupShowing(true);
+		}
 
-                        if (parent.getId() == View.NO_ID) {
-                            View ancestor = detectFirstAncestorWithId(parent);
+		return ret;
+	}
 
-                            if (ancestor != null) {
-                                wd.setAncestorId(ancestor.getId());
-                                wd.setAncestorType(ancestor.getClass().getCanonicalName());
-                            } else {
-                                wd.setAncestorType("null");
-                            }
+	private void parentInfo(WidgetDescription wd, Integer parentIndex, View parent, HashMap<Integer, Integer> depths) {
+		wd.setParentIndex((parentIndex != null) ? parentIndex : -1);
+		wd.setDepth(wd.getParentIndex().equals(-1) ? 0 : depths.get(parentIndex) + 1);
+		depths.put(wd.getIndex(), wd.getDepth());
+		wd.setParentId(parent.getId());
+		wd.setParentType(parent.getClass().getCanonicalName());
+		wd.setParentName(this.detectName(parent));
+		if (parent.getId() == View.NO_ID) {
+			View ancestor = detectFirstAncestorWithId(parent);
 
-                        }
-                    } else {
-                        wd.setParentType("null");
-                    }
+			if (ancestor != null) {
+				wd.setAncestorId(ancestor.getId());
+				wd.setAncestorType(ancestor.getClass().getCanonicalName());
+			} else {
+				wd.setAncestorType("null");
+			}
 
-                    if (wd.getVisible()) {
-                        ret.addWidget(wd);
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-
-        return ret;
-    }
+		}
+	}
 
     /**
      * Detect the first Ancestor that owns a valid id value
