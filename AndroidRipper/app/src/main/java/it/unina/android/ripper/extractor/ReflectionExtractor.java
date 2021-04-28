@@ -21,6 +21,7 @@ package it.unina.android.ripper.extractor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.drawable.Animatable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -121,9 +122,10 @@ public class ReflectionExtractor implements IExtractor {
 
 			// widgets
 			ArrayList<View> viewList = robot.getViews();
-			HashMap<String, Integer> objectsMap = new HashMap<String, Integer>();
-			HashMap<String, Boolean> objectsVisibilityMap = new HashMap<String, Boolean>();
-			ArrayList<Integer> drawerIndexs = new ArrayList<Integer>();
+			HashMap<View, Integer> objectsMap = new HashMap<>();
+			HashMap<View, Boolean> objectsVisibilityMap = new HashMap<>();
+			HashMap<Integer, ArrayList<View>> drawerIndexs = new HashMap<>();
+
 			if (viewList != null) {
 				int i;
 				for (i = viewList.size() - 2; i >= 0; i--) {
@@ -149,7 +151,6 @@ public class ReflectionExtractor implements IExtractor {
 					wd.setName(this.detectName(v));
 
 					wd.setIndex(i1);
-					objectsMap.put(v.toString(), i1);
 
 					this.setViewListeners(ret, wd, v);
 					wd.setClickable(v.isClickable());
@@ -159,7 +160,7 @@ public class ReflectionExtractor implements IExtractor {
 					wd.setEnabled(v.isEnabled());
 
 					wd.setVisible(v.getVisibility() == View.VISIBLE);
-					objectsVisibilityMap.put(v.toString(), v.getVisibility() == View.VISIBLE);
+					objectsVisibilityMap.put(v, v.getVisibility() == View.VISIBLE);
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
 					if (v.getId() != View.NO_ID && activity.getResources() != null) {
@@ -183,23 +184,40 @@ public class ReflectionExtractor implements IExtractor {
 					if (v instanceof ImageView) {
 
 					}
+					wd.setSimpleType(RipperSimpleType.getSimpleType(v));
+
+					if (v.getClass().getName().contains("Progress")) {
+						try {
+							wd.setVisible(((Animatable) v.getBackground()).isRunning());
+							wd.setSimpleType(SimpleType.PROGRESS);
+						} catch (ClassCastException e) {
+							e.printStackTrace();
+						}
+					}
 
 					setCount(v, wd);
 
 					// ripper like
 					try {
-						wd.setSimpleType(RipperSimpleType.getSimpleType(v));
-
-						// if (wd.getSimpleType() != null &&
-						// wd.getSimpleType().equals(it.unina.android.ripper.constants.SimpleType.DRAWER_LAYOUT))
-						// {
-						// drawerIndexs.add(wd.getIndex());
-						// }
+						if (wd.getSimpleType() != null && wd.getSimpleType().equals(SimpleType.DRAWER_LAYOUT)) {
+							ViewGroup drawer = ((ViewGroup) v);
+							ArrayList<View> ignore = new ArrayList<>(drawer.getChildCount() - 1);
+						 	for (int j = drawer.getChildCount() - 1; j >= 0; j--) {
+						 		View child = drawer.getChildAt(j);
+								if (child.getVisibility() == View.VISIBLE) {
+									for (int k = j - 1; k >= 0; k--) {
+										ignore.add(drawer.getChildAt(k));
+									}
+									break;
+								}
+						 	}
+						 	drawerIndexs.put(wd.getIndex(), ignore);
+						}
 
 						try {
 							Class<?> c = Class.forName("android.support.design.internal.ScrimInsetsFrameLayout");
 							if (c.isAssignableFrom(v.getClass())) {
-								drawerIndexs.add(wd.getIndex());
+								drawerIndexs.put(wd.getIndex(), new ArrayList<>());
 
 								if (wd.getSimpleType() != null && wd.getSimpleType().equals("")) {
 									wd.setSimpleType(
@@ -222,50 +240,45 @@ public class ReflectionExtractor implements IExtractor {
 						t.printStackTrace();
 					}
 
-					if (parentView != null && View.class.isInstance(parentView)) {
+					if (parentView instanceof View) {
 						View parent = (View) parentView;
 
-						if (objectsVisibilityMap.containsKey(parent.toString())) {
-							if (objectsVisibilityMap.get(parent.toString()) == false) {
+						if (objectsVisibilityMap.containsKey(parent)) {
+							if (!objectsVisibilityMap.get(parent)) {
 								wd.setVisible(false);
-								objectsVisibilityMap.put(v.toString(), false);
+								objectsVisibilityMap.put(v, false);
 							}
 						}
 
-						Integer parentIndex = objectsMap.get(parent.toString());
-						wd.setParentIndex((parentIndex != null) ? parentIndex : -1);
-						wd.setDepth(wd.getParentIndex().equals(-1) ? 0 : depths.get(parentIndex) + 1);
-						depths.put(wd.getIndex(), wd.getDepth());
-
+						Integer parentIndex = objectsMap.get(parent);
+						if (parentIndex == null && i1 != i + 1 && !wd.getSimpleType().equals(SimpleType.PROGRESS)) {
+							continue;
+						}
 						if (parentIndex != null) {
-							for (Integer drawerIndex : drawerIndexs) {
-								if (drawerIndex != null && parentIndex.equals(drawerIndex)) {
+							boolean cont = false;
+							for (Integer drawerIndex : drawerIndexs.keySet()) {
+								if (parentIndex.equals(drawerIndex)) {
+									if (drawerIndexs.get(drawerIndex).contains(v)) {
+										if (wd.getVisible()) {
+											parentInfo(wd, parentIndex, parent, depths);
+											ret.addWidget(wd);
+										}
+										cont = true;
+									}
 									if (wd.getSimpleType() != null && wd.getSimpleType()
 											.equals(SimpleType.LIST_VIEW)) {
 										wd.setSimpleType(SimpleType.DRAWER_LIST_VIEW);
 									} else {
-										drawerIndexs.add(wd.getIndex());
+										drawerIndexs.put(wd.getIndex(), new ArrayList<>());
 									}
 									break;
 								}
 							}
+							if (cont) continue;
 						}
+						parentInfo(wd, parentIndex, parent, depths);
+						objectsMap.put(v, i1);
 
-						wd.setParentId(parent.getId());
-						wd.setParentType(parent.getClass().getCanonicalName());
-						wd.setParentName(this.detectName(parent));
-
-						if (parent.getId() == View.NO_ID) {
-							View ancestor = detectFirstAncestorWithId(parent);
-
-							if (ancestor != null) {
-								wd.setAncestorId(ancestor.getId());
-								wd.setAncestorType(ancestor.getClass().getCanonicalName());
-							} else {
-								wd.setAncestorType("null");
-							}
-
-						}
 					} else {
 						wd.setParentType("null");
 					}
@@ -278,8 +291,31 @@ public class ReflectionExtractor implements IExtractor {
 		} catch (java.lang.Throwable t) {
 			t.printStackTrace();
 		}
+		if (ret.getWidgets().get(0).getType().getName().contains("Popup")) {
+			ret.setPopupShowing(true);
+		}
 
 		return ret;
+	}
+
+	private void parentInfo(WidgetDescription wd, Integer parentIndex, View parent, HashMap<Integer, Integer> depths) {
+		wd.setParentIndex((parentIndex != null) ? parentIndex : -1);
+		wd.setDepth(wd.getParentIndex().equals(-1) ? 0 : depths.get(parentIndex) + 1);
+		depths.put(wd.getIndex(), wd.getDepth());
+		wd.setParentId(parent.getId());
+		wd.setParentType(parent.getClass().getCanonicalName());
+		wd.setParentName(this.detectName(parent));
+		if (parent.getId() == View.NO_ID) {
+			View ancestor = detectFirstAncestorWithId(parent);
+
+			if (ancestor != null) {
+				wd.setAncestorId(ancestor.getId());
+				wd.setAncestorType(ancestor.getClass().getCanonicalName());
+			} else {
+				wd.setAncestorType("null");
+			}
+
+		}
 	}
 
 	/**
