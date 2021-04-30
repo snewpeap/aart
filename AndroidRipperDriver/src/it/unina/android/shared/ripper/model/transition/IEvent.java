@@ -19,6 +19,11 @@
 
 package it.unina.android.shared.ripper.model.transition;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use= JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonSubTypes({@JsonSubTypes.Type(value = Event.class, name = "Event")})
 public interface IEvent {
 
 }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import android.ripper.extension.robustness.tools.ObjectTool;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.unina.android.shared.ripper.model.state.WidgetDescription;
 
 /**
@@ -43,6 +44,7 @@ public class Event implements Serializable, IEvent {
 	private String beforeExecutionStateUID = "UNDEFINED";
 	private String afterExecutionStateUID = "UNDEFINED";
 	private int idle = 0;
+	@JsonIgnore
 	public static final int IDLE_SIZE = 2000;
 
 	public void updateIdle(int newIdle) {
