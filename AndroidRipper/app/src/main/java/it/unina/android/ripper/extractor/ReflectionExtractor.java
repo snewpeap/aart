@@ -189,6 +189,7 @@ public class ReflectionExtractor implements IExtractor {
 					if (v.getClass().getName().contains("Progress")) {
 						try {
 							wd.setVisible(((Animatable) v.getBackground()).isRunning());
+							wd.setValue(String.valueOf(v.getBackgroundTintList()));
 							wd.setSimpleType(SimpleType.PROGRESS);
 						} catch (ClassCastException e) {
 							e.printStackTrace();
@@ -200,18 +201,23 @@ public class ReflectionExtractor implements IExtractor {
 					// ripper like
 					try {
 						if (wd.getSimpleType() != null && wd.getSimpleType().equals(SimpleType.DRAWER_LAYOUT)) {
-							ViewGroup drawer = ((ViewGroup) v);
-							ArrayList<View> ignore = new ArrayList<>(drawer.getChildCount() - 1);
-						 	for (int j = drawer.getChildCount() - 1; j >= 0; j--) {
-						 		View child = drawer.getChildAt(j);
-								if (child.getVisibility() == View.VISIBLE) {
-									for (int k = j - 1; k >= 0; k--) {
-										ignore.add(drawer.getChildAt(k));
+							ViewGroup drawer;
+							if (v instanceof ViewGroup) {
+								drawer = ((ViewGroup) v);
+								ArrayList<View> ignore = new ArrayList<>();
+								for (int j = drawer.getChildCount() - 1; j >= 0; j--) {
+									View child = drawer.getChildAt(j);
+									if (child.getVisibility() == View.VISIBLE) {
+										for (int k = j - 1; k >= 0; k--) {
+											View ignored = drawer.getChildAt(k);
+											Debug.info(this, "Ignoring " + ignored.toString());
+											ignore.add(ignored);
+										}
+										break;
 									}
-									break;
 								}
-						 	}
-						 	drawerIndexs.put(wd.getIndex(), ignore);
+								drawerIndexs.put(wd.getIndex(), ignore);
+							}
 						}
 
 						try {
@@ -243,7 +249,7 @@ public class ReflectionExtractor implements IExtractor {
 					if (parentView instanceof View) {
 						View parent = (View) parentView;
 
-						if (objectsVisibilityMap.containsKey(parent)) {
+						if (objectsVisibilityMap.containsKey(parent) && !wd.getSimpleType().equals(SimpleType.PROGRESS)) {
 							if (!objectsVisibilityMap.get(parent)) {
 								wd.setVisible(false);
 								objectsVisibilityMap.put(v, false);
@@ -258,7 +264,8 @@ public class ReflectionExtractor implements IExtractor {
 							boolean cont = false;
 							for (Integer drawerIndex : drawerIndexs.keySet()) {
 								if (parentIndex.equals(drawerIndex)) {
-									if (drawerIndexs.get(drawerIndex).contains(v)) {
+									ArrayList<View> ignore = drawerIndexs.get(drawerIndex);
+									if (ignore.contains(v)) {
 										if (wd.getVisible()) {
 											parentInfo(wd, parentIndex, parent, depths);
 											ret.addWidget(wd);
@@ -269,6 +276,9 @@ public class ReflectionExtractor implements IExtractor {
 											.equals(SimpleType.LIST_VIEW)) {
 										wd.setSimpleType(SimpleType.DRAWER_LIST_VIEW);
 									} else {
+										if (!ignore.isEmpty() && wd.getClickable() && wd.isEnabled()) {
+											wd.setSimpleType(SimpleType.LIST_ITEM);
+										}
 										drawerIndexs.put(wd.getIndex(), new ArrayList<>());
 									}
 									break;
@@ -291,7 +301,7 @@ public class ReflectionExtractor implements IExtractor {
 		} catch (java.lang.Throwable t) {
 			t.printStackTrace();
 		}
-		if (ret.getWidgets().get(0).getType().getName().contains("Popup")) {
+		if (ret.getWidgets().get(0).getType().getCanonicalName().contains("Popup")) {
 			ret.setPopupShowing(true);
 		}
 
