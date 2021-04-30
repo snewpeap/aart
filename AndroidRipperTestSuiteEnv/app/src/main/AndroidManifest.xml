@@ -3,7 +3,7 @@
     package="android.ripper.extension.test">
 
     <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
+        android:name="androidx.test.runner.AndroidJUnitRunner"
         android:targetPackage="com.perflyst.twire"/>
     <application android:icon="@mipmap/ic_launcher" android:label="@string/app_name">
         <uses-library android:name="android.test.runner"/>
