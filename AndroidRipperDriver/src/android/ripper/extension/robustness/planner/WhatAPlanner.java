@@ -115,14 +115,11 @@ public class WhatAPlanner extends Planner {
 		provider.put(MULTI_CHOICE_LIST, wd -> new ListViewEventPlanner(wd, MAX_INTERACTIONS_FOR_MULTI_CHOICE_LIST));
 		provider.put(SPINNER, wd -> new SpinnerEventPlanner(wd, MAX_INTERACTIONS_FOR_SPINNER));
 		provider.put(RADIO_GROUP, wd -> new RadioGroupEventPlanner(wd, MAX_INTERACTIONS_FOR_RADIO_GROUP));
-//		provider.put(TEXT_VIEW, TextViewEventPlanner::new);
-//		provider.put(IMAGE_VIEW, ImageViewEventPlanner::new);
 		provider.put(SEEK_BAR, SeekBarEventPlanner::new);
 		provider.put(RATING_BAR, SeekBarEventPlanner::new);
 		provider.put(MENU_ITEM, MenuItemEventPlanner::new);
+		provider.put(LIST_ITEM, MenuItemEventPlanner::new);
 		Function<WidgetDescription, WidgetEventPlanner> nul = wd -> null;
-//		provider.put(RELATIVE_LAYOUT, nul);
-//		provider.put(LINEAR_LAYOUT, nul);
 		provider.put(WEB_VIEW, nul);
 		for (String type : HandlerBasedPlanner.inputWidgetList)
 			provider.put(type, nul);

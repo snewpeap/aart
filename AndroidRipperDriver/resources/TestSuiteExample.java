@@ -759,7 +759,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
 	}
 
 	public void sync() {
-		getInstrumentation().waitForIdleSync();
+//		getInstrumentation().waitForIdleSync();
 	}
 
 	public void debug (String msg) {

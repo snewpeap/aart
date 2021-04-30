@@ -41,9 +41,9 @@ public class State extends ActivityDescription {
                                 getWidgets() == s.getWidgets(); //null case
                 Supplier<Comparand<State>> su = () -> Comparand.of(this, s);
                 return widgetsEquality &&
-                        propEquals(su, State::getName) &&
-                        propEquals(su, State::getClassName) &&
-                        propEquals(su, State::hasMenu) &&
+//                        propEquals(su, State::getName) &&
+//                        propEquals(su, State::getClassName) &&
+//                        propEquals(su, State::hasMenu) &&
                         (isTabActivity() ?
                                 s.isTabActivity() &&
                                         propEquals(su, State::getTabsCount) &&
@@ -60,6 +60,7 @@ public class State extends ActivityDescription {
         return hierarchyEquals(s) || getWidgets() == s.getWidgets();
     }
 
+    @JsonIgnore
     protected final HashMap<Integer, HashMap<String, VirtualWD>> hierarchy = new HashMap<>();
 
     /**

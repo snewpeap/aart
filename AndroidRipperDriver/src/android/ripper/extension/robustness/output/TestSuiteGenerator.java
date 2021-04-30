@@ -40,6 +40,12 @@ public class TestSuiteGenerator {
         recoverFactory.addParam(true);
         recoverFactory.setMobileData(new int[]{0});
 
+        try {
+            Path path = Paths.get("transitions.json");
+            Files.write(path, new ObjectMapper().writeValueAsBytes(transitions));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
 
         for (Transition transition : coverage.cherryPick(transitions)) {
             //always start running from the root state
@@ -63,7 +69,6 @@ public class TestSuiteGenerator {
 //            shouldBeState.put(id, transition.getToState());
             STATE_INDEX++;
             testTrace.append("report(").append("shouldBeState").append(", new State(extractor.extract()), ").append(id).append(");\n");
-            //TODO check the rate of coverage
             testTrace.append("}\n");
             id++;
         }

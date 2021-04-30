@@ -31,12 +31,12 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
-//import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
 import static android.ripper.extension.robustness.model.State.EXIT_STATE;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
 import static it.unina.android.shared.ripper.model.transition.Event.IDLE_SIZE;
+
+//import static android.ripper.extension.robustness.tools.MethodNameHelper.caller;
 
 /**
  * Android Automated Robustness Test Driver
@@ -91,6 +91,7 @@ public class AARTDriver extends AbstractDriver {
 						addNewState();
 						yabScheduler.addTasks(planner.plan(taskJustDone, currState));
 					}
+
 					if (prevState != null && !noTaskJustDone) {
 						Transition transition = TransitionHelper.v(prevState, currState, taskJustDone);
 						if ((lastTransition = transitions.putIfAbsent(transition, transition)) == null) {
@@ -99,6 +100,7 @@ public class AARTDriver extends AbstractDriver {
 					} else                    //null prevState and nonempty states set mean accident
 						yabScheduler.needRecovery();
 				}
+
 				if (noTaskJustDone) {
 					currState.updateIdle(idle);
 				} else {
@@ -191,7 +193,7 @@ public class AARTDriver extends AbstractDriver {
 	private void idle(int ms) {
 		if (ms > 0) {
 			try {
-				Thread.sleep(ms + 4000);
+				Thread.sleep(ms + 3000);
 			} catch (InterruptedException ignored) {
 			}
 		}
@@ -349,11 +351,11 @@ public class AARTDriver extends AbstractDriver {
 
 		private boolean back = false;
 		private boolean recovery = false;
-		private Pair<State, TaskList> pivot = null;	//current BFS pivot state and its taskList
+		private Pair<State, TaskList> pivot = null;    //current BFS pivot state and its taskList
 		private final Deque<State> bfsDeque = new ArrayDeque<>();
 		private final Set<String> pivoted = new HashSet<>();//uid of states that used to be pivot
 		private Task pathToPivot = null;
-		private static final int MAX_FAIL = 2;
+		private static final int MAX_FAIL = 1;
 		private int fail = MAX_FAIL;
 
 		public YetAnotherBreadthScheduler() {
@@ -407,6 +409,11 @@ public class AARTDriver extends AbstractDriver {
 							fail -= 1;
 							nextTask = pathToPivot.listIterator(0);
 						}
+					} else {
+						ListIterator<Task> iter = pivot.getValue().getIterator();
+						if (!iter.hasNext()) {
+							nextTask = newPivotAsNextTask();
+						}
 					}
 				}
 			}
@@ -448,17 +455,16 @@ public class AARTDriver extends AbstractDriver {
 		 */
 		private Task assignNextPivot() {
 			State prevPivot = pivot.getKey();
-			List<Transition> collect = transitions.values().stream()
-					.sorted(Comparator.comparing(t -> t.getToState().getUid(), Comparator.comparingInt(Integer::parseInt)))
-					.filter(t -> t.getFromState().equals(prevPivot))
-					.collect(Collectors.toList());
 			//enqueue bfs target, possibly no state enqueue
-			collect.stream().filter(t -> {
-				State to = t.getToState();
-				return !EXIT_STATE.equals(to) &&
-						!pivoted.contains(to.getUid()) &&
-						schedule.containsKey(to);
-			}).map(Transition::getToState).distinct().forEachOrdered(e -> {
+			transitions.values().stream()
+					.sorted(Comparator.comparing(t -> t.getToState().getUid(), Comparator.comparingInt(Integer::parseInt)))
+					.filter(t -> {
+						State to = t.getToState();
+						return !EXIT_STATE.equals(to) &&
+								!pivoted.contains(to.getUid()) &&
+								t.getFromState().equals(prevPivot) &&
+								schedule.containsKey(to);
+					}).map(Transition::getToState).distinct().forEachOrdered(e -> {
 				pivoted.add(e.getUid());
 				bfsDeque.push(e);
 			});
@@ -470,13 +476,9 @@ public class AARTDriver extends AbstractDriver {
 				pivot = Pair.of(newPivot, schedule.get(newPivot));
 				notifyRipperLog(String.format("Assign new pivot = State %s", newPivot.getUid()));
 				//find the latest transition from previous pivot to new pivot
-				Transition transitionToNewPivot = null;
-				for (Transition t : collect) {
-					if (t.getToState().equals(newPivot)) {
-						transitionToNewPivot = t;
-						break;
-					}
-				}
+				Transition transitionToNewPivot = transitions.values().stream()
+						.filter(t -> t.getFromState().equals(currState) && t.getToState().equals(newPivot))
+						.findFirst().orElse(null);
 				if (transitionToNewPivot == null) {
 					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
 							prevPivot.getUid(), newPivot.getUid()));
@@ -491,17 +493,17 @@ public class AARTDriver extends AbstractDriver {
 		}
 
 		private ListIterator<IEvent> newPivotAsNextTask() {
-			pathToPivot = assignNextPivot();
+			Task currPathToPivot = assignNextPivot();
 			if (pivot == null) {
 				notifyRipperLog("No more new pivot");
 				return null;
 			}
-			if (pathToPivot == null) {
-				pathToPivot = (Task) schedule.get(pivot.getKey()).get(0).clone();
-				pathToPivot.remove(pathToPivot.size() - 1);
+			pathToPivot = (Task) schedule.get(pivot.getKey()).get(0).clone();
+			pathToPivot.remove(pathToPivot.size() - 1);
+			if (currPathToPivot == null) {
 				return pathToPivot.listIterator(pathToPivot.size());
 			}
-			return pathToPivot.listIterator(pathToPivot.size() - 1);
+			return currPathToPivot.listIterator(pathToPivot.size() - 1);
 		}
 
 		private ListIterator<IEvent> nextTaskAtPivot(ListIterator<Task> iter) {

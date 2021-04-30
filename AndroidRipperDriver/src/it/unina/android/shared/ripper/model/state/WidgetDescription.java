@@ -19,8 +19,6 @@
 
 package it.unina.android.shared.ripper.model.state;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
