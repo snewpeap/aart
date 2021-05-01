@@ -20,10 +20,13 @@ package android.ripper.extension.test.extractor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.UiAutomation;
 import android.graphics.drawable.Animatable;
+import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.AbsSpinner;
 import android.widget.AdapterView;
 import android.widget.Checkable;
@@ -36,6 +39,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import android.ripper.extension.test.constants.RipperSimpleType;
 import android.ripper.extension.test.extractor.helper.ReflectionHelper;
@@ -65,13 +69,15 @@ New author
 public class ReflectionExtractor implements IExtractor {
 
     private final Solo solo;
+	private ActivityInstrumentationTestCase2<?> testCase = null;
 
 
     /**
      *
      * @param solo solo
      */
-    public ReflectionExtractor(Solo solo) {
+    public ReflectionExtractor(Solo solo, ActivityInstrumentationTestCase2<?> testCase) {
+    	this.testCase = testCase;
         this.solo = solo;
     }
 
@@ -90,18 +96,18 @@ public class ReflectionExtractor implements IExtractor {
         ret.setHandlesKeyPress(this.handlesKeyPress(activity));
         ret.setHandlesLongKeyPress(this.handlesLongKeyPress(activity));
 
-        boolean isTabActivity = this.isTabActivity(activity);
-        ret.setIsTabActivity(isTabActivity);
-        if (isTabActivity) {
-            ret.setTabsCount(this.getTabActivityTabsCount(activity));
-            ret.setCurrentTab(this.getTabActivityPosition(activity));
-        }
+		boolean isTabActivity = this.isTabActivity(activity);
+		ret.setIsTabActivity(isTabActivity);
+		if (isTabActivity) {
+			ret.setTabsCount(this.getTabActivityTabsCount(activity));
+			ret.setCurrentTab(this.getTabActivityPosition(activity));
+		}
 
-        if (activity.isTaskRoot()) {
-            ret.setIsRootActivity(true);
-        }
+		if (activity.isTaskRoot()) {
+			ret.setIsRootActivity(true);
+		}
 
-        ret.setListeners(this.getActivityListeners(activity));
+		ret.setListeners(this.getActivityListeners(activity));
 
         try {
 
@@ -131,11 +137,11 @@ public class ReflectionExtractor implements IExtractor {
 					View v = viewList.get(i1);
 					WidgetDescription wd = new WidgetDescription();
 
-                    Debug.info(this, "Found widget: id=" + v.getId() + " (" + v.toString() + ")");
+					Debug.info(this, "Found widget: id=" + v.getId() + " (" + v.toString() + ")");
 
-                    wd.setId(v.getId());
-                    wd.setType(v.getClass());
-                    wd.setName(this.detectName(v));
+					wd.setId(v.getId());
+					wd.setType(v.getClass());
+					wd.setName(this.detectName(v));
 
 					wd.setIndex(i1);
 
@@ -144,46 +150,51 @@ public class ReflectionExtractor implements IExtractor {
 					wd.setLongClickable(v.isLongClickable());
 					this.setValue(v, wd);
 
-                    wd.setEnabled(v.isEnabled());
+					wd.setEnabled(v.isEnabled());
 
-					wd.setVisible(v.getVisibility() == View.VISIBLE);
-					objectsVisibilityMap.put(v, v.getVisibility() == View.VISIBLE);
+					wd.setVisible(v.getVisibility() == View.VISIBLE && crossValidateViewExistence(v));
+					objectsVisibilityMap.put(v, wd.getVisible());
 
-                    // wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
-                    if (v.getId() != View.NO_ID && activity.getResources() != null) {
-                        try {
-                            String debugMe = activity.getResources().getResourceEntryName(v.getId());
-                            wd.setTextualId(debugMe);
-                            Debug.info(this, "Widget: id=" + v.getId() + " r_id= " + debugMe + ")");
-                        } catch (Throwable t) {
-                            wd.setTextualId(Integer.toString(v.getId()));
-                        }
-                    }
+					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
+					if (v.getId() != View.NO_ID && activity.getResources() != null) {
+						try {
+							String debugMe = activity.getResources().getResourceEntryName(v.getId());
+							wd.setTextualId(debugMe);
+							Debug.info(this, "Widget: id=" + v.getId() + " r_id= " + debugMe + ")");
+						} catch (Throwable t) {
+							wd.setTextualId(Integer.toString(v.getId()));
+						}
+					}
 
-                    if (v instanceof TextView) {
-                        wd.setTextType(((TextView) v).getInputType());
-                    }
+					if (v instanceof TextView) {
+						wd.setTextType(((TextView) v).getInputType());
+					}
 
-                    if (v instanceof TabHost) {
-                        // Log.d(TAG, "Found tabhost: id=" + w.getId());
-                    }
+					if (v instanceof TabHost) {
+						// Log.d(TAG, "Found tabhost: id=" + w.getId());
+					}
 
-                    if (v instanceof ImageView) {
+					if (v instanceof ImageView) {
 
 					}
 					wd.setSimpleType(RipperSimpleType.getSimpleType(v));
 
 					if (v.getClass().getName().contains("Progress")) {
-						try {
-							wd.setVisible(((Animatable) v.getBackground()).isRunning());
-							wd.setValue(String.valueOf(v.getBackgroundTintList()));
+						if (v instanceof ProgressBar) {
+							wd.setVisible(((ProgressBar) v).isAnimating());
 							wd.setSimpleType(SimpleType.PROGRESS);
-						} catch (ClassCastException e) {
-							e.printStackTrace();
+						} else {
+							try {
+								Debug.info(this, v.toString());
+								wd.setVisible(((Animatable) v.getBackground()).isRunning());
+								wd.setSimpleType(SimpleType.PROGRESS);
+							} catch (ClassCastException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 
-                    setCount(v, wd);
+					setCount(v, wd);
 
 					// ripper like
 					try {
@@ -217,26 +228,26 @@ public class ReflectionExtractor implements IExtractor {
 											SimpleType.SCRIM_INSETS_FRAME_LAYOUT);
 								}
 
-                            }
-                        } catch (Throwable t) {
-                            // t.printStackTrace();
-                        }
-                    } catch (Throwable t) {
-                        System.out.println("DescriptionError: " + t.getMessage());
-                        wd.setSimpleType("");
-                    }
-                    ViewParent parentView = null;
+							}
+						} catch (Throwable t) {
+							// t.printStackTrace();
+						}
+					} catch (Throwable t) {
+						System.out.println("DescriptionError: " + t.getMessage());
+						wd.setSimpleType("");
+					}
+					ViewParent parentView = null;
 
-                    try {
-                        parentView = v.getParent();
-                    } catch (Throwable t) {
-                        t.printStackTrace();
-                    }
+					try {
+						parentView = v.getParent();
+					} catch (Throwable t) {
+						t.printStackTrace();
+					}
 
-                    if (parentView instanceof View) {
-                        View parent = (View) parentView;
+					if (parentView instanceof View) {
+						View parent = (View) parentView;
 
-						if (objectsVisibilityMap.containsKey(parent)) {
+						if (objectsVisibilityMap.containsKey(parent) && !wd.getSimpleType().equals(SimpleType.PROGRESS)) {
 							if (!objectsVisibilityMap.get(parent)) {
 								wd.setVisible(false);
 								objectsVisibilityMap.put(v, false);
@@ -266,7 +277,7 @@ public class ReflectionExtractor implements IExtractor {
 										if (!ignore.isEmpty() && wd.getClickable() && wd.isEnabled()) {
 											wd.setSimpleType(SimpleType.LIST_ITEM);
 										}
-										drawerIndexs.put(wd.getIndex(), new ArrayList<>());
+										drawerIndexs.put(wd.getIndex(), ignore);
 									}
 									break;
 								}
@@ -283,6 +294,7 @@ public class ReflectionExtractor implements IExtractor {
 					if (wd.getVisible()) {
 						ret.addWidget(wd);
 					}
+					Debug.log(this, "wd " + wd + " " + (wd.getVisible() ? "visible" : "invisible"));
 				}
 			}
 		} catch (java.lang.Throwable t) {
@@ -314,6 +326,59 @@ public class ReflectionExtractor implements IExtractor {
 
 		}
 	}
+
+	public UiAutomation getUiAutomation() {
+		return testCase.getInstrumentation().getUiAutomation();
+	}
+
+    public boolean crossValidateViewExistence(View v) {
+        AccessibilityNodeInfo root = null;
+        do {
+//			for (AccessibilityWindowInfo window : getUiAutomation().getWindows()) {
+//				if (window.getId() == Integer.MAX_VALUE) {
+//					root = window.getRoot();
+//				}
+//			}
+            root = getUiAutomation().getRootInActiveWindow();
+        } while (root == null);
+        String resourceId = null;
+        if (v.getId() != View.NO_ID && testCase.getActivity().getResources() != null) {
+            try {
+                resourceId = testCase.getActivity().getResources().getResourceEntryName(v.getId());
+            } catch (Exception ignored) {
+            }
+        }
+        return found(root, v, resourceId);
+    }
+
+    private boolean found(AccessibilityNodeInfo nodeInfo, View v, String resourceId) {
+        String viewIdResourceName = nodeInfo.getViewIdResourceName();
+        if (((resourceId != null && viewIdResourceName != null && viewIdResourceName.endsWith(resourceId)) ||
+                Objects.equals(nodeInfo.getClassName(), v.getAccessibilityClassName())) &&
+                Objects.equals(nodeInfo.isClickable(), v.isClickable()) &&
+                Objects.equals(nodeInfo.isEnabled(), v.isEnabled()) &&
+                Objects.equals(nodeInfo.isLongClickable(), v.isLongClickable()) &&
+                Objects.equals(nodeInfo.isFocused(), v.isFocused())) {
+            return true;
+        } else {
+            Debug.log(this, String.format("Expect %s,%s,%s,%s,%s,%s but is %s,%s,%s,%s,%s,%s",
+                    resourceId, v.getAccessibilityClassName(), v.isClickable(), v.isEnabled(), v.isLongClickable(), v.isFocused(),
+                    viewIdResourceName, nodeInfo.getClassName(), nodeInfo.isClickable(), nodeInfo.isEnabled(), nodeInfo.isLongClickable(), nodeInfo.isFocused()));
+            int count = nodeInfo.getChildCount();
+            if (count != 0) {
+                for (int i = 0; i < count; i++) {
+                    AccessibilityNodeInfo child = nodeInfo.getChild(i);
+                    if (child != null && child.isVisibleToUser() && found(child, v, resourceId)) {
+                        Debug.info(this, "Found");
+                        return true;
+                    } else {
+                        child.recycle();
+                    }
+                }
+            }
+            return false;
+        }
+    }
 
     /**
      * Detect the first Ancestor that owns a valid id value
