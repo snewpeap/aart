@@ -50,7 +50,9 @@ public interface IRobot {
 	 */
 	public abstract Instrumentation getInstrumentation();
 
-	/**
+    boolean crossValidateViewExistence(View v);
+
+    /**
 	 * Click on View
 	 * 
 	 * @param View

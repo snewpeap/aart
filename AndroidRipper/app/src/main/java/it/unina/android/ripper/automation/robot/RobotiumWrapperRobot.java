@@ -19,32 +19,37 @@
 
 package it.unina.android.ripper.automation.robot;
 
-import it.unina.android.ripper.constants.RipperSimpleType;
-import it.unina.android.ripper.log.Debug;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.app.UiAutomation;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.robotium.solo.Solo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import it.unina.android.ripper.constants.RipperSimpleType;
+import it.unina.android.ripper.log.Debug;
 
 
 /**
@@ -91,7 +96,13 @@ public class RobotiumWrapperRobot implements IRobot
 	{
 		testCase = test;
 		solo = new Solo (testCase.getInstrumentation(), testCase.getActivity());
-		
+		AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
+		info.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+		info.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
+		info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+		getUiAutomation().setServiceInfo(info);
+
+
 		//init widget lists
 		this.theViews = new HashMap<Integer,View>();
 		this.allViews = new ArrayList<View>();
@@ -114,6 +125,60 @@ public class RobotiumWrapperRobot implements IRobot
 	public Instrumentation getInstrumentation()
 	{
 		return testCase.getInstrumentation();
+	}
+
+	public UiAutomation getUiAutomation() {
+		return getInstrumentation().getUiAutomation();
+	}
+
+	@Override
+	public boolean crossValidateViewExistence(View v) {
+		AccessibilityNodeInfo root = null;
+		do {
+//			for (AccessibilityWindowInfo window : getUiAutomation().getWindows()) {
+//				if (window.getId() == Integer.MAX_VALUE) {
+//					root = window.getRoot();
+//				}
+//			}
+			root = getUiAutomation().getRootInActiveWindow();
+		} while (root == null);
+		String resourceId = null;
+		if (v.getId() != View.NO_ID && testCase.getActivity().getResources() != null) {
+			try {
+				resourceId = testCase.getActivity().getResources().getResourceEntryName(v.getId());
+			} catch (Exception ignored) {
+			}
+		}
+		return found(root, v, resourceId);
+	}
+
+	private boolean found(AccessibilityNodeInfo nodeInfo, View v, String resourceId) {
+		String viewIdResourceName = nodeInfo.getViewIdResourceName();
+		if (((resourceId != null && viewIdResourceName != null && viewIdResourceName.endsWith(resourceId)) ||
+				Objects.equals(nodeInfo.getClassName(), v.getAccessibilityClassName())) &&
+				Objects.equals(nodeInfo.isClickable(), v.isClickable()) &&
+				Objects.equals(nodeInfo.isEnabled(), v.isEnabled()) &&
+				Objects.equals(nodeInfo.isLongClickable(), v.isLongClickable()) &&
+				Objects.equals(nodeInfo.isFocused(), v.isFocused())) {
+			return true;
+		} else {
+			Debug.log(this, String.format("Expect %s,%s,%s,%s,%s,%s but is %s,%s,%s,%s,%s,%s",
+					resourceId, v.getAccessibilityClassName(), v.isClickable(), v.isEnabled(), v.isLongClickable(), v.isFocused(),
+					viewIdResourceName, nodeInfo.getClassName(), nodeInfo.isClickable(), nodeInfo.isEnabled(), nodeInfo.isLongClickable(), nodeInfo.isFocused()));
+			int count = nodeInfo.getChildCount();
+			if (count != 0) {
+				for (int i = 0; i < count; i++) {
+					AccessibilityNodeInfo child = nodeInfo.getChild(i);
+					if (child != null && child.isVisibleToUser() && found(child, v, resourceId)) {
+						Debug.info(this, "Found");
+						return true;
+					} else {
+						child.recycle();
+					}
+				}
+			}
+			return false;
+		}
 	}
 	
 	/* (non-Javadoc)

@@ -309,7 +309,10 @@ public class RipperAutomation implements IAutomation {
 		{
 			v = this.robot.getCurrentListViews().get(0);
 		}
-		
+		else {
+			v = this.robot.getWidget(widgetIndex);
+		}
+
 		if (v == null) {
 			for (View w: this.robot.getAllWidgets()) {
 				if (w instanceof Button) {
