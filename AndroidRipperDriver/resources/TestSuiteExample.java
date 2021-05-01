@@ -6,7 +6,6 @@ package android.ripper.extension.test;
 //	be set to the package of the application under test (that is PACKAGE_NAME below) */
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import com.robotium.solo.Solo;
 import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.test.extractor.IExtractor;
 import android.ripper.extension.test.extractor.ReflectionExtractor;
-import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
@@ -26,16 +24,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Objects;
 import junit.framework.Assert;
 import android.test.ActivityInstrumentationTestCase2;
 import org.apache.commons.lang3.StringEscapeUtils;
 import androidx.test.uiautomator.UiDevice;
-import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
 import static android.view.Surface.*;
 

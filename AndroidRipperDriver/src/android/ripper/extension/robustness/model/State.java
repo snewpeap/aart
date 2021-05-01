@@ -415,8 +415,6 @@ public class State extends ActivityDescription {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getClassName(),
-                getHasMenu(), getHandlesKeyPress(), getHandlesLongKeyPress(),
-                getIsTabActivity(), getTabsCount(), getCurrentTab(), getHierarchy());
+        return Objects.hash(getIsTabActivity(), getTabsCount(), getCurrentTab(), getHierarchy());
     }
 }

@@ -120,8 +120,6 @@ public class AARTDriver extends AbstractDriver {
 			endLoop();
 		} while (running && !checkTerminationCriteria());
 
-		//TODO Model output
-
 		if (generateTestSuite)
 			testSuiteGenerator.generate(new HashSet<>(transitions.values()));
 		notifyRipperEnded();
@@ -413,6 +411,14 @@ public class AARTDriver extends AbstractDriver {
 						ListIterator<Task> iter = pivot.getValue().getIterator();
 						if (!iter.hasNext()) {
 							nextTask = newPivotAsNextTask();
+						} else {
+							Optional<Transition> transition;
+							if ((transition = transitions.values().stream().filter(t -> currState.equals(t.getFromState()) && pivot.getKey().equals(t.getToState())).findFirst()).isPresent()) {
+								Task task = transition.get().getTask();
+								nextTask = task.listIterator(task.size() - 1);
+								recovery = true;
+								fail -= 1;
+							}
 						}
 					}
 				}
@@ -500,10 +506,9 @@ public class AARTDriver extends AbstractDriver {
 			}
 			pathToPivot = (Task) schedule.get(pivot.getKey()).get(0).clone();
 			pathToPivot.remove(pathToPivot.size() - 1);
-			if (currPathToPivot == null) {
-				return pathToPivot.listIterator(pathToPivot.size());
-			}
-			return currPathToPivot.listIterator(pathToPivot.size() - 1);
+			return currPathToPivot == null ?
+					pathToPivot.listIterator(pathToPivot.size()) :
+					currPathToPivot.listIterator(currPathToPivot.size() - 1);
 		}
 
 		private ListIterator<IEvent> nextTaskAtPivot(ListIterator<Task> iter) {
