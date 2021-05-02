@@ -5,6 +5,7 @@ import android.ripper.extension.robustness.strategy.Coverage;
 import android.ripper.extension.robustness.strategy.Perturb;
 import android.ripper.extension.robustness.strategy.perturb.OperationFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -74,7 +75,7 @@ public class TestSuiteGenerator {
         }
         //TODO add Serializable here
         replaceTestFile(testcase, testTrace.toString());
-        replaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
+//        replaceTestFile(perturb_, perturbFactory.buildMethod() + recoverFactory.buildMethod());
         String target;
         try {
             Path path = Paths.get("StateContainer" + CLASS_INDEX + ".java");
@@ -159,5 +160,18 @@ public class TestSuiteGenerator {
         }
     }
 
+    public static void main(String[] args) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        TestSuiteGenerator testSuiteGenerator = new TestSuiteGenerator("", "lifts", "all", args[0]);
+        System.out.println(System.getenv());
+        Set<Transition> transitions = null;
+        try {
+            File file = new File(args[1]);
+            transitions = objectMapper.readValue(file, new TypeReference<Set<Transition>>() {});
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        testSuiteGenerator.generate(transitions);
+    }
 
 }
