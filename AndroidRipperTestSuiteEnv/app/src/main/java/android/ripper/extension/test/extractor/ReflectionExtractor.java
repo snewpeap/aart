@@ -114,7 +114,7 @@ public class ReflectionExtractor implements IExtractor {
             solo.hideSoftKeyboard();
 
 			// widgets
-			ArrayList<View> viewList = solo.getViews();
+			ArrayList<View> viewList = solo.getCurrentViews();
 			HashMap<View, Integer> objectsMap = new HashMap<>();
 			HashMap<View, Boolean> objectsVisibilityMap = new HashMap<>();
 			HashMap<Integer, ArrayList<View>> drawerIndexs = new HashMap<>();
@@ -152,7 +152,7 @@ public class ReflectionExtractor implements IExtractor {
 
 					wd.setEnabled(v.isEnabled());
 
-					wd.setVisible(v.getVisibility() == View.VISIBLE && crossValidateViewExistence(v));
+					wd.setVisible(v.getVisibility() == View.VISIBLE && (ret.getPopupShowing() || crossValidateViewExistence(v)));
 					objectsVisibilityMap.put(v, wd.getVisible());
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
