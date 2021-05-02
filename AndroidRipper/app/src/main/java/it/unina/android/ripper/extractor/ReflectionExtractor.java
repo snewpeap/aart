@@ -159,7 +159,7 @@ public class ReflectionExtractor implements IExtractor {
 
 					wd.setEnabled(v.isEnabled());
 
-					wd.setVisible(v.getVisibility() == View.VISIBLE && robot.crossValidateViewExistence(v));
+					wd.setVisible(v.getVisibility() == View.VISIBLE && (ret.getPopupShowing() || robot.crossValidateViewExistence(v)));
 					objectsVisibilityMap.put(v, wd.getVisible());
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
