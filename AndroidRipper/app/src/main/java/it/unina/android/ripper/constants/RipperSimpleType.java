@@ -104,6 +104,7 @@ public class RipperSimpleType extends it.unina.android.shared.ripper.constants.S
 		if (type.endsWith("NumberPicker")) return NUMBER_PICKER;
 		if (type.endsWith("NumberPickerButton")) return NUMBER_PICKER_BUTTON;
 		if (type.endsWith("RecyclerView")) return RECYCLER_VIEW;
+		if (type.endsWith("TabLayout.TabView")) return TAB_LAYOUT_ITEM;
 		
 		String parentType = v.getClass().getSuperclass().getName();
 		if (alreadyCalled == false && parentType != null) {

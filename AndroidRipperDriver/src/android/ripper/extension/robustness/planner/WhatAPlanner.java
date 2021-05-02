@@ -118,7 +118,7 @@ public class WhatAPlanner extends Planner {
 		provider.put(SEEK_BAR, SeekBarEventPlanner::new);
 		provider.put(RATING_BAR, SeekBarEventPlanner::new);
 		provider.put(MENU_ITEM, MenuItemEventPlanner::new);
-		provider.put(LIST_ITEM, MenuItemEventPlanner::new);
+		provider.put(LIST_ITEM, UnlimitedItemEventPlanner::new);
 		Function<WidgetDescription, WidgetEventPlanner> nul = wd -> null;
 		provider.put(WEB_VIEW, nul);
 		for (String type : HandlerBasedPlanner.inputWidgetList)

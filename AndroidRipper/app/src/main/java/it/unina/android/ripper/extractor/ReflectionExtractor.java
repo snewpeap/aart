@@ -159,8 +159,8 @@ public class ReflectionExtractor implements IExtractor {
 
 					wd.setEnabled(v.isEnabled());
 
-					wd.setVisible(v.getVisibility() == View.VISIBLE);
-					objectsVisibilityMap.put(v, v.getVisibility() == View.VISIBLE);
+					wd.setVisible(v.getVisibility() == View.VISIBLE && (ret.getPopupShowing() || robot.crossValidateViewExistence(v)));
+					objectsVisibilityMap.put(v, wd.getVisible());
 
 					// wd.setTextualId(this.reflectTextualIDbyNumericalID(v.getId()));
 					if (v.getId() != View.NO_ID && activity.getResources() != null) {
@@ -187,12 +187,17 @@ public class ReflectionExtractor implements IExtractor {
 					wd.setSimpleType(RipperSimpleType.getSimpleType(v));
 
 					if (v.getClass().getName().contains("Progress")) {
-						try {
-							wd.setVisible(((Animatable) v.getBackground()).isRunning());
-							wd.setValue(String.valueOf(v.getBackgroundTintList()));
+						if (v instanceof ProgressBar) {
+							wd.setVisible(((ProgressBar) v).isAnimating());
 							wd.setSimpleType(SimpleType.PROGRESS);
-						} catch (ClassCastException e) {
-							e.printStackTrace();
+						} else {
+							try {
+								Debug.info(this, v.toString());
+								wd.setVisible(((Animatable) v.getBackground()).isRunning());
+								wd.setSimpleType(SimpleType.PROGRESS);
+							} catch (ClassCastException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 
@@ -279,7 +284,7 @@ public class ReflectionExtractor implements IExtractor {
 										if (!ignore.isEmpty() && wd.getClickable() && wd.isEnabled()) {
 											wd.setSimpleType(SimpleType.LIST_ITEM);
 										}
-										drawerIndexs.put(wd.getIndex(), new ArrayList<>());
+										drawerIndexs.put(wd.getIndex(), ignore);
 									}
 									break;
 								}
@@ -296,6 +301,7 @@ public class ReflectionExtractor implements IExtractor {
 					if (wd.getVisible()) {
 						ret.addWidget(wd);
 					}
+					Debug.log(this, "wd " + wd + " " + (wd.getVisible() ? "visible" : "invisible"));
 				}
 			}
 		} catch (java.lang.Throwable t) {
