@@ -56,6 +56,7 @@ public class AARTDriver extends AbstractDriver {
 	private State currState;
 	private Transition lastTransition;
 	private int idle;
+	private boolean backgroundProgressing = false;
 
 	private final SchedulerEnhancement yabScheduler;
 	private final TestSuiteGenerator testSuiteGenerator;
@@ -67,10 +68,11 @@ public class AARTDriver extends AbstractDriver {
 		setupEnvironment();
 		do {
 			readyToLoop();
-
+			backgroundProgressing = false;
 			Task taskJustDone = null;
 			while (true) {
 				boolean noTaskJustDone = (taskJustDone == null) || taskJustDone.isEmpty();
+//				new Scanner(System.in).nextLine();
 				currState = getCurrentDescriptionAsState();
 				if (states.isEmpty()) {                    //the beginning of everything
 					currState.setUid(State.LOWEST_UID);
@@ -245,15 +247,18 @@ public class AARTDriver extends AbstractDriver {
 		for (int j = 0; j < 5; j++) {
 			try {
 				int i = 0;
+				boolean showing = backgroundProgressing;
 				while (i < 10) {
 					Thread.sleep(IDLE_SIZE);
-					if (Actions.progressingNotificationShowing(AUT_PACKAGE)) {
+					if ((showing = Actions.progressingNotificationShowing(AUT_PACKAGE)) && !backgroundProgressing) {
 						notifyRipperLog("AUT is doing something in background, waiting...");
 					} else {
+						backgroundProgressing = false;
 						break;
 					}
 					i++;
 				}
+				backgroundProgressing = showing;
 				idle += (i + 1) * IDLE_SIZE;
 
 				String cd;
@@ -413,7 +418,9 @@ public class AARTDriver extends AbstractDriver {
 							nextTask = newPivotAsNextTask();
 						} else {
 							Optional<Transition> transition;
-							if ((transition = transitions.values().stream().filter(t -> currState.equals(t.getFromState()) && pivot.getKey().equals(t.getToState())).findFirst()).isPresent()) {
+							if ((transition = transitions.values().stream()
+									.filter(t -> currState.equals(t.getFromState()) &&
+											pivot.getKey().equals(t.getToState())).min(Comparator.comparing(Transition::getId))).isPresent()) {
 								Task task = transition.get().getTask();
 								nextTask = task.listIterator(task.size() - 1);
 								recovery = true;
@@ -484,7 +491,7 @@ public class AARTDriver extends AbstractDriver {
 				//find the latest transition from previous pivot to new pivot
 				Transition transitionToNewPivot = transitions.values().stream()
 						.filter(t -> t.getFromState().equals(currState) && t.getToState().equals(newPivot))
-						.findFirst().orElse(null);
+						.min(Comparator.comparing(Transition::getId)).orElse(null);
 				if (transitionToNewPivot == null) {
 					notifyRipperLog(String.format("No path found from this pivot(State %s) to new pivot(State %s)",
 							prevPivot.getUid(), newPivot.getUid()));

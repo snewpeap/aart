@@ -18,7 +18,6 @@ public class State extends ActivityDescription {
     public static final String LOWEST_UID = "0";
     @JsonIgnore
     private final ActivityDescription ad;
-    @JsonIgnore
     private boolean reentered = false;
 
     public void reenter() {
@@ -411,6 +410,14 @@ public class State extends ActivityDescription {
     @Override
     public String toString() {
         return ad.toString();//TODO LOW
+    }
+
+    public boolean isReentered() {
+        return reentered;
+    }
+
+    public void setReentered(boolean reentered) {
+        this.reentered = reentered;
     }
 
     @Override
