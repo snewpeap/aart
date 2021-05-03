@@ -18,7 +18,7 @@ public class State extends ActivityDescription {
     public static final String LOWEST_UID = "0";
     @JsonIgnore
     private final ActivityDescription ad;
-    @JsonIgnore
+
     private boolean reentered = false;
 
     public void reenter() {
@@ -416,5 +416,13 @@ public class State extends ActivityDescription {
     @Override
     public int hashCode() {
         return Objects.hash(getIsTabActivity(), getTabsCount(), getCurrentTab(), getHierarchy());
+    }
+
+    public boolean isReentered() {
+        return reentered;
+    }
+
+    public void setReentered(boolean reentered) {
+        this.reentered = reentered;
     }
 }

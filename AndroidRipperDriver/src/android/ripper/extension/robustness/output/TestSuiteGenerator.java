@@ -61,15 +61,18 @@ public class TestSuiteGenerator {
             ObjectMapper objectMapper = new ObjectMapper();
             String shouldBeState = "";
             try {
+                // get shouldBeState ( state )
                 shouldBeState = objectMapper.writeValueAsString(transition.getToState());
             } catch (JsonProcessingException jsonProcessingException) {
                 jsonProcessingException.printStackTrace();
             }
+            // add shouldBeState into file
             addIntoStateContainerOrCreate(StringEscapeUtils.escapeJava(shouldBeState));
-            testTrace.append("State shouldBeState = objectMapper.readValue(StringEscapeUtils.unescapeJava(").append(getStateFromContainer()).append("), State.class);");
+            testTrace.append("String actual = objectMapper.writeValueAsString(new State(extractor.extract()));");
 //            shouldBeState.put(id, transition.getToState());
+            testTrace.append("report(").append("StringEscapeUtils.unescapeJava(").append(getStateFromContainer()).append(")").append(", actual, ").append(id).append(");\n");
+
             STATE_INDEX++;
-            testTrace.append("report(").append("shouldBeState").append(", new State(extractor.extract()), ").append(id).append(");\n");
             testTrace.append("}\n");
             id++;
         }

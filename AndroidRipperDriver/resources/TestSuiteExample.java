@@ -6,11 +6,11 @@ package android.ripper.extension.test;
 //	be set to the package of the application under test (that is PACKAGE_NAME below) */
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import com.robotium.solo.Solo;
 import android.ripper.extension.robustness.model.State;
+import android.ripper.extension.robustness.model.VirtualWD;
 import android.ripper.extension.test.extractor.IExtractor;
 import android.ripper.extension.test.extractor.ReflectionExtractor;
 import android.view.View;
@@ -22,9 +22,12 @@ import android.view.Display;
 import android.view.WindowManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import junit.framework.Assert;
@@ -114,10 +117,11 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     public final static String RELATIVE_LAYOUT = "relativeLayout";
     public final static String FOCUSABLE_EDIT_TEXT = "focusableEditText";
     public final static String[] PRECRAWLING = {};
+    private final static String compareMapFormat = "expect:%s %s\nactual:%s %s\n";
     private IExtractor extractor;
     public ObjectMapper objectMapper = new ObjectMapper();
     private static Class<?> theClass;
-
+    private UiDevice device;
     static {
         try {
             theClass = Class.forName(CLASS_NAME);
@@ -139,12 +143,13 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         this.solo = new Solo(getInstrumentation(), new Solo.Config() {{
             commandLogging = true;
         }}, getActivity());
-        this.extractor = new ReflectionExtractor(solo);
+        this.extractor = new ReflectionExtractor(solo, this);
         this.device = UiDevice.getInstance(getInstrumentation());
 //        restart();
         afterRestart();
         refreshCurrentActivity();
     }
+
     @Override
     protected void tearDown() throws Exception {
 //        try {
