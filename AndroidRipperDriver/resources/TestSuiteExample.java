@@ -794,21 +794,32 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         //4. screenShot .
         if (!expect.equals(actual)) {
             try {
+                StringBuilder stringBuilder = new StringBuilder();
                 State shouldBeState_ = objectMapper.readValue(expect, State.class);
                 State actual_ = objectMapper.readValue(actual, State.class);
-                String result1 = compareHierarchy(shouldBeState_.getHierarchy(), actual_.getHierarchy());
+                stringBuilder.append("******").append("REPORT IN TEST").append(id).append("******\n");
+                stringBuilder.append("difference between Hierarchy\n");
+                String resultOfCompareHierarchy = compareHierarchy(shouldBeState_.getHierarchy(), actual_.getHierarchy());
+                stringBuilder.append(resultOfCompareHierarchy);
+                stringBuilder.append("difference between State\n");
+                String resultOfCompareState = compareStateAfterSerialization(expect, actual);
+                stringBuilder.append(resultOfCompareState);
+                device.takeScreenshot(new File("test_" + id + ".png"));
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("report_" + id));
+                bufferedWriter.write(stringBuilder.toString());
+                bufferedWriter.close();
+                Assert.fail();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     /**
      * if two hierarchy is difference, this method will return the difference on a format like this
      * "
-     * expect:<Integer> <String>
-     * actual:<Integer> <String>
+     * expect:<key> <value> // default none
+     * actual:<key> <value> // default none
      * “
      *
      * @param expect
@@ -817,6 +828,10 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
      */
     public String compareHierarchy(HashMap<Integer, HashMap<String, VirtualWD>> expect, HashMap<Integer, HashMap<String, VirtualWD>> actual) throws JsonProcessingException {
         return compareMap(expect, actual, 0);
+    }
+
+    public String compareStateAfterSerialization(String s1, String s2) throws JsonProcessingException {
+        return compareMap(objectMapper.readValue(s1, Map.class), objectMapper.readValue(s2, Map.class), 0);
     }
 
     /**
