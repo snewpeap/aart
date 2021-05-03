@@ -21,6 +21,7 @@ public class LongIdleFirstToStateCoverage implements Coverage {
 						t -> new LinkedList<Transition>() {{
 							add(t);
 						}},
+						// l1 is existing and l2 is the new one
 						(l1, l2) -> {
 							//sort by id
 							for (Transition toAdd : l2) {
