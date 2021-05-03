@@ -797,26 +797,38 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         //2. print difference between getHierarchy
         //3. print all difference between two State
         //4. screenShot .
-        if (!expect.equals(actual)) {
-            try {
-                StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("******").append("REPORT IN TEST").append(id).append("******\n");
+        Log.i("REPORT", stringBuilder.toString());
+
+        boolean fail = !expect.equals(actual);
+        try {
+            if (fail) {
                 State shouldBeState_ = objectMapper.readValue(expect, State.class);
                 State actual_ = objectMapper.readValue(actual, State.class);
-                stringBuilder.append("******").append("REPORT IN TEST").append(id).append("******\n");
                 stringBuilder.append("difference between Hierarchy\n");
                 String resultOfCompareHierarchy = compareHierarchy(shouldBeState_.getHierarchy(), actual_.getHierarchy());
                 stringBuilder.append(resultOfCompareHierarchy);
-                stringBuilder.append("difference between State\n");
-                String resultOfCompareState = compareStateAfterSerialization(expect, actual);
-                stringBuilder.append(resultOfCompareState);
-                device.takeScreenshot(new File("test_" + id + ".png"));
-                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("report_" + id));
-                bufferedWriter.write(stringBuilder.toString());
-                bufferedWriter.close();
-                Assert.fail();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            stringBuilder.append("difference between State\n");
+            String resultOfCompareState = compareStateAfterSerialization(expect, actual);
+            stringBuilder.append(resultOfCompareState);
+            boolean t = device.takeScreenshot(new File("test_" + id + ".png"));
+            Log.i("ScreenShot", String.valueOf(t));
+            File file = new File("test_" + id + ".png");
+            Log.i("REPORT", stringBuilder.toString());
+            Log.i("PNG FILE PATH", file.getAbsolutePath());
+
+            FileOutputStream fos = new FileOutputStream("report_" + id);
+//            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("report_" + id));
+//            bufferedWriter.write(stringBuilder.toString());
+//            bufferedWriter.close();
+            fos.write(stringBuilder.toString().getBytes());
+            // if fail == True means need to Assert.fail()
+            Assert.assertFalse(fail);
+        } catch (Exception e) {
+            Log.i("WHY ERROR?????", stringBuilder.toString());
+            e.printStackTrace();
         }
     }
 
@@ -856,38 +868,28 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         if (differenceKey.size() != 0) {
             for (int i = 0; i < space; i++) stringBuilder.append(" ");
             for (Object o : differenceKey)
-                stringBuilder.append(String.format(compareMapFormat, o, objectMapper.writeValueAsString(m1.get(o)), -1, "null"));
+                stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), -1, "null"));
         }
         differenceKey = new HashSet<>(m2.keySet());
         differenceKey.removeAll(intersection);
         if (differenceKey.size() != 0) {
             for (int i = 0; i < space; i++) stringBuilder.append(" ");
             for (Object o : differenceKey)
-                stringBuilder.append(String.format(compareMapFormat, o, objectMapper.writeValueAsString(m2.get(o)), -1, "null"));
+                stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m2.get(o)), -1, "null"));
         }
         if (intersection.size() != 0) {
-            Object key = intersection.iterator().next();
-            // need to iteration
-            if (m1.get(key) instanceof Map) {
-                iteration = true;
-            }
-            // enter this branch means intersection is not 0 and don't need to iteration.
-            else {
-                for (Object o : intersection) {
-                    Object o1 = m1.get(o);
-                    Object o2 = m2.get(o);
-                    if(!o1.equals(o2)) {
-                        for (int i = 0; i < space; i++) stringBuilder.append(" ");
-                        for (Object o : differenceKey)
-                            stringBuilder.append(String.format(compareMapFormat, o, objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
-                    }
-                }
-            }
-        }
-
-        if (iteration) {
             for (Object o : intersection) {
-                stringBuilder.append(compareMap((Map) m1.get(o), (Map) m2.get(o), space + 2));
+                Object o1 = m1.get(o);
+                Object o2 = m2.get(o);
+                if (o1 == null || o2 == null) {
+                    if (!(o1 == null && o2 == null))
+                        stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+                } else if (o1 instanceof Map && o2 instanceof Map)
+                    stringBuilder.append(compareMap((Map) o1, (Map) o2, space += 2));
+                else if (!(o1 instanceof Map) && !(o2 instanceof Map) && !o1.equals(o2)) {
+                    for (int i = 0; i < space; i++) stringBuilder.append(" ");
+                    stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+                }
             }
         }
 
