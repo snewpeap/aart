@@ -1045,7 +1045,7 @@ public class Actions {
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getStdout()));
 			String line;
 			while ((line = input.readLine()) != null) {
-				if (line.trim().startsWith("NotificationRecord") && line.contains("pkg=" + AUT_Package)) {
+				if (line.trim().startsWith("NotificationRecord") && line.contains(AUT_Package)) {
 					while ((line = input.readLine()) != null) {
 						line = line.trim();
 						if ((has = line.startsWith("android.progress")) || !(has = !line.startsWith("mArchive=Archive"))) {

@@ -53,12 +53,13 @@ public class TransitionHelper {
 		 * @return self
 		 */
 		public TransitionInfo learnToBack(Collection<Transition> formerTransitions) {
+			LinkedList<Event> pes = getPossibleBackEvents();
 			if (needLearning) {
 				Map<IEvent, Long> m = formerTransitions.parallelStream()
 						.filter(t -> similar(getFromState(), t.getToState()) && similar(getToState(), t.getFromState()))
 						.collect(Collectors.groupingBy(t -> t.getTask().getLast(), Collectors.counting()));
 				if (!m.isEmpty())
-					getPossibleBackEvents().addAll(0, m.entrySet().stream()
+					pes.addAll(0, m.entrySet().stream()
 							.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
 							.collect(LinkedList<Event>::new, (l, e) -> l.add((Event) e.getKey()), LinkedList::addAll));
 				needLearning = false;
@@ -106,6 +107,7 @@ public class TransitionHelper {
 				for (Map.Entry<Predicate<Event>, Function<Event, Event>> e : backs.entrySet()) {
 					if (e.getKey().test(tail)) {
 						possibleBackEvents.addLast(e.getValue().apply(tail));
+						needLearning = false;
 						break;
 					}
 				}

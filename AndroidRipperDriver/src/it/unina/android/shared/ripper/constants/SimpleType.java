@@ -67,4 +67,6 @@ public class SimpleType {
 	public final static String SCRIM_INSETS_FRAME_LAYOUT = "ScrimInsetsFrameLayout";
 	public final static String RECYCLER_VIEW = "RecyclerView";
 	public final static String PROGRESS = "Progress";
+	public final static String TAB_LAYOUT = "TabLayout";
+	public final static String TAB_LAYOUT_ITEM = "TabView";
 }
