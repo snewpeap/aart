@@ -813,23 +813,16 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             stringBuilder.append("difference between State\n");
             String resultOfCompareState = compareStateAfterSerialization(expect, actual);
             stringBuilder.append(resultOfCompareState);
-            boolean t = device.takeScreenshot(new File("test_" + id + ".png"));
-            Log.i("ScreenShot", String.valueOf(t));
-            File file = new File("test_" + id + ".png");
-            Log.i("REPORT", stringBuilder.toString());
-            Log.i("PNG FILE PATH", file.getAbsolutePath());
-
-            FileOutputStream fos = new FileOutputStream("report_" + id);
-//            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("report_" + id));
-//            bufferedWriter.write(stringBuilder.toString());
-//            bufferedWriter.close();
-            fos.write(stringBuilder.toString().getBytes());
+            iScreenshotTaker.takeScreenshot(this.getActivity(), "screenShot_" + id + ".jpg");
+            FileOutputStream fileOutput = this.getInstrumentation().getContext().openFileOutput("report_" + id + ".txt", Context.MODE_PRIVATE);
+            fileOutput.write(stringBuilder.toString().getBytes());
+            fileOutput.close();
             // if fail == True means need to Assert.fail()
             Assert.assertFalse(fail);
         } catch (Exception e) {
-            Log.i("WHY ERROR?????", stringBuilder.toString());
             e.printStackTrace();
         }
+        Log.i("report end!", stringBuilder.toString());
     }
 
     /**

@@ -74,7 +74,6 @@ public class SoloScreenshotTaker implements IScreenshotTaker
 		FileOutputStream fileOutput = null;
 		try {
 			fileOutput = this.context.openFileOutput(filename, Context.MODE_PRIVATE);
-
 			ArrayList<View> views = solo.getCurrentViews();
 			if (views != null && views.size() > 0)
 			{
