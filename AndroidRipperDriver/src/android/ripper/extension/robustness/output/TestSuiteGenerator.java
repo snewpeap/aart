@@ -14,8 +14,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TestSuiteGenerator {
 
@@ -27,8 +29,14 @@ public class TestSuiteGenerator {
     private final String perturb_ = "<PERTURB_FUNCTION>";
     private final String reportPath = "reportPath.txt";
     private static int CLASS_INDEX = -1;
-    private static int STATE_INDEX = 0;
-    private static int MAX_CAPACITY = 15;
+    private static String CLASS_NAME = "StateContainer";
+    private static String STATE_NAME = "State";
+    private static int STATE_START = 0;
+    private static int STATE_END = 0;
+    private static int STATE_NUM = 0;
+    private static int MAX_STRING_LENGTH = 8096;
+    private static int MAX_CAPACITY = 10;
+    private static String CONCAT_FUNC = "concat";
 
     public void generate(Set<Transition> transitions) {
         //for each transition, generate testcase
@@ -40,7 +48,7 @@ public class TestSuiteGenerator {
         OperationFactory recoverFactory = new OperationFactory("solo", 1);
         recoverFactory.addParam(true);
         recoverFactory.setMobileData(new int[]{0});
-
+        createContainer();
         try {
             Path path = Paths.get("transitions.json");
             Files.write(path, new ObjectMapper().writeValueAsBytes(transitions));
@@ -70,9 +78,9 @@ public class TestSuiteGenerator {
             addIntoStateContainerOrCreate(StringEscapeUtils.escapeJava(shouldBeState));
             testTrace.append("String actual = objectMapper.writeValueAsString(new State(extractor.extract()));");
 //            shouldBeState.put(id, transition.getToState());
-            testTrace.append("report(").append("StringEscapeUtils.unescapeJava(").append(getStateFromContainer()).append(")").append(", actual, ").append(id).append(");\n");
+            testTrace.append("report(").append("StringEscapeUtils.unescapeJava(").append(concatStateFromContainer()).append(")").append(", actual, ").append(id).append(");\n");
 
-            STATE_INDEX++;
+            STATE_START = STATE_END + 1;
             testTrace.append("}\n");
             id++;
         }
@@ -103,16 +111,28 @@ public class TestSuiteGenerator {
     }
 
     private void addIntoStateContainerOrCreate(String state) {
-        if (STATE_INDEX % MAX_CAPACITY == 0) {
+        if (STATE_NUM >= MAX_CAPACITY) {
             createContainer();
         }
         addState(state);
     }
 
     private void addState(String state) {
-        StringBuilder stringBuilder  = new StringBuilder();
-        stringBuilder.append("public final static String ").append("State").append(STATE_INDEX).append(" = \"").append(state).append("\";");
-        if(STATE_INDEX % MAX_CAPACITY != MAX_CAPACITY - 1) stringBuilder.append("<STATE_INDEX>");
+        StringBuilder stringBuilder = new StringBuilder();
+        int stringLen = state.length();
+        int i = 0;
+        int j = i + MAX_STRING_LENGTH;
+        int index = 0;
+        while (i < stringLen) {
+            if (j > stringLen) j = stringLen;
+            if(state.charAt(j-1)=='\\') j = j + 1;
+            stringBuilder.append("public final static String ").append(STATE_NAME).append(STATE_START + index++).append(" = \"").append(state, i, j).append("\";");
+            i = j;
+            j = i + MAX_STRING_LENGTH;
+        }
+        STATE_END = STATE_START + index - 1;
+        STATE_NUM = STATE_NUM + index - 1;
+        if (STATE_NUM < MAX_CAPACITY) stringBuilder.append("<STATE_INDEX>");
         String target;
         try {
             Path path = Paths.get("StateContainer" + CLASS_INDEX + ".java");
@@ -124,9 +144,20 @@ public class TestSuiteGenerator {
         }
     }
 
-    private String getStateFromContainer()
-    {
-        return "StateContainer" + CLASS_INDEX + "." + "State" + STATE_INDEX;
+    private String concatStateFromContainer() {
+        //StateContainer0.State0.concat(StateContainer0.State1.concat())
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(CLASS_NAME).append(CLASS_INDEX).append(".").append(STATE_NAME).append(STATE_START);
+        if(STATE_START + 1 <= STATE_END) stringBuilder.append(".").append(CONCAT_FUNC).append("(");
+        for (int i = STATE_START + 1; i <= STATE_END; i++) {
+            stringBuilder.append(CLASS_NAME).append(CLASS_INDEX).append(".").append(STATE_NAME).append(i);
+            if (i != STATE_END)
+                stringBuilder.append(".").append(CONCAT_FUNC).append("(");
+        }
+        for (int i = STATE_START + 1; i <= STATE_END; i++) {
+            stringBuilder.append(")");
+        }
+        return stringBuilder.toString();
     }
 
     private void createContainer() {
@@ -137,6 +168,7 @@ public class TestSuiteGenerator {
             Path path = Paths.get(templatePath);
             target = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             CLASS_INDEX++;
+            STATE_NUM = 0;
             target = target.replaceAll("<CLASS_INDEX>", String.valueOf(CLASS_INDEX));
             Files.write(Paths.get("StateContainer" + CLASS_INDEX + ".java"), target.getBytes(StandardCharsets.UTF_8));
         } catch (IOException | URISyntaxException ioException) {
@@ -163,6 +195,16 @@ public class TestSuiteGenerator {
         }
     }
 
+    public static void reMark(Set<Transition> transitions) {
+        Set<String> fromStateUid = new HashSet<>();
+        transitions.forEach(t -> {
+            fromStateUid.add(t.getFromState().getUid());
+        });
+        transitions.forEach(t -> {
+            t.getToState().setReentered(fromStateUid.contains(t.getToState().getUid()));
+        });
+    }
+
     public static void main(String[] args) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         TestSuiteGenerator testSuiteGenerator = new TestSuiteGenerator("", "lifts", "all", args[0]);
@@ -170,10 +212,14 @@ public class TestSuiteGenerator {
         Set<Transition> transitions = null;
         try {
             File file = new File(args[1]);
-            transitions = objectMapper.readValue(file, new TypeReference<Set<Transition>>() {});
+            transitions = objectMapper.readValue(file, new TypeReference<Set<Transition>>() {
+            });
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        assert transitions != null;
+        Transition transition = transitions.stream().filter(t -> t.getId() == 1619842346720L).collect(Collectors.toList()).get(0);
+        reMark(transitions);
         testSuiteGenerator.generate(transitions);
     }
 

@@ -6,13 +6,18 @@ package android.ripper.extension.test;
 //	be set to the package of the application under test (that is PACKAGE_NAME below) */
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+
 import com.robotium.solo.Solo;
+
 import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.VirtualWD;
 import android.ripper.extension.test.extractor.IExtractor;
+import android.ripper.extension.test.extractor.IScreenshotTaker;
 import android.ripper.extension.test.extractor.ReflectionExtractor;
+import android.ripper.extension.test.extractor.SoloScreenshotTaker;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
@@ -20,22 +25,29 @@ import android.widget.*;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+
 import junit.framework.Assert;
+
 import android.test.ActivityInstrumentationTestCase2;
+
 import org.apache.commons.lang3.StringEscapeUtils;
+
 import androidx.test.uiautomator.UiDevice;
+
 import static android.content.Context.WINDOW_SERVICE;
+import static android.ripper.extension.test.constants.RipperSimpleType.getSimpleType;
 import static android.view.Surface.*;
+import static it.unina.android.shared.ripper.constants.InteractionType.CLICK_MENU_ITEM;
 
 @SuppressWarnings("rawtypes")
 public class TestSuite extends ActivityInstrumentationTestCase2 {
@@ -122,6 +134,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
     public ObjectMapper objectMapper = new ObjectMapper();
     private static Class<?> theClass;
     private UiDevice device;
+    private IScreenshotTaker iScreenshotTaker;
     static {
         try {
             theClass = Class.forName(CLASS_NAME);
