@@ -64,8 +64,10 @@ public class TestSuiteGenerator {
             //report, manually check for true/false positive later
             testTrace.append("    //Generated from trace ").append(id).append("\n");
             testTrace.append("    public void testTrace").append(id).append(" ()   throws JsonProcessingException {\n");
+            testTrace.append("try {");
             testTrace.append(perturb.recover(recoverFactory));
             testTrace.append(perturb.perturb(transition, perturbFactory));
+            testTrace.append("} catch (Exception ignored) {} ");
             ObjectMapper objectMapper = new ObjectMapper();
             String shouldBeState = "";
             try {
@@ -124,8 +126,11 @@ public class TestSuiteGenerator {
         int j = i + MAX_STRING_LENGTH;
         int index = 0;
         while (i < stringLen) {
+            if (j < stringLen && state.charAt(j - 1) == '\\') j = j + 1;
+            if (j < stringLen && state.charAt(j-1) == 'u' && state.charAt(j-2) == '\\') {
+                j = j + 4;
+            }
             if (j > stringLen) j = stringLen;
-            if(state.charAt(j-1)=='\\') j = j + 1;
             stringBuilder.append("public final static String ").append(STATE_NAME).append(STATE_START + index++).append(" = \"").append(state, i, j).append("\";");
             i = j;
             j = i + MAX_STRING_LENGTH;
@@ -148,7 +153,7 @@ public class TestSuiteGenerator {
         //StateContainer0.State0.concat(StateContainer0.State1.concat())
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(CLASS_NAME).append(CLASS_INDEX).append(".").append(STATE_NAME).append(STATE_START);
-        if(STATE_START + 1 <= STATE_END) stringBuilder.append(".").append(CONCAT_FUNC).append("(");
+        if (STATE_START + 1 <= STATE_END) stringBuilder.append(".").append(CONCAT_FUNC).append("(");
         for (int i = STATE_START + 1; i <= STATE_END; i++) {
             stringBuilder.append(CLASS_NAME).append(CLASS_INDEX).append(".").append(STATE_NAME).append(i);
             if (i != STATE_END)
@@ -218,7 +223,6 @@ public class TestSuiteGenerator {
             ioException.printStackTrace();
         }
         assert transitions != null;
-        Transition transition = transitions.stream().filter(t -> t.getId() == 1619842346720L).collect(Collectors.toList()).get(0);
         reMark(transitions);
         testSuiteGenerator.generate(transitions);
     }

@@ -149,15 +149,19 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         this.theViews = new HashMap<>();
     }
 
+    /**
+     * in android device. u need to chmod 777 to android.ripper.extension.test
+     * @throws Exception
+     */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        operation1(true);
         this.solo = new Solo(getInstrumentation(), new Solo.Config() {{
             commandLogging = true;
         }}, getActivity());
         this.extractor = new ReflectionExtractor(solo, this);
         this.device = UiDevice.getInstance(getInstrumentation());
+        operation1(true);
 //        restart();
         afterRestart();
         refreshCurrentActivity();
