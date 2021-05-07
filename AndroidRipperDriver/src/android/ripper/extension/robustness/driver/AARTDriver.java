@@ -6,8 +6,13 @@ import android.ripper.extension.robustness.model.State;
 import android.ripper.extension.robustness.model.Transition;
 import android.ripper.extension.robustness.model.TransitionHelper;
 import android.ripper.extension.robustness.model.TransitionHelper.TransitionInfo;
+import android.ripper.extension.robustness.output.InstrumentationTestSuiteGenerator;
 import android.ripper.extension.robustness.output.TestSuiteGenerator;
 import android.ripper.extension.robustness.planner.WhatAPlanner;
+import android.ripper.extension.robustness.strategy.Coverage;
+import android.ripper.extension.robustness.strategy.RealtimePerturb;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unina.android.ripper.driver.AbstractDriver;
 import it.unina.android.ripper.driver.exception.RipperRuntimeException;
 import it.unina.android.ripper.net.RipperServiceSocket;
@@ -26,9 +31,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -59,14 +66,18 @@ public class AARTDriver extends AbstractDriver {
 	private boolean backgroundProgressing = false;
 
 	private final SchedulerEnhancement yabScheduler;
-	private final TestSuiteGenerator testSuiteGenerator;
-	private final boolean generateTestSuite;
+	private final boolean generateTestSuite, doExplore, doTest;
+	private final String coverage, perturb;
 
 	@Override
 	public void rippingLoop() {
 		startupDevice();
 		setupEnvironment();
+		TestSuiteGenerator testSuiteGenerator = new ARDrivenTestSuiteGenerator(coverage, perturb);
 		do {
+			if (!doExplore) {
+				break;
+			}
 			readyToLoop();
 			backgroundProgressing = false;
 			Task taskJustDone = null;
@@ -122,23 +133,40 @@ public class AARTDriver extends AbstractDriver {
 			endLoop();
 		} while (running && !checkTerminationCriteria());
 
-		if (generateTestSuite)
-			testSuiteGenerator.generate(new HashSet<>(transitions.values()));
+		if (doTest) {
+			HashSet<Transition> set = new HashSet<>(transitions.values());
+			if (!doExplore) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				BufferedReader bufferedReader;
+				try {
+					bufferedReader = Files.newBufferedReader(Paths.get(RESULTS_PATH, "..", "transitions.json"));
+					set = objectMapper.readValue(bufferedReader, new TypeReference<HashSet<Transition>>() {
+					});
+					InstrumentationTestSuiteGenerator.reMark(set);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			testSuiteGenerator.generate(set);
+		}
 		notifyRipperEnded();
 	}
 
 	public AARTDriver(RipperInput ripperInput, RipperOutput ripperOutput, boolean generateTestsuite,
-					  String coverage, String perturb, String AUT_PACKAGE, String AUT_MAIN_ACTIVITY) {
+					  String coverage, String perturb, String doExplore, String doTest) {
 		this.ripperInput = ripperInput;
 		this.ripperOutput = ripperOutput;
 
 		YetAnotherBreadthScheduler yabs = new YetAnotherBreadthScheduler();
 		addTerminationCriterion(yabs);
 		this.yabScheduler = yabs;
-		this.testSuiteGenerator = new TestSuiteGenerator(AUT_PACKAGE, coverage, perturb, AUT_MAIN_ACTIVITY);
 		this.planner = new WhatAPlanner();
 //		addTerminationCriterion(new CheckTimeTerminationCriterion());
 		this.generateTestSuite = generateTestsuite;
+		this.doExplore = Boolean.parseBoolean(doExplore);
+		this.doTest = Boolean.parseBoolean(doTest);
+		this.coverage = coverage;
+		this.perturb = perturb;
 	}
 
 	@Override
@@ -541,6 +569,61 @@ public class AARTDriver extends AbstractDriver {
 			notifyRipperLog("We've lost the way!");
 			recovery = true;
 			back = false;
+		}
+	}
+
+	public class ARDrivenTestSuiteGenerator extends TestSuiteGenerator{
+		private final Coverage coverage;
+		private final ArrayList<RealtimePerturb> perturbs;
+
+		@Override
+		public void generate(Set<Transition> transitions) {
+			for (Transition transition : coverage.cherryPick(transitions)) {
+				List<Event> events = transition.getEvents();
+				for (RealtimePerturb perturb : perturbs) {
+					perturb.recover();
+					readyToLoop();
+					if (transition.getFromState().getIdle() > 0) {
+						idle(transition.getFromState().getIdle());
+					}
+					for (int i = 0, eventsSize = events.size(); i < eventsSize; i++) {
+						Event event = events.get(i);
+						event.setEventUID(eventsUIDCounter++);
+						notifyRipperLog("executeEvent.event=" + event);
+
+						if (event.getInputs() != null) {
+							rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
+							if (i == eventsSize - 1) {
+								perturb.perturb();
+							}
+							for (int j = event.getInputs().size(); j > 0; j--) {
+								waitAck();
+							}
+						} else {
+							rsSocket.sendEvent(event);
+							if (i == eventsSize - 1) {
+								perturb.perturb();
+							}
+							waitAck();
+						}
+
+						if (event.getIdle() > 0) {
+							idle(event.getIdle());
+						}
+					}
+
+					endLoop();
+				}
+			}
+		}
+
+		public ARDrivenTestSuiteGenerator(String coverage, String perturb) {
+			this.coverage = Coverage.of(coverage);
+			String[] split = perturb.split(",");
+			this.perturbs = new ArrayList<>(split.length);
+			for (String s : split) {
+				perturbs.add(RealtimePerturb.of(s));
+			}
 		}
 	}
 }

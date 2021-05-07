@@ -432,6 +432,8 @@ public class AndroidRipperStarter {
 					boolean generateTestsuite = Boolean.parseBoolean(conf.getProperty("AART.generate_testsuite"));
 					String coverage = conf.getProperty("AART.coverage", "");
 					String perturb = conf.getProperty("AART.perturb", "");
+					String doExplore = conf.getProperty("AART.do.explore", "");
+					String doTest = conf.getProperty("AART.do.test", "");
 					try {
 						Class<?> AARTDriverClass = Class.forName("android.ripper.extension.robustness.driver.AARTDriver");
 						driver = (AbstractDriver) AARTDriverClass.getConstructor(RipperInput.class,
@@ -445,8 +447,8 @@ public class AndroidRipperStarter {
 								generateTestsuite,
 								coverage,
 								perturb,
-								aut_package,
-								aut_main_activity);
+								doExplore,
+								doTest);
 						break;
 					} catch (Exception e) {
 						e.printStackTrace();
