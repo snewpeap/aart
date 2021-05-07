@@ -161,6 +161,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         }}, getActivity());
         this.extractor = new ReflectionExtractor(solo, this);
         this.device = UiDevice.getInstance(getInstrumentation());
+        iScreenshotTaker = new SoloScreenshotTaker(this.solo, this.getInstrumentation());
         operation1(true);
 //        restart();
         afterRestart();
@@ -720,70 +721,6 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
         Log.i("nofatclips", "Current activity is " + getActivity().getLocalClassName());
     }
 
-    public String getSimpleType(View v) {
-        String type = v.getClass().getName();
-        if (type.endsWith("null"))
-            return NULL;
-        if (type.endsWith("RadioButton"))
-            return RADIO;
-        if (type.endsWith("CheckBox") || type.endsWith("CheckedTextView"))
-            return CHECKBOX;
-        if (type.endsWith("ToggleButton"))
-            return TOGGLE_BUTTON;
-        if (type.endsWith("IconMenuView"))
-            return MENU_VIEW;
-        if (type.endsWith("DatePicker"))
-            return DATE_PICKER;
-        if (type.endsWith("TimePicker"))
-            return TIME_PICKER;
-        if (type.endsWith("IconMenuItemView"))
-            return MENU_ITEM;
-        if (type.endsWith("DialogTitle"))
-            return DIALOG_VIEW;
-        if (type.endsWith("Button"))
-            return BUTTON;
-        if (type.endsWith("EditText"))
-            return EDIT_TEXT;
-        if (type.endsWith("Spinner")) {
-            Spinner s = (Spinner) v;
-            if (s.getCount() == 0) return EMPTY_SPINNER;
-            return SPINNER;
-        }
-        if (type.endsWith("SeekBar"))
-            return SEEK_BAR;
-        if (v instanceof RatingBar && (!((RatingBar) v).isIndicator()))
-            return RATING_BAR;
-        if (type.endsWith("TabHost"))
-            return TAB_HOST;
-        if (type.endsWith("ListView") || type.endsWith("ExpandedMenuView")) {
-            ListView l = (ListView) v;
-            if (l.getCount() == 0) return EMPTY_LIST;
-
-            if (l.getAdapter().getClass().getName().endsWith("PreferenceGroupAdapter")) {
-                return PREFERENCE_LIST;
-            }
-
-            switch (l.getChoiceMode()) {
-                case ListView.CHOICE_MODE_NONE:
-                    return LIST_VIEW;
-                case ListView.CHOICE_MODE_SINGLE:
-                    return SINGLE_CHOICE_LIST;
-                case ListView.CHOICE_MODE_MULTIPLE:
-                    return MULTI_CHOICE_LIST;
-            }
-        }
-        if (type.endsWith("TextView"))
-            return TEXT_VIEW;
-        if (type.endsWith("ImageView"))
-            return IMAGE_VIEW;
-        if (type.endsWith("LinearLayout"))
-            return LINEAR_LAYOUT;
-        if ((v instanceof WebView) || type.endsWith("WebView"))
-            return WEB_VIEW;
-        if (type.endsWith("TwoLineListItem"))
-            return LIST_ITEM;
-        return "";
-    }
 
     protected void assertNotNull(final View v) {
         ActivityInstrumentationTestCase2.assertNotNull(v);
@@ -891,7 +828,7 @@ public class TestSuite extends ActivityInstrumentationTestCase2 {
             for (Object o : intersection) {
                 Object o1 = m1.get(o);
                 Object o2 = m2.get(o);
-                if (o1 == null || o2 == null) {
+                 if (o1 == null || o2 == null) {
                     if (!(o1 == null && o2 == null))
                         stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
                 } else if (o1 instanceof Map && o2 instanceof Map)
