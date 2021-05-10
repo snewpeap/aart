@@ -32,7 +32,6 @@ import it.unina.android.shared.ripper.net.Message;
 import it.unina.android.shared.ripper.output.RipperOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -43,6 +42,7 @@ import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static android.ripper.extension.robustness.model.State.EXIT_STATE;
 import static android.ripper.extension.robustness.tools.MethodNameHelper.here;
@@ -581,58 +581,116 @@ public class AARTDriver extends AbstractDriver {
         private final Coverage coverage;
         private final ArrayList<RealtimePerturb> perturbs;
         ObjectMapper objectMapper;
-        private final static String compareMapFormat = "expect:%s %s\nactual:%s %s\n";
+        private final static String compareMapFormat = "%s expect:%s %s\n%s actual:%s %s\n";
         private final static String reportPath = "report/";
         private final ArrayList<Triple<Integer, String, String>> resultCollection = new ArrayList<>();
+        private final int MAX = 2;
+        private final int MEDIUM = 1;
+        private final int MIN = 0;
+
         @Override
         public void generate(Set<Transition> transitions) {
             int reportId = 0;
-            for (Transition transition : coverage.cherryPick(transitions)) {
-                List<Event> events = transition.getEvents();
-                for (RealtimePerturb perturb : perturbs) {
-                    perturb.recover();
-                    readyToLoop();
-                    if (transition.getFromState().getIdle() > 0) {
-                        idle(transition.getFromState().getIdle());
-                    }
-                    for (int i = 0, eventsSize = events.size(); i < eventsSize; i++) {
-                        Event event = events.get(i);
-                        event.setEventUID(eventsUIDCounter++);
-                        notifyRipperLog("executeEvent.event=" + event);
+            Collection<Transition> cherryPick = coverage.cherryPick(transitions);
+            for (Transition transition : cherryPick) {
+                List<Transition> pickAgain = cherryPick.stream().filter(t -> t.getFromState().equals(transition.getToState())).collect(Collectors.toList());
+                for (Transition transition1 : pickAgain) {
+                    List<Event> events = transition.getEvents();
+                    for (RealtimePerturb perturb : perturbs) {
+                        perturb.recover();
+                        readyToLoop();
+                        if (transition.getFromState().getIdle() > 0) {
+                            idle(transition.getFromState().getIdle());
+                        }
+                        for (int i = 0, eventsSize = events.size(); i < eventsSize; i++) {
+                            Event event = events.get(i);
+                            event.setEventUID(eventsUIDCounter++);
+                            notifyRipperLog("executeEvent.event=" + event);
 
-                        if (event.getInputs() != null) {
-                            rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
-                            if (i == eventsSize - 1) {
-                                perturb.perturb();
-                            }
-                            for (int j = event.getInputs().size(); j > 0; j--) {
+                            if (event.getInputs() != null) {
+                                rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
+                                if (i == eventsSize - 1) {
+                                    perturb.perturb();
+                                }
+                                for (int j = event.getInputs().size(); j > 0; j--) {
+                                    waitAck();
+                                }
+                            } else {
+                                rsSocket.sendEvent(event);
+                                if (i == eventsSize - 1) {
+                                    perturb.perturb();
+                                }
                                 waitAck();
                             }
-                        } else {
-                            rsSocket.sendEvent(event);
-                            if (i == eventsSize - 1) {
-                                perturb.perturb();
+                            if (event.getIdle() > 0) {
+                                idle(event.getIdle());
                             }
-                            waitAck();
+                        }
+                        //recover
+                        perturb.recover();
+
+                        State actual = getCurrentDescriptionAsState();
+                        State expect = transition.getToState();
+                        // need to add level
+                        if (!expect.equals(actual)) {
+                            int result = report(expect, actual, perturb.getClass().getName(), reportId++, MEDIUM, transition.getId() + "");
+                            if (result != -1) {
+                                resultCollection.add(new ImmutableTriple<>(result, "Transition id = " + transition.getId(), perturb.getClass().getName()));
+                            }
+                            continue;
+                        } else {
+                            Event event = ((Event) transition1.getTask().getLast());
+                            event.setEventUID(eventsUIDCounter++);
+                            notifyRipperLog("executeEvent.event=" + event);
+                            if (event.getInputs() != null) {
+                                rsSocket.sendInputs(Long.toString(event.getEventUID()), event.getInputs());
+                                for (int j = event.getInputs().size(); j > 0; j--) {
+                                    waitAck();
+                                }
+                            } else {
+                                rsSocket.sendEvent(event);
+                                waitAck();
+                            }
+                            if (event.getIdle() > 0) {
+                                idle(event.getIdle());
+                            }
+
+                            actual = getCurrentDescriptionAsState();
+                            expect = transition1.getToState();
+                            if (!expect.equals(actual)) {
+                                int result = report(expect, actual, perturb.getClass().getName(), reportId++, MAX, transition.getId() + " " + transition1.getId());
+                                if (result != -1) {
+                                    resultCollection.add(new ImmutableTriple<>(result, "Transition id = " + transition.getId(), perturb.getClass().getName()));
+                                }
+                            } else {
+                                int result = report(expect, actual, perturb.getClass().getName(), reportId++, MIN, transition.getId() + " " + transition1.getId());
+                                if (result != -1) {
+                                    resultCollection.add(new ImmutableTriple<>(result, "Transition id = " + transition.getId(), perturb.getClass().getName()));
+                                }
+                            }
                         }
 
-                        if (event.getIdle() > 0) {
-                            idle(event.getIdle());
-                        }
+                        endLoop();
+
+
                     }
-                    State actual = getCurrentDescriptionAsState();
-                    State expect = transition.getToState();
-                    int result = report(expect, actual, perturb.getClass().getName(), reportId++);
-                    if(result != 0) resultCollection.add(new ImmutableTriple<>(result, "Transition id = " + transition.getId(), perturb.getClass().getName()));
-                    endLoop();
                 }
             }
-            for(Triple<Integer, String, String> triple : resultCollection) {
+            for (Triple<Integer, String, String> triple : resultCollection) {
                 System.err.println("report " + triple.getLeft() + " find in " + triple.getMiddle() + " " + triple.getRight());
             }
         }
 
-        public int report(State expect, State actual, String perturbName, int id) {
+        /**
+         * A  B  C  b same c different
+         *
+         * @param expect
+         * @param actual
+         * @param perturbName
+         * @param id
+         * @return
+         */
+        public int report(State expect, State actual, String perturbName, int id, int level, String transitionId) {
             //TODO
             //1. assertEqual two String
             //2. print difference between getHierarchy
@@ -641,7 +699,10 @@ public class AARTDriver extends AbstractDriver {
             StringBuilder stringBuilder = new StringBuilder();
             String expectString = null;
             String actualString = null;
-			stringBuilder.append("******").append("REPORT IN TEST").append(id).append("    ").append(perturbName).append("******\n");
+            String[] levels = new String[]{"_min_", "_medium_", "_max_"};
+            String level_ = levels[level];
+            stringBuilder.append("******").append("REPORT IN TEST").append(id).append("    ").append(perturbName).append("******\n ");
+            stringBuilder.append(transitionId).append("\n");
             boolean fail = false;
             try {
                 expectString = objectMapper.writeValueAsString(expect);
@@ -655,11 +716,11 @@ public class AARTDriver extends AbstractDriver {
                     String resultOfCompareHierarchy = compareHierarchy(expect.getHierarchy(), actual.getHierarchy());
                     stringBuilder.append(resultOfCompareHierarchy);
                 }
-				stringBuilder.append("difference between State\n");
-				String resultOfCompareState = compareStateAfterSerialization(expectString, actualString);
-				stringBuilder.append(resultOfCompareState);
-                Actions.screenShot(reportPath + AUT_PACKAGE + "screenShot_" + id + ".jpg");
-                BufferedWriter writer = new BufferedWriter(new FileWriter(reportPath + AUT_PACKAGE + "_report_" + id + ".txt"));
+                stringBuilder.append("difference between State\n");
+                String resultOfCompareState = compareStateAfterSerialization(expectString, actualString);
+                stringBuilder.append(resultOfCompareState);
+                Actions.screenShot(reportPath + AUT_PACKAGE + level_ + "screenShot_" + id + ".jpg");
+                BufferedWriter writer = new BufferedWriter(new FileWriter(reportPath + AUT_PACKAGE + level_ + "report_" + id + ".txt"));
                 writer.write(stringBuilder.toString());
                 writer.close();
                 // if fail == True means need to Assert.fail()
@@ -670,7 +731,7 @@ public class AARTDriver extends AbstractDriver {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return 0;
+            return -1;
         }
 
         /**
@@ -685,11 +746,130 @@ public class AARTDriver extends AbstractDriver {
          * @return
          */
         public String compareHierarchy(HashMap<Integer, HashMap<String, VirtualWD>> expect, HashMap<Integer, HashMap<String, VirtualWD>> actual) throws JsonProcessingException {
-            return compareMap(expect, actual, 0);
+            StringBuilder stringBuilder = new StringBuilder();
+            HashSet<Integer> intersection = new HashSet<>(expect.keySet());
+            intersection.retainAll(actual.keySet());
+
+            HashSet<Integer> differenceKey = new HashSet<>(expect.keySet());
+            differenceKey.removeAll(intersection);
+
+            if (differenceKey.size() != 0) for (int o : differenceKey)
+                stringBuilder.append(String.format(compareMapFormat, createSpace(0), o + "", objectMapper.writeValueAsString(expect.get(o)), createSpace(0), -1, "null"));
+
+            differenceKey = new HashSet<>(actual.keySet());
+            differenceKey.removeAll(intersection);
+            if (differenceKey.size() != 0) for (int o : differenceKey)
+                stringBuilder.append(String.format(compareMapFormat, createSpace(0), "-1", null, createSpace(0), o + "", objectMapper.writeValueAsString(actual.get(o))));
+
+            if (intersection.size() != 0) {
+                for (int o : intersection) {
+                    stringBuilder.append("Key: ").append(o).append("\n");
+                    stringBuilder.append(compareHierarchyVirtualWD(expect.get(o), actual.get(o)));
+                }
+            }
+//            if (intersection.size() != 0) {
+//                for (Object o : intersection) {
+//                    Object o1 = m1.get(o);
+//                    Object o2 = m2.get(o);
+//                    if (o1 == null || o2 == null) {
+//                        if (!(o1 == null && o2 == null))
+//                            for (int i = 0; i < space; i++) stringBuilder.append(" ");
+//                        stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+//                    } else if (o1 instanceof Map && o2 instanceof Map)
+//                        stringBuilder.append(compareMap((Map) o1, (Map) o2, space += 2));
+//                    else if (!(o1 instanceof Map) && !(o2 instanceof Map) && !o1.equals(o2)) {
+//                        for (int i = 0; i < space; i++) stringBuilder.append(" ");
+//                        stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+//                    }
+//                }
+//            }
+
+            return stringBuilder.toString();
         }
 
+
+        private String compareHierarchyVirtualWD(HashMap<String, VirtualWD> expect, HashMap<String, VirtualWD> actual) throws JsonProcessingException {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (expect == null && actual == null) return "";
+
+            if (expect == null || actual == null) {
+                if (expect == null) {
+                    stringBuilder.append(createSpace(4)).append("expect = null\n").append(createSpace(4)).append("actual = ").append(objectMapper.writeValueAsString(actual)).append("\n");
+                }
+                if (actual == null) {
+                    stringBuilder.append(createSpace(4)).append("expect = ").append(objectMapper.writeValueAsString(expect)).append("\n").append(createSpace(4)).append("actual = null\n");
+                }
+                return stringBuilder.toString();
+            }
+
+            HashSet<String> intersection = new HashSet<>(expect.keySet());
+
+            intersection.retainAll(actual.keySet());
+
+            HashSet<String> differenceKey = new HashSet<>(expect.keySet());
+            differenceKey.removeAll(intersection);
+
+            if (differenceKey.size() != 0) for (String o : differenceKey)
+                stringBuilder.append(String.format(compareMapFormat, createSpace(3), o, objectMapper.writeValueAsString(expect.get(o)), createSpace(3), -1, null));
+//                stringBuilder.append(createSpace(4)).append("expect: ").append(o).append(createSpace(2)).append(objectMapper.writeValueAsString(expect.get(o))).append("\n").append(createSpace(4)).append("actual: -1 null\n");
+
+            differenceKey = new HashSet<>(actual.keySet());
+            differenceKey.removeAll(intersection);
+
+            if (differenceKey.size() != 0) for (String o : differenceKey)
+                stringBuilder.append(String.format(compareMapFormat, createSpace(3), -1, null, createSpace(3), o, objectMapper.writeValueAsString(actual.get(o))));
+            //stringBuilder.append(createSpace(4)).append("expect: -1 null").append("\n").append(createSpace(4)).append("actual: ").append(o).append(createSpace(2)).append(objectMapper.writeValueAsString(actual.get(o))).append("\n");
+
+            for (String s : intersection) {
+                stringBuilder.append(compareVirtualWD(expect.get(s), actual.get(s)));
+            }
+
+            return stringBuilder.toString();
+        }
+
+        /**
+         * String className,
+         * Boolean isClickable,
+         * Boolean isLongClickable,
+         * Boolean enable,
+         * Boolean visible,
+         * Integer depth
+         *
+         * @param expect
+         * @param actual
+         * @return
+         */
+        private String compareVirtualWD(VirtualWD expect, VirtualWD actual) {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!expect.getClassName().equals(actual.getClassName()))
+                stringBuilder.append(compareString("ClassName", expect.getClassName(), actual.getClassName()));
+            if (!expect.getClickable() == actual.getClickable())
+                stringBuilder.append(compareString("Clickable", expect.getClickable().toString(), actual.getClickable().toString()));
+            if (!expect.getLongClickable() == actual.getLongClickable())
+                stringBuilder.append(compareString("LongClickable", expect.getLongClickable().toString(), actual.getClickable().toString()));
+            if (!expect.getEnabled() == actual.getEnabled())
+                stringBuilder.append(compareString("Enable", expect.getEnabled().toString(), actual.getEnabled().toString()));
+            if (!expect.getVisible() == actual.getVisible())
+                stringBuilder.append(compareString("Visible", expect.getVisible().toString(), actual.getVisible().toString()));
+            if (!expect.getDepth().equals(actual.getDepth()))
+                stringBuilder.append(compareString("Depth", expect.getDepth().toString(), actual.getDepth().toString()));
+            return stringBuilder.toString();
+        }
+
+        private String compareString(String name, String expect, String actual) {
+            return createSpace(8) + name + ":\n" + createSpace(12) + "expect:" + expect + "\n" + createSpace(12) + "actual:" + actual + "\n";
+        }
+
+        private String createSpace(int space) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < space; i++) stringBuilder.append(" ");
+            return stringBuilder.toString();
+        }
+
+
         public String compareStateAfterSerialization(String s1, String s2) throws JsonProcessingException {
-            return compareMap(objectMapper.readValue(s1, Map.class), objectMapper.readValue(s2, Map.class), 0);
+            return compareMap(objectMapper.readValue(s1, Map.class), objectMapper.readValue(s2, Map.class));
         }
 
         /**
@@ -699,7 +879,7 @@ public class AARTDriver extends AbstractDriver {
          * @param m2
          * @return
          */
-        private String compareMap(Map m1, Map m2, int space) throws JsonProcessingException {
+        private String compareMap(Map m1, Map m2) throws JsonProcessingException {
             boolean iteration = false;
             StringBuilder stringBuilder = new StringBuilder();
             HashSet intersection = new HashSet(m1.keySet());
@@ -707,30 +887,29 @@ public class AARTDriver extends AbstractDriver {
             HashSet differenceKey = new HashSet(m1.keySet());
             differenceKey.removeAll(intersection);
             if (differenceKey.size() != 0) {
-                for (int i = 0; i < space; i++) stringBuilder.append(" ");
                 for (Object o : differenceKey)
-                    stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), -1, "null"));
+                    stringBuilder.append(String.format(compareMapFormat, createSpace(3), o.toString(), objectMapper.writeValueAsString(m1.get(o)), createSpace(3), -1, "null"));
             }
             differenceKey = new HashSet<>(m2.keySet());
             differenceKey.removeAll(intersection);
             if (differenceKey.size() != 0) {
-                for (int i = 0; i < space; i++) stringBuilder.append(" ");
                 for (Object o : differenceKey)
-                    stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m2.get(o)), -1, "null"));
+                    stringBuilder.append(String.format(compareMapFormat, createSpace(3), o.toString(), objectMapper.writeValueAsString(m2.get(o)), createSpace(3), -1, "null"));
             }
             if (intersection.size() != 0) {
                 for (Object o : intersection) {
                     Object o1 = m1.get(o);
                     Object o2 = m2.get(o);
+                    //TODO add WidgetCompare
+                    if (o1 == null && o2 == null) {
+                        continue;
+                    }
                     if (o1 == null || o2 == null) {
-                        if (!(o1 == null && o2 == null))
-                            for (int i = 0; i < space; i++) stringBuilder.append(" ");
-                            stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+                        stringBuilder.append(String.format(compareMapFormat, createSpace(3), o.toString(), objectMapper.writeValueAsString(m1.get(o)), createSpace(3), o, objectMapper.writeValueAsString(m2.get(o))));
                     } else if (o1 instanceof Map && o2 instanceof Map)
-                        stringBuilder.append(compareMap((Map) o1, (Map) o2, space += 2));
+                        stringBuilder.append(compareMap((Map) o1, (Map) o2));
                     else if (!(o1 instanceof Map) && !(o2 instanceof Map) && !o1.equals(o2)) {
-                        for (int i = 0; i < space; i++) stringBuilder.append(" ");
-                        stringBuilder.append(String.format(compareMapFormat, o.toString(), objectMapper.writeValueAsString(m1.get(o)), o, objectMapper.writeValueAsString(m2.get(o))));
+                        stringBuilder.append(String.format(compareMapFormat, createSpace(3), o.toString(), objectMapper.writeValueAsString(m1.get(o)), createSpace(3), o, objectMapper.writeValueAsString(m2.get(o))));
                     }
                 }
             }
